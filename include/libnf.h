@@ -1,26 +1,6 @@
 
-/* 
-* This .h file is also used to create some parts of libnf documentation 
-* the text after the macro pod<double dot> will be placed into separate file libnf.h.pod 
-* and then is included into basic libnf documentation 
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <nffile.h>
-#include <rbtree.h>
-#include <nftree.h>
-#include <nfx.h>
-#include "bit_array.h"
-
-
-/* multiple use of version for both perl and nfdump so we redefine it */
-#define NFL_VERSION VRESION
-#undef VERSION
-
-
-/* string prefix for error and warning outputs */
-#define NFL_LOG				"Net::NfDump: "
 
 /* uncommon types used by libnf */
 /* IP address, MAC address, MPLS stack */
@@ -125,80 +105,17 @@ typedef struct lnf_field_f {
 
 extern lnf_field_t lnf_fields[];
 
-/* the maximim number of fields requested from the client */
-#define NFL_MAX_FIELDS 256
 
-/* the maxumim naumber of instances (objects) that can be used in code */
-#define NFL_MAX_INSTANCES 512
-
-/* return eroror codes */
-#define NFL_NO_FREE_INSTANCES -1;
-
-/* extend NF_XX codes with code idicates thet we already to read the next record */
-#define NF_OK      1
-
-
-/* C interface */
-
-/* list of maps used in file taht we create */
-typedef struct lnf_map_list_s {
-	bit_array_t				 bit_array;
-	extension_map_t			*map;
-	struct lnf_map_list_s	*next;
-} lnf_map_list_t;
-
-
-/* structure representing a filter */
-typedef struct lnf_filter_s {
-	FilterEngine_data_t	*engine;
-} lnf_filter_t;
-
-
-/* structure representing single record */
-/* it contains two fields. Nfdump'ps master record */
-/* and bit array representing set of fields that are activated in the master ricord */
-/* master record or bit array SHOULD NEVER be used in the direct form */
-/* the structure of the field might change across versions and there is */
-/* a big probability that any future version wouldn't be compadible */
-typedef struct lnf_rec_s {
-	master_record_t *master_record;		/* reference to master record */
-	bit_array_t *extensions_arr;		/* list of extensions available in the record */
-} lnf_rec_t;
-
-
-/* structure representing single nfdump file */
-/* every nfdump file which is open for either read or write is identified by this handle */
-typedef struct lnf_file_s {
-	nffile_t 				*nffile;				/* ptr to nfdump's nffile structure */
-	int 					flags;
-#define LNF_READ	0x0		
-#define LNF_WRITE	0x1		/* file is open for writing */
-#define LNF_ANON	0x2		/* set anon flag on the file */
-#define LNF_COMP	0x4		/* the file is compressed */
-#define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
-	int 					blk_record_remains;		/* records to be processed in the current block */
-	extension_map_list_t 	*extension_map_list;	/* ptr to extmap structure */
-	lnf_map_list_t			*lnf_map_list;			/* internal list of maps (used by lnf) */
-	int						max_num_extensions;		/* the max number of extensions */
-	common_record_t 		*flow_record;			/* ptr to buffer/next record */
-//	master_record_t			*master_record;
-//	lnf_rec_t				*lnf_rec;				/* temporary */
-//	bit_array_t				extensions_arr;			/* structure initialised at the beginging to store bitt array of extensions from last record */
-	uint64_t                processed_blocks;
-	uint64_t                skipped_blocks;
-	uint64_t                processed_records;
-	uint64_t                current_processed_blocks;
-	uint64_t                processed_bytes;
-} lnf_file_t;
+#ifndef _HAVE_LIBNF_STRUCT_H_ 
+/* dummy portable handles - the comlete definition is */
+/* available at libnf_struct.h in lnf sources */
+typedef void lnf_file_t;	
+typedef void lnf_rec_t;		
+typedef void lnf_filter_t;
+#endif
 
 
  
-/* functions 
-lnf_open(hnd, file, flags, ident);
-LNF_MEM
-lnf_close(hnd);
-*/
-
 #define LNF_OK				0x0001	/* OK status */
 #define LNF_EOF 			0x0000	/* end of file */
 
@@ -220,25 +137,12 @@ lnf_close(hnd);
 #define LNF_ERR_OTHER		-0x0F00	/* cannot allocate memory  */
 
 
-//lnf_read(hnd, rechnd);
-
-/*
-lnf_write(hnd, rechnd);
-
-lnf_rclone(rec2, rec1);
-lnf_dget(rec, FIELD, &data);
-lnf_dset(rec, FIELD, &data);
-
-lnf_finit(fhnd, "filter");
-lnf_fmatch(fhnd, rec);
-lnf_fdestroy(fhnd);
-
-lnf_agrset(ahnd, num fields, fields???);
-structure { int field, bitmask } 
-
-lnf_sortset(ahnd, numfields, bitmask);
-
-*/
+/* flags for file open */
+#define LNF_READ	0x0		
+#define LNF_WRITE	0x1		/* file is open for writing */
+#define LNF_ANON	0x2		/* set anon flag on the file */
+#define LNF_COMP	0x4		/* the file is compressed */
+#define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
 
 
 /* file operations */
@@ -252,8 +156,8 @@ void lnf_close(lnf_file_t *lnf_file);
 int lnf_rec_init(lnf_rec_t **recp);
 void lnf_rec_clear(lnf_rec_t *rec);
 int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src);
-int lnf_rec_fset(lnf_rec_t *rec, int field, void * p);
-int lnf_rec_fget(lnf_rec_t *rec, int field, void * p);
+int lnf_rec_fset(lnf_rec_t *rec, int field, void *data);
+int lnf_rec_fget(lnf_rec_t *rec, int field, void *data);
 void lnf_rec_free(lnf_rec_t *rec);
 
 
@@ -268,3 +172,5 @@ void lnf_filter_free(lnf_filter_t *filter);
    ((((uint32_t *) (a))[0] == 0) && (((uint32_t *) (a))[1] == 0) && \
    (((uint32_t *) (a))[2] == 0) && (ntohl (((uint32_t *) (a))[3]) > 1))
 #endif
+
+

@@ -214,7 +214,7 @@ AUTOMAKE = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing automake-1.14
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing
+CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing -DNSEL
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
