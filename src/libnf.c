@@ -953,7 +953,6 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 			m->egress_vrfid = *((uint32_t *)p);
 			bit_array_set(e, EX_NEL_COMMON, 1);
 			return LNF_OK;
-#endif
 
 		// EX_PORT_BLOCK_ALLOC added 2014-04-19
 		case LNF_FLD_BLOCK_START:
@@ -973,6 +972,7 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 			bit_array_set(e, EX_PORT_BLOCK_ALLOC, 1);
 			return LNF_OK;
 
+#endif
 		// extra fields
 		case LNF_FLD_CLIENT_NW_DELAY_USEC:
 			m->client_nw_delay_usec = *((uint64_t *)p);
@@ -1257,7 +1257,6 @@ int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 		case LNF_FLD_EGRESS_VRFID:
 			*((uint32_t *)p) = m->egress_vrfid;
 			return bit_array_get(e, EX_NEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
-#endif
 		// EX_PORT_BLOCK_ALLOC added 2014-04-19
 		case LNF_FLD_BLOCK_START:
 			*((uint16_t *)p) = m->block_start;
@@ -1272,6 +1271,7 @@ int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 			*((uint16_t *)p) = m->block_size;
 			return bit_array_get(e, EX_PORT_BLOCK_ALLOC) ? LNF_OK : LNF_ERR_NOTSET;
 
+#endif
 		// extra fields
 		case LNF_FLD_CLIENT_NW_DELAY_USEC:
 			*((uint64_t *)p) = m->client_nw_delay_usec;

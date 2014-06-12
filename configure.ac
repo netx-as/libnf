@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_REVISION($Revision: 229 $)dnl 
-AC_INIT(nfdump, 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $, phaag@users.sourceforge.net)
+
+AC_INIT(libnf, 1.0, tpoder@cis.vutbr.cz)
 #AC_CONFIG_SRCDIR([grammar.y])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE()
@@ -75,6 +75,8 @@ AC_ARG_ENABLE(fixtimebug,
 if test "${enable_fixtimebug}" = "yes" ; then
 	CFLAGS="$CFLAGS -DFIXTIMEBUG"
 fi
+
+CFLAGS="$CFLAGS -DNSEL"
 
 AC_PROG_YACC
 AC_PROG_LEX

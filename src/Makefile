@@ -60,10 +60,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/nfdump
-pkgincludedir = $(includedir)/nfdump
-pkglibdir = $(libdir)/nfdump
-pkglibexecdir = $(libexecdir)/nfdump
+pkgdatadir = $(datadir)/libnf
+pkgincludedir = $(includedir)/libnf
+pkglibdir = $(libdir)/libnf
+pkglibexecdir = $(libexecdir)/libnf
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -211,10 +211,10 @@ AR = ar
 AUTOCONF = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoconf
 AUTOHEADER = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoheader
 AUTOMAKE = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing automake-1.14
-AWK = awk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing -DNSEL
+CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -233,7 +233,7 @@ FTS_OBJ =
 FT_INCLUDES = 
 FT_LDFLAGS = 
 GREP = /usr/bin/grep
-INSTALL = /opt/local/bin/ginstall -c
+INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
@@ -252,20 +252,20 @@ LN_S = ln -s
 LTLIBOBJS =  ${LIBOBJDIR}mktime$U.lo ${LIBOBJDIR}lstat$U.lo
 MAKEINFO = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = /opt/local/bin/gmkdir -p
+MKDIR_P = .././install-sh -c -d
 NM = /usr/bin/nm
 NMEDIT = nmedit
 OBJDUMP = false
 OBJEXT = o
 OTOOL = otool
 OTOOL64 = :
-PACKAGE = nfdump
-PACKAGE_BUGREPORT = phaag@users.sourceforge.net
-PACKAGE_NAME = nfdump
-PACKAGE_STRING = nfdump 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $
-PACKAGE_TARNAME = nfdump
+PACKAGE = libnf
+PACKAGE_BUGREPORT = tpoder@cis.vutbr.cz
+PACKAGE_NAME = libnf
+PACKAGE_STRING = libnf 1.0
+PACKAGE_TARNAME = libnf
 PACKAGE_URL = 
-PACKAGE_VERSION = 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $
+PACKAGE_VERSION = 1.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
 RRD_LIBS = 
@@ -273,7 +273,7 @@ SED = /usr/bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-VERSION = 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $
+VERSION = 1.0
 YACC = bison -y
 YFLAGS = 
 abs_builddir = /Users/tpoder/tmp/nf-tools/libnf/c/src
@@ -333,8 +333,8 @@ AM_YFLAGS = -d
 INCLUDES = $(DEPS_CFLAGS)
 LDADD = $(DEPS_LIBS)
 
-#Add extra debug info for gdb
-AM_CFLAGS = -ggdb
+#Add extra debug info for gdb and nfdump includes
+AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
 EXTRA_DIST = inline.c collector_inline.c nffile_inline.c nfdump_inline.c heapsort_inline.c applybits_inline.c
 CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 
@@ -342,8 +342,7 @@ CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
-	nf_common.c \
-	grammar.y scanner.l 
+	nf_common.c grammar.y scanner.l 
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
