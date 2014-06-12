@@ -1,0 +1,16 @@
+--- nfdump-1.6.9b2/bin/nffile_inline.c	2013-01-20 18:33:30.000000000 +0100
++++ nfdump-1.6.9b2-x1/bin/nffile_inline.c	2013-03-01 17:34:00.538296265 +0100
+@@ -665,6 +666,13 @@ int		i;
+ 				tpl->bgpPrevAdjacentAS = master_record->bgpPrevAdjacentAS;
+ 				p = (void *)tpl->data;
+ 				} break;
++			case EX_LATENCY: {
++				tpl_ext_latency_t *tpl = (tpl_ext_latency_t *)p;
++				tpl->client_nw_delay_usec = master_record->client_nw_delay_usec;
++				tpl->server_nw_delay_usec = master_record->server_nw_delay_usec;
++				tpl->appl_latency_usec = master_record->appl_latency_usec;
++				p = (void *)tpl->data;
++				} break;
+ 			case EX_RECEIVED: {
+ 				tpl_ext_27_t *tpl = (tpl_ext_27_t *)p;
+ 				tpl->received = master_record->received;
