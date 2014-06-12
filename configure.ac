@@ -378,14 +378,14 @@ char	string[16];
 #AC_CONFIG_FILES([Makefile])
 
 
-"
-* Many thanks for using nfdump tools"
-* You may want to subscribe to the nfdump-discuss and/or"
-* nfsen-discuss mailing list:"
-* http://lists.sourceforge.net/lists/listinfo/nfdump-discuss"
-* http://lists.sourceforge.net/lists/listinfo/nfsen-discuss"
-* Please send bug reports back to me: phaag@users.sourceforge.net"
-* or to one of the lists."
+
+
+
+
+
+
+
+
 
 AC_OUTPUT(Makefile src/Makefile)
 LT_INIT()

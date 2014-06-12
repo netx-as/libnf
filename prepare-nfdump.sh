@@ -40,7 +40,7 @@ cp nfdump/configure.in configure.ac
 
 echo "Removing AC_OUTPUT and text in configure.ac" 
 sed -i -e 's/AC_OUTPUT.*//g' configure.ac 
-sed -i -e 's/echo "//g' configure.ac 
+sed -i -e 's/echo ".*//g' configure.ac 
 
 echo "Adding extra configuration to configure.ac"
 echo "AC_OUTPUT(Makefile src/Makefile)" >> configure.ac 
