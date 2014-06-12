@@ -19,14 +19,14 @@ libnf_la_SOURCES=libnf.c bit_array.c \
 	grammar.y scanner.l 
 
 # Test program
-bin_PROGRAMS = dumpflds lnf_example1 lnf_example2
+#bin_PROGRAMS = dumpflds lnf_example1 lnf_example2
 
-dumpflds_SOURCES = dumpflds.c
-dumpflds_LDADD = -lnf
+#dumpflds_SOURCES = dumpflds.c
+#dumpflds_LDADD = -lnf
 
-lnf_example1_SOURCES = lnf_example1.c
-lnf_example1_LDADD = -lnf
+#lnf_example1_SOURCES = lnf_example1.c
+#lnf_example1_LDADD = -lnf
 
-lnf_example2_SOURCES = lnf_example2.c
-lnf_example2_LDADD = -lnf
+#lnf_example2_SOURCES = lnf_example2.c
+#lnf_example2_LDADD = -lnf
 

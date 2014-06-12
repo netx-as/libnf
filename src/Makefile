@@ -15,7 +15,6 @@
 
 
 
-
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
   case $${target_option-} in \
@@ -77,10 +76,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = 
-host_triplet = 
-bin_PROGRAMS = dumpflds$(EXEEXT) lnf_example1$(EXEEXT) \
-	lnf_example2$(EXEEXT)
+build_triplet = x86_64-apple-darwin13.2.0
+host_triplet = x86_64-apple-darwin13.2.0
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am grammar.h \
 	grammar.c scanner.c $(top_srcdir)/depcomp $(top_srcdir)/ylwrap
@@ -119,7 +116,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libnf_la_LIBADD =
 am_libnf_la_OBJECTS = libnf.lo bit_array.lo nffile.lo nfx.lo nftree.lo \
@@ -129,16 +126,6 @@ AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-PROGRAMS = $(bin_PROGRAMS)
-am_dumpflds_OBJECTS = dumpflds.$(OBJEXT)
-dumpflds_OBJECTS = $(am_dumpflds_OBJECTS)
-dumpflds_DEPENDENCIES =
-am_lnf_example1_OBJECTS = lnf_example1.$(OBJEXT)
-lnf_example1_OBJECTS = $(am_lnf_example1_OBJECTS)
-lnf_example1_DEPENDENCIES =
-am_lnf_example2_OBJECTS = lnf_example2.$(OBJEXT)
-lnf_example2_OBJECTS = $(am_lnf_example2_OBJECTS)
-lnf_example2_DEPENDENCIES =
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -190,10 +177,8 @@ AM_V_YACC = $(am__v_YACC_$(V))
 am__v_YACC_ = $(am__v_YACC_$(AM_DEFAULT_VERBOSITY))
 am__v_YACC_0 = @echo "  YACC    " $@;
 am__v_YACC_1 = 
-SOURCES = $(libnf_la_SOURCES) $(dumpflds_SOURCES) \
-	$(lnf_example1_SOURCES) $(lnf_example2_SOURCES)
-DIST_SOURCES = $(libnf_la_SOURCES) $(dumpflds_SOURCES) \
-	$(lnf_example1_SOURCES) $(lnf_example2_SOURCES)
+SOURCES = $(libnf_la_SOURCES)
+DIST_SOURCES = $(libnf_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -222,28 +207,28 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AR = 
+AR = ar
 AUTOCONF = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoconf
 AUTOHEADER = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoheader
 AUTOMAKE = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing automake-1.14
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing
+CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing -DNSEL
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
-DLLTOOL = 
-DSYMUTIL = 
+DLLTOOL = false
+DSYMUTIL = dsymutil
 DUMPBIN = 
 ECHO_C = \c
 ECHO_N = 
 ECHO_T = 
 EGREP = /usr/bin/grep -E
 EXEEXT = 
-FGREP = 
+FGREP = /usr/bin/grep -F
 FTS_OBJ = 
 FT_INCLUDES = 
 FT_LDFLAGS = 
@@ -253,7 +238,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = 
+LD = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
 LDFLAGS = 
 LEX = flex
 LEXLIB = -ll
@@ -261,19 +246,19 @@ LEX_OUTPUT_ROOT = lex.yy
 LFLAGS = -i
 LIBOBJS =  ${LIBOBJDIR}mktime$U.o ${LIBOBJDIR}lstat$U.o
 LIBS =  -lresolv
-LIBTOOL = 
-LIPO = 
-LN_S = 
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LIPO = lipo
+LN_S = ln -s
 LTLIBOBJS =  ${LIBOBJDIR}mktime$U.lo ${LIBOBJDIR}lstat$U.lo
 MAKEINFO = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing makeinfo
-MANIFEST_TOOL = 
+MANIFEST_TOOL = :
 MKDIR_P = /opt/local/bin/gmkdir -p
-NM = 
-NMEDIT = 
-OBJDUMP = 
+NM = /usr/bin/nm
+NMEDIT = nmedit
+OBJDUMP = false
 OBJEXT = o
-OTOOL = 
-OTOOL64 = 
+OTOOL = otool
+OTOOL64 = :
 PACKAGE = nfdump
 PACKAGE_BUGREPORT = phaag@users.sourceforge.net
 PACKAGE_NAME = nfdump
@@ -282,12 +267,12 @@ PACKAGE_TARNAME = nfdump
 PACKAGE_URL = 
 PACKAGE_VERSION = 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $
 PATH_SEPARATOR = :
-RANLIB = 
+RANLIB = ranlib
 RRD_LIBS = 
-SED = 
+SED = /usr/bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
-STRIP = 
+STRIP = strip
 VERSION = 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $
 YACC = bison -y
 YFLAGS = 
@@ -295,7 +280,7 @@ abs_builddir = /Users/tpoder/tmp/nf-tools/libnf/c/src
 abs_srcdir = /Users/tpoder/tmp/nf-tools/libnf/c/src
 abs_top_builddir = /Users/tpoder/tmp/nf-tools/libnf/c
 abs_top_srcdir = /Users/tpoder/tmp/nf-tools/libnf/c
-ac_ct_AR = 
+ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
 am__include = include
@@ -304,22 +289,22 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = 
+build = x86_64-apple-darwin13.2.0
 build_alias = 
-build_cpu = 
-build_os = 
-build_vendor = 
+build_cpu = x86_64
+build_os = darwin13.2.0
+build_vendor = apple
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = 
+host = x86_64-apple-darwin13.2.0
 host_alias = 
-host_cpu = 
-host_os = 
-host_vendor = 
+host_cpu = x86_64
+host_os = darwin13.2.0
+host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
@@ -360,12 +345,6 @@ libnf_la_SOURCES = libnf.c bit_array.c \
 	nf_common.c \
 	grammar.y scanner.l 
 
-dumpflds_SOURCES = dumpflds.c
-dumpflds_LDADD = -lnf
-lnf_example1_SOURCES = lnf_example1.c
-lnf_example1_LDADD = -lnf
-lnf_example2_SOURCES = lnf_example2.c
-lnf_example2_LDADD = -lnf
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -442,67 +421,6 @@ grammar.h: grammar.c
 
 libnf.la: $(libnf_la_OBJECTS) $(libnf_la_DEPENDENCIES) $(EXTRA_libnf_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libnf_la_OBJECTS) $(libnf_la_LIBADD) $(LIBS)
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
-	fi; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p \
-	 || test -f $$p1 \
-	  ; then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' \
-	    -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' \
-	`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
-
-dumpflds$(EXEEXT): $(dumpflds_OBJECTS) $(dumpflds_DEPENDENCIES) $(EXTRA_dumpflds_DEPENDENCIES) 
-	@rm -f dumpflds$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(dumpflds_OBJECTS) $(dumpflds_LDADD) $(LIBS)
-
-lnf_example1$(EXEEXT): $(lnf_example1_OBJECTS) $(lnf_example1_DEPENDENCIES) $(EXTRA_lnf_example1_DEPENDENCIES) 
-	@rm -f lnf_example1$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(lnf_example1_OBJECTS) $(lnf_example1_LDADD) $(LIBS)
-
-lnf_example2$(EXEEXT): $(lnf_example2_OBJECTS) $(lnf_example2_DEPENDENCIES) $(EXTRA_lnf_example2_DEPENDENCIES) 
-	@rm -f lnf_example2$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(lnf_example2_OBJECTS) $(lnf_example2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -511,11 +429,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include ./$(DEPDIR)/bit_array.Plo
-include ./$(DEPDIR)/dumpflds.Po
 include ./$(DEPDIR)/grammar.Plo
 include ./$(DEPDIR)/libnf.Plo
-include ./$(DEPDIR)/lnf_example1.Po
-include ./$(DEPDIR)/lnf_example2.Po
 include ./$(DEPDIR)/minilzo.Plo
 include ./$(DEPDIR)/nf_common.Plo
 include ./$(DEPDIR)/nffile.Plo
@@ -641,11 +556,9 @@ distdir: $(DISTFILES)
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
-install-binPROGRAMS: install-libLTLIBRARIES
-
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -686,8 +599,8 @@ maintainer-clean-generic:
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -713,7 +626,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+install-exec-am: install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -753,16 +666,15 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
+uninstall-am: uninstall-libLTLIBRARIES
 
 .MAKE: all check install install-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool cscopelist-am ctags ctags-am distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
+.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
+	clean-libLTLIBRARIES clean-libtool cscopelist-am ctags \
+	ctags-am distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-libLTLIBRARIES install-man install-pdf \
@@ -770,9 +682,20 @@ uninstall-am: uninstall-binPROGRAMS uninstall-libLTLIBRARIES
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-libLTLIBRARIES
+	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES
 
+
+# Test program
+#bin_PROGRAMS = dumpflds lnf_example1 lnf_example2
+
+#dumpflds_SOURCES = dumpflds.c
+#dumpflds_LDADD = -lnf
+
+#lnf_example1_SOURCES = lnf_example1.c
+#lnf_example1_LDADD = -lnf
+
+#lnf_example2_SOURCES = lnf_example2.c
+#lnf_example2_LDADD = -lnf
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -7,6 +7,7 @@ AC_INIT(nfdump, 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $, ph
 #AC_CONFIG_SRCDIR([grammar.y])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE()
+LT_INIT()
  
 # Checks for programs.
 AC_PROG_CC
@@ -388,4 +389,3 @@ char	string[16];
 
 
 AC_OUTPUT(Makefile src/Makefile)
-LT_INIT()
