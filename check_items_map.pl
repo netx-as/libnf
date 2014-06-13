@@ -21,14 +21,14 @@ my @ITEMS_MAP = (
 # The file where map extensions are described 
 # this file should contain text descriptions for 
 # extensions. 
-my $MAP_DESCR_FILE = "../nfdump/bin/nfx.c";
+my $MAP_DESCR_FILE = "nfdump/bin/nfx.c";
 
 
 # the file where master_record structure is defined 
-my $MASTER_RECORD_FILE = "../nfdump/bin/nffile.h";
+my $MASTER_RECORD_FILE = "nfdump/bin/nffile.h";
 
 # path to libnf C and H source files
-my $LIBNF_C_FILE = "libnf.c";
+my $LIBNF_C_FILE = "src/libnf.c";
 
 
 # The perl structure parsed from 

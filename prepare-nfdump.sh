@@ -80,7 +80,19 @@ done
 
 echo ""
 echo "##########################################################"
-echo "# STAGE 2: creating final ./configure and Makefiles      #"
+echo "# STAGE 3: checking definitions of all items in libnf    #"
 echo "##########################################################"
-./bootstrap
+echo ""
+./check_items_map.pl || exit 1
+
+echo ""
+echo "##########################################################"
+echo "# STAGE 4: creating final ./configure and Makefiles      #"
+echo "##########################################################"
+./bootstrap || exit 1
+
+echo ""
+echo "##########################################################"
+echo "# OK: it seems that all steps went well                  #"
+echo "##########################################################"
 
