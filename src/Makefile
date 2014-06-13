@@ -122,7 +122,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libnf_la_LIBADD =
 am_libnf_la_OBJECTS = libnf.lo bit_array.lo nffile.lo nfx.lo nftree.lo \
-	minilzo.lo nf_common.lo grammar.lo scanner.lo
+	minilzo.lo nf_common.lo grammar.lo scanner.lo util.lo \
+	ipconv.lo
 libnf_la_OBJECTS = $(am_libnf_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -217,7 +218,7 @@ AR = ar
 AUTOCONF = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoconf
 AUTOHEADER = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing autoheader
 AUTOMAKE = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing automake-1.14
-AWK = awk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2 -Wall -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wmissing-noreturn -fno-strict-aliasing -DNSEL
@@ -239,7 +240,7 @@ FTS_OBJ =
 FT_INCLUDES = 
 FT_LDFLAGS = 
 GREP = /usr/bin/grep
-INSTALL = /opt/local/bin/ginstall -c
+INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
@@ -258,7 +259,7 @@ LN_S = ln -s
 LTLIBOBJS =  ${LIBOBJDIR}mktime$U.lo ${LIBOBJDIR}lstat$U.lo
 MAKEINFO = ${SHELL} /Users/tpoder/tmp/nf-tools/libnf/c/missing makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = /opt/local/bin/gmkdir -p
+MKDIR_P = .././install-sh -c -d
 NM = /usr/bin/nm
 NMEDIT = nmedit
 OBJDUMP = false
@@ -348,7 +349,8 @@ CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
-	nf_common.c grammar.y scanner.l 
+	nf_common.c grammar.y scanner.l \
+	util.c ipconv.c 
 
 libnf_info_SOURCES = libnf-info.c
 libnf_info_LDADD = -lnf
@@ -490,6 +492,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/bit_array.Plo
 include ./$(DEPDIR)/grammar.Plo
+include ./$(DEPDIR)/ipconv.Plo
 include ./$(DEPDIR)/libnf-info.Po
 include ./$(DEPDIR)/libnf.Plo
 include ./$(DEPDIR)/minilzo.Plo
@@ -498,6 +501,7 @@ include ./$(DEPDIR)/nffile.Plo
 include ./$(DEPDIR)/nftree.Plo
 include ./$(DEPDIR)/nfx.Plo
 include ./$(DEPDIR)/scanner.Plo
+include ./$(DEPDIR)/util.Plo
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -15,7 +15,8 @@ CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 lib_LTLIBRARIES=libnf.la
 libnf_la_SOURCES=libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
-	nf_common.c grammar.y scanner.l 
+	nf_common.c grammar.y scanner.l \
+	util.c ipconv.c 
 
 # Simple infor program 
 bin_PROGRAMS = libnf-info

@@ -2,6 +2,7 @@
 #define NEED_PACKRECORD 1 
 #define _LIBNF_C_ 1
 
+
 #include "config.h"
 
 #include <stdio.h>
@@ -68,15 +69,15 @@ extern extension_descriptor_t extension_descriptor[];
 lnf_field_t lnf_fields[] = {
 // pod:  =====================
 	{LNF_FLD_FIRST, 		"first",	"Timestamp of the first packet seen (in miliseconds)"},
-	{LNF_FLD_LAST,		"last",		"Timestamp of the last packet seen (in miliseconds)"},
-	{LNF_FLD_RECEIVED,	"received",	"Timestamp regarding when the packet was received by collector"},
+	{LNF_FLD_LAST,			"last",		"Timestamp of the last packet seen (in miliseconds)"},
+	{LNF_FLD_RECEIVED,		"received",	"Timestamp regarding when the packet was received by collector"},
 // pod:
 // pod:  Statistical items
 // pod:  =====================
-	{LNF_FLD_DOCTETS,	"bytes",	"The number of bytes"},
-	{LNF_FLD_DPKTS,		"pkts",		"The number of packets"},
-	{LNF_FLD_OUT_BYTES,	"outbytes",	"The number of output bytes"},
-	{LNF_FLD_OUT_PKTS,	"outpkts",	"The number of output packets"},
+	{LNF_FLD_DOCTETS,		"bytes",	"The number of bytes"},
+	{LNF_FLD_DPKTS,			"pkts",		"The number of packets"},
+	{LNF_FLD_OUT_BYTES,		"outbytes",	"The number of output bytes"},
+	{LNF_FLD_OUT_PKTS,		"outpkts",	"The number of output packets"},
 	{LNF_FLD_AGGR_FLOWS,	"flows",	"The number of flows (aggregated)"},
 // pod:
 // pod:  Layer 4 information
@@ -89,7 +90,7 @@ lnf_field_t lnf_fields[] = {
 // pod:  =====================
 	{LNF_FLD_SRCADDR,		"srcip",		"Source IP address"},
 	{LNF_FLD_DSTADDR,		"dstip",		"Destination IP address"},
-	{LNF_FLD_IP_NEXTHOP,		"nexthop",		"IP next hop"},
+	{LNF_FLD_IP_NEXTHOP,	"nexthop",		"IP next hop"},
 	{LNF_FLD_SRC_MASK,		"srcmask",		"Source mask"}, 
 	{LNF_FLD_DST_MASK,		"dstmask",		"Destination mask"}, 
 	{LNF_FLD_TOS,			"tos",			"Source type of service"}, 
@@ -105,21 +106,21 @@ lnf_field_t lnf_fields[] = {
 // pod:  =====================
 	{LNF_FLD_SRC_VLAN,		"srcvlan",		"Source vlan label"},
 	{LNF_FLD_DST_VLAN,		"dstvlan",		"Destination vlan label"}, 
-	{LNF_FLD_IN_SRC_MAC,		"insrcmac",		"In source MAC address"},
+	{LNF_FLD_IN_SRC_MAC,	"insrcmac",		"In source MAC address"},
 	{LNF_FLD_OUT_SRC_MAC,	"outsrcmac",	"Out destination MAC address"},
-	{LNF_FLD_IN_DST_MAC,		"indstmac",		"In destination MAC address"}, 
+	{LNF_FLD_IN_DST_MAC,	"indstmac",		"In destination MAC address"}, 
 	{LNF_FLD_OUT_DST_MAC,	"outdstmac",	"Out source MAC address"}, 
 // pod:
 // pod:  MPLS information
 // pod:  =====================
-	{LNF_FLD_MPLS_LABEL,		"mpls",		"MPLS labels"},
+	{LNF_FLD_MPLS_LABEL,	"mpls",		"MPLS labels"},
 // pod:
 // pod:  Layer 1 information
 // pod:  =====================
 	{LNF_FLD_INPUT,			"inif",		"SNMP input interface number"},
-	{LNF_FLD_OUTPUT,			"outif",	"SNMP output interface number"},
+	{LNF_FLD_OUTPUT,		"outif",	"SNMP output interface number"},
 	{LNF_FLD_DIR,			"dir",		"Flow directions ingress/egress"}, 
-	{LNF_FLD_FWD_STATUS,		"fwd",		"Forwarding status"},
+	{LNF_FLD_FWD_STATUS,	"fwd",		"Forwarding status"},
 // pod:
 // pod:  Exporter information
 // pod:  =====================
@@ -130,43 +131,43 @@ lnf_field_t lnf_fields[] = {
 // pod:  NSEL fields, see: http://www.cisco.com/en/US/docs/security/asa/asa81/netflow/netflow.html
 // pod:  =====================
 	{LNF_FLD_EVENT_TIME,		"eventtime",	"NSEL The time that the flow was created"},
-	{LNF_FLD_CONN_ID,		"connid",		"NSEL An identifier of a unique flow for the device"},
-	{LNF_FLD_ICMP_CODE,		"icmpcode",		"NSEL ICMP code value"},
-	{LNF_FLD_ICMP_TYPE,		"icmptype",		"NSEL ICMP type value"},
-	{LNF_FLD_FW_XEVENT,		"xevent",		"NSEL Extended event code"},
+	{LNF_FLD_CONN_ID,			"connid",		"NSEL An identifier of a unique flow for the device"},
+	{LNF_FLD_ICMP_CODE,			"icmpcode",		"NSEL ICMP code value"},
+	{LNF_FLD_ICMP_TYPE,			"icmptype",		"NSEL ICMP type value"},
+	{LNF_FLD_FW_XEVENT,			"xevent",		"NSEL Extended event code"},
 	{LNF_FLD_XLATE_SRC_IP,		"xsrcip",	"NSEL Mapped source IPv4 address"},
 	{LNF_FLD_XLATE_DST_IP,		"xdstip",	"NSEL Mapped destination IPv4 address"},
 	{LNF_FLD_XLATE_SRC_PORT,	"xsrcport",	"NSEL Mapped source port"},
-	{LNF_FLD_XLATE_DST_PORT,		"xdstport",	"NSEL Mapped destination port"},
+	{LNF_FLD_XLATE_DST_PORT,	"xdstport",	"NSEL Mapped destination port"},
 // pod: NSEL The input ACL that permitted or denied the flow
-	{LNF_FLD_INGRESS_ACL_ID,		"iacl",		"Hash value or ID of the ACL name"},
-	{LNF_FLD_INGRESS_ACE_ID,		"iace", 	"Hash value or ID of the ACL name"},
+	{LNF_FLD_INGRESS_ACL_ID,	"iacl",		"Hash value or ID of the ACL name"},
+	{LNF_FLD_INGRESS_ACE_ID,	"iace", 	"Hash value or ID of the ACL name"},
 	{LNF_FLD_INGRESS_XACE_ID,	"ixace",	"Hash value or ID of an extended ACE configuration"},
 // pod: NSEL The output ACL that permitted or denied a flow  
 	{LNF_FLD_EGRESS_ACL_ID,		"eacl",		"Hash value or ID of the ACL name"},
 	{LNF_FLD_EGRESS_ACE_ID,		"eace",		"Hash value or ID of the ACL name"},
-	{LNF_FLD_EGRESS_XACE_ID,		"exace",	"Hash value or ID of an extended ACE configuration"},
+	{LNF_FLD_EGRESS_XACE_ID,	"exace",	"Hash value or ID of an extended ACE configuration"},
 	{LNF_FLD_USERNAME,			"username",	"NSEL username"},
 // pod:
 // pod:  NEL (NetFlow Event Logging) fields
 // pod:  =====================
 	{LNF_FLD_INGRESS_VRFID,		"ingressvrfid",		"NEL NAT ingress vrf id"},
-	{LNF_FLD_EVENT_FLAG,			"eventflag",		"NAT event flag (always set to 1 by nfdump)"},
+	{LNF_FLD_EVENT_FLAG,		"eventflag",		"NAT event flag (always set to 1 by nfdump)"},
 	{LNF_FLD_EGRESS_VRFID,		"egressvrfid",		"NAT egress VRF ID"},
 	{LNF_FLD_BLOCK_START,		"blockstart",		"NAT pool block start"},
 // pod:
 // pod:  NEL Port Block Allocation (added 2014-04-19)
 // pod:  =====================
 	{LNF_FLD_BLOCK_END,			"blockend",			"NAT pool block end"},
-	{LNF_FLD_BLOCK_STEP,			"blockstep",		"NAT pool block step"},
-	{LNF_FLD_BLOCK_SIZE,			"blocksize",		"NAT pool block size"},
+	{LNF_FLD_BLOCK_STEP,		"blockstep",		"NAT pool block step"},
+	{LNF_FLD_BLOCK_SIZE,		"blocksize",		"NAT pool block size"},
 // pod:
 // pod:  Extra/special fields
 // pod:  =====================
 	{LNF_FLD_CLIENT_NW_DELAY_USEC,		"cl",	"nprobe latency client_nw_delay_usec"},
 	{LNF_FLD_SERVER_NW_DELAY_USEC,		"sl",	"nprobe latency server_nw_delay_usec"},
 	{LNF_FLD_APPL_LATENCY_USEC,			"al",	"nprobe latency appl_latency_usec"},
-	{LNF_FLD_ZERO,						"__last_item_in_list__",	""}
+	{LNF_FLD_ZERO,						NULL,	NULL}
 };
 
 
@@ -213,6 +214,67 @@ int lnf_open(lnf_file_t **lnf_filep, char * filename, unsigned int flags, char *
 
 	return LNF_OK;
 }
+
+/* fill info structure */
+void lnf_info(lnf_file_t *lnf_file, lnf_info_t *i) {
+
+	file_header_t *h;
+	stat_record_t *s;
+
+	memset(i, 0x0, sizeof(lnf_info_t));
+
+	i->libnf_version = VERSION;
+	i->nfdump_version = NFDUMP_VERSION;
+	i->libnf_fields = lnf_fields;
+
+
+	if (lnf_file == NULL || lnf_file->nffile == NULL || lnf_file->nffile->file_header == NULL) {
+		return ;
+	}
+
+	h = lnf_file->nffile->file_header;
+
+	i->version = h->version;
+	i->blocks = h->NumBlocks;
+	i->compressed = h->flags & FLAG_COMPRESSED;
+	i->anonymized = h->flags & FLAG_ANONYMIZED;
+	i->catalog = h->flags & FLAG_CATALOG;
+	i->ident = h->ident;
+
+
+	if (lnf_file->nffile->stat_record == NULL) {
+		return ;
+	}
+
+	s = lnf_file->nffile->stat_record;
+
+	i->first =  s->first_seen * 1000LL + s->msec_first;
+	i->last = s->last_seen * 1000LL + s->msec_last;
+	i->failures = s->sequence_failure;
+
+	i->flows = s->numflows;
+	i->bytes = s->numbytes;
+	i->packets = s->numpackets;
+
+	i->flows_tcp = s->numflows_tcp;
+	i->bytes_tcp = s->numbytes_tcp;
+	i->packets_tcp = s->numpackets_tcp;
+
+	i->flows_udp = s->numflows_udp;
+	i->bytes_udp = s->numbytes_udp;
+	i->packets_udp = s->numpackets_udp;
+
+	i->flows_icmp = s->numflows_icmp;
+	i->bytes_icmp = s->numbytes_icmp;
+	i->packets_icmp = s->numpackets_icmp;
+
+	i->flows_other = s->numflows_other;
+	i->bytes_other = s->numbytes_other;
+	i->packets_other = s->numpackets_other;
+
+	return ;
+}
+
 
 /* close file handler and release related structures */
 void lnf_close(lnf_file_t *lnf_file) {

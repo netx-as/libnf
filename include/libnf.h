@@ -68,7 +68,7 @@ typedef struct lnf_mpls { uint32_t data[10]; } lnf_mpls_t;
 #define LNF_FLD_FWD_STATUS		0x300008
 #define LNF_FLD_IP_ROUTER		0x3100a1
 #define LNF_FLD_ENGINE_TYPE		0x320008
-#define LNF_FLD_ENGINE_ID		0x330008
+#define LNF_FLD_ENGINE_ID		0x3a0008
 #define LNF_FLD_EVENT_TIME		0x340064
 #define LNF_FLD_CONN_ID			0x350032
 #define LNF_FLD_ICMP_CODE		0x360008
@@ -97,13 +97,59 @@ typedef struct lnf_mpls { uint32_t data[10]; } lnf_mpls_t;
 #define LNF_FLD_APPL_LATENCY_USEC		0x590064
 
 /* text description of fields */
-typedef struct lnf_field_f {
+typedef struct lnf_field_s {
 	int index;			/* numerical index of field */
 	char *name;			/* field name */
 	char *fld_descr;	/* short description */
 } lnf_field_t;
 
-extern lnf_field_t lnf_fields[];
+/* info structure returned by lnf_info function */
+typedef struct lnf_info_s {
+
+	/* pointer to array of lnf_field structure */
+	/* fields that are supported by the libnf */
+	char*		libnf_version;			
+	char*		nfdump_version;			
+	lnf_field_t*	libnf_fields;			
+
+	/* file info & statistics */	
+	uint64_t	version;		/* file version */
+	uint64_t	blocks;			/* number of blocks */
+	int			compressed;		/* is compressed */
+	int			anonymized;		/* is anonymized */
+	int			catalog;		/* have catalog */
+	char*		ident;			/* file string identificator - NULL if not supported */
+
+	uint64_t	first;			/* timestamp of first stored packet (in miliseconds) */
+	uint64_t	last;			/* timestamp of last stored packet (in miliseconds) */
+	uint64_t	failures;		/* number of sequence failures  */
+
+	uint64_t	flows;			/* stored flow statistics */
+	uint64_t	bytes;
+	uint64_t	packets;
+
+	uint64_t	flows_tcp;		/* per basic protocol statistics  */
+	uint64_t	bytes_tcp;
+	uint64_t	packets_tcp;
+	
+	uint64_t	flows_udp;		
+	uint64_t	bytes_udp;
+	uint64_t	packets_udp;
+
+	uint64_t	flows_icmp;		
+	uint64_t	bytes_icmp;
+	uint64_t	packets_icmp;
+
+	uint64_t	flows_other;		
+	uint64_t	bytes_other;
+	uint64_t	packets_other;
+
+	/* statistics updated during processing file via lnf_read */
+	uint64_t	proc_blocks;	
+	uint64_t	proc_bytes;	
+	uint64_t	proc_records;	
+
+} lnf_info_t;
 
 
 #ifndef _HAVE_LIBNF_STRUCT_H_ 
@@ -113,7 +159,6 @@ typedef void lnf_file_t;
 typedef void lnf_rec_t;		
 typedef void lnf_filter_t;
 #endif
-
 
  
 #define LNF_OK				0x0001	/* OK status */
@@ -147,6 +192,7 @@ typedef void lnf_filter_t;
 
 /* file operations */
 int lnf_open(lnf_file_t **lnf_filep, char * filename, unsigned int flags, char * ident);
+void lnf_info(lnf_file_t *lnf_file, lnf_info_t *lnf_info);
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 void lnf_close(lnf_file_t *lnf_file);

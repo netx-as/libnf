@@ -1,15 +1,17 @@
 
 #include "libnf.h"
-#include "config.h"
-
 
 int main (void) {
 
-	int i = 0;
-	lnf_field_t *f = lnf_fields;
+	lnf_info_t i;
+	lnf_field_t *f;
 
-	printf("libnf version: %s\n", VERSION);
-	printf("libnf based on nfdump: %s\n", NFDUMP_VERSION);
+	lnf_info(NULL, &i);
+
+	printf("libnf version: %s\n", i.libnf_version);
+	printf("libnf based on nfdump: %s\n", i.nfdump_version);
+
+	f = i.libnf_fields;
 
 	printf("Supported items:\n");
 	while (f->index != 0) {
