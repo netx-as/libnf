@@ -17,15 +17,10 @@ libnf_la_SOURCES=libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
 	nf_common.c grammar.y scanner.l 
 
-# Test program
-#bin_PROGRAMS = dumpflds lnf_example1 lnf_example2
+# Simple infor program 
+bin_PROGRAMS = libnf-info
 
-#dumpflds_SOURCES = dumpflds.c
-#dumpflds_LDADD = -lnf
+libnf_info_SOURCES = libnf-info.c
+libnf_info_LDADD = -lnf
 
-#lnf_example1_SOURCES = lnf_example1.c
-#lnf_example1_LDADD = -lnf
-
-#lnf_example2_SOURCES = lnf_example2.c
-#lnf_example2_LDADD = -lnf
 

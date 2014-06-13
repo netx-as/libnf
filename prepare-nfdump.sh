@@ -1,9 +1,12 @@
 #!/bin/sh 
 
+LIBNF_VERSION="0.99"
+
 NFDUMP="nfdump-1.6.12"
 NFDUMP_MD5="e55a9130c93cfb9ed24b01bccd691bcb"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="http://downloads.sourceforge.net/project/nfdump/stable/$NFDUMP/$NFDUMP_SRC"
+
 
 echo ""
 echo "##########################################################"
@@ -49,8 +52,11 @@ perl -pi -w -e 's/(AM_INIT_AUTOMAKE.*)/$1\nLT_INIT()/g;' configure.ac
 echo "Replacing AC_REVISIONin configure.ac" 
 sed -i -e 's/AC_REVISION.*//g' configure.ac 	#makefiles
 
-echo "Replacing AC_INIT in configure.ac" 
-sed -i -e 's/AC_INIT.*/AC_INIT(libnf, 1.0, tpoder@cis.vutbr.cz)/g' configure.ac 	#makefiles
+echo "Changing AC_INIT to AC_DEFINE in configure.ac" 
+perl -pi -w -e 's/AC_INIT\((.*)\)/AC_DEFINE\(NFDUMP_VERSION,["$1"],[nfdump]\)/g;' configure.ac 
+
+echo "Adding own AC_INIT in configure.ac" 
+perl -pi -w -e 's/(AC_PREREQ.*)/$1\nAC_INIT\(libnf, '${LIBNF_VERSION}', tpoder\@cis.vutbr.cz\)/g;' configure.ac 
 
 echo "Enabling NEL/NSEL in configure.ac" 
 perl -pi -w -e 's/(AC_PROG_YACC)/CFLAGS="\$CFLAGS -DNSEL"\n\n$1/g;' configure.ac 
