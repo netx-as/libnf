@@ -68,7 +68,7 @@ sed -i -e 's/echo ".*//g' configure.ac 		#comments
 
 echo "Adding extra configuration into configure.ac"
 cat >> configure.ac << EOT 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)
 EOT
 
 

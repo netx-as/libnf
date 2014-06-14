@@ -391,4 +391,4 @@ char	string[16];
 
 
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)
