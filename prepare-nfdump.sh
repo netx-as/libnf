@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-LIBNF_VERSION="0.99_02"
+LIBNF_VERSION="1.01"
 
 NFDUMP="nfdump-1.6.12"
 NFDUMP_MD5="e55a9130c93cfb9ed24b01bccd691bcb"
@@ -69,6 +69,14 @@ sed -i -e 's/echo ".*//g' configure.ac 		#comments
 echo "Adding extra configuration into configure.ac"
 cat >> configure.ac << EOT 
 AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)
+
+echo ""
+echo "The libnf extends the source code of nfdump tool"
+echo "developed by Peter Haag. Unmodified nfdump sources are"
+echo "placed in the nfudump directory that is distributed"
+echo "together with libnf package. Thanks for using libnf."
+echo "For more info visit http://libnf.net."
+echo ""
 EOT
 
 

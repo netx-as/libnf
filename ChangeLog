@@ -1,4 +1,12 @@
-Revision history for Perl extension Net::NfDump.
+Revision history for C and Perl extension of nfdump.
+
+1.01 2014-06-15
+	- source code strcitly separated into autonomous 
+	  package (libnf-xxx, universal C API) and perl 
+	  Net::NfDump module that is placed on top of the C API
+	- resedigned build system 
+	- prepared for new features (aggregation, sorting, ...) 
+	- changes inspired by Vasek Bartos and his libnfdump code 
 
 0.14 2014-04-24
 	- examples updated to use last version of Net::IP::LPM

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 0.99_02, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.01, tpoder@cis.vutbr.cz)
 
 AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed, 02 Apr 2014) $, phaag@users.sourceforge.net"],[nfdump])
 #AC_CONFIG_SRCDIR([grammar.y])
@@ -392,3 +392,11 @@ char	string[16];
 
 
 AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)
+
+echo ""
+echo "The libnf extends the source code of nfdump tool"
+echo "developed by Peter Haag. Unmodified nfdump sources are"
+echo "placed in the nfudump directory that is distributed"
+echo "together with libnf package. Thanks for using libnf."
+echo "For more info visit http://libnf.net."
+echo ""
