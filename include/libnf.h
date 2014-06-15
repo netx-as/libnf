@@ -189,9 +189,11 @@ typedef void lnf_filter_t;
 #define LNF_COMP	0x4		/* the file is compressed */
 #define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
 
+/* other functions */
+void lnf_error(char *buf, int buflen);
 
 /* file operations */
-int lnf_open(lnf_file_t **lnf_filep, char * filename, unsigned int flags, char * ident);
+int lnf_open(lnf_file_t **lnf_filep, char *filename, unsigned int flags, char *ident);
 void lnf_info(lnf_file_t *lnf_file, lnf_info_t *lnf_info);
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);

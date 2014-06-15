@@ -7,7 +7,7 @@ LDADD = $(DEPS_LIBS)
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
 
-EXTRA_DIST = libnf_struct.h bit_array.h
+EXTRA_DIST = libnf_struct.h bit_array.h util.h
 #EXTRA_DIST = inline.c collector_inline.c nffile_inline.c nfdump_inline.c heapsort_inline.c applybits_inline.c
 
 CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
@@ -17,7 +17,7 @@ lib_LTLIBRARIES=libnf.la
 libnf_la_SOURCES=libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
 	nf_common.c grammar.y scanner.l \
-	util.c ipconv.c 
+	ipconv.c 
 
 # Simple infor program 
 bin_PROGRAMS = libnf-info

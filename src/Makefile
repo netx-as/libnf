@@ -122,8 +122,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libnf_la_LIBADD =
 am_libnf_la_OBJECTS = libnf.lo bit_array.lo nffile.lo nfx.lo nftree.lo \
-	minilzo.lo nf_common.lo grammar.lo scanner.lo util.lo \
-	ipconv.lo
+	minilzo.lo nf_common.lo grammar.lo scanner.lo ipconv.lo
 libnf_la_OBJECTS = $(am_libnf_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -211,13 +210,13 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /Users/tpoder/nf-tools/libnf/c/missing aclocal-1.14
+ACLOCAL = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /Users/tpoder/nf-tools/libnf/c/missing autoconf
-AUTOHEADER = ${SHELL} /Users/tpoder/nf-tools/libnf/c/missing autoheader
-AUTOMAKE = ${SHELL} /Users/tpoder/nf-tools/libnf/c/missing automake-1.14
+AUTOCONF = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/missing autoconf
+AUTOHEADER = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/missing autoheader
+AUTOMAKE = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/missing automake-1.14
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -257,7 +256,7 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = lipo
 LN_S = ln -s
 LTLIBOBJS =  ${LIBOBJDIR}mktime$U.lo ${LIBOBJDIR}lstat$U.lo
-MAKEINFO = ${SHELL} /Users/tpoder/nf-tools/libnf/c/missing makeinfo
+MAKEINFO = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = .././install-sh -c -d
 NM = /usr/bin/nm
@@ -283,10 +282,10 @@ STRIP = strip
 VERSION = 0.99
 YACC = bison -y
 YFLAGS = 
-abs_builddir = /Users/tpoder/nf-tools/libnf/c/src
-abs_srcdir = /Users/tpoder/nf-tools/libnf/c/src
-abs_top_builddir = /Users/tpoder/nf-tools/libnf/c
-abs_top_srcdir = /Users/tpoder/nf-tools/libnf/c
+abs_builddir = /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/src
+abs_srcdir = /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/src
+abs_top_builddir = /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf
+abs_top_srcdir = /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -315,7 +314,7 @@ host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/tpoder/nf-tools/libnf/c/install-sh
+install_sh = ${SHELL} /Users/tpoder/nf-tools/libnf/perl/Net-NfDump/libnf/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -342,7 +341,7 @@ LDADD = $(DEPS_LIBS)
 
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
-EXTRA_DIST = libnf_struct.h bit_array.h
+EXTRA_DIST = libnf_struct.h bit_array.h util.h
 #EXTRA_DIST = inline.c collector_inline.c nffile_inline.c nfdump_inline.c heapsort_inline.c applybits_inline.c
 CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 
@@ -351,7 +350,7 @@ lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c \
 	nffile.c nfx.c nftree.c minilzo.c \
 	nf_common.c grammar.y scanner.l \
-	util.c ipconv.c 
+	ipconv.c 
 
 libnf_info_SOURCES = libnf-info.c
 libnf_info_LDADD = -lnf
@@ -502,7 +501,6 @@ include ./$(DEPDIR)/nffile.Plo
 include ./$(DEPDIR)/nftree.Plo
 include ./$(DEPDIR)/nfx.Plo
 include ./$(DEPDIR)/scanner.Plo
-include ./$(DEPDIR)/util.Plo
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

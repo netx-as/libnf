@@ -65,3 +65,6 @@ typedef struct lnf_file_s {
 
 extension_map_t * lnf_lookup_map(lnf_file_t *lnf_file, bit_array_t *ext );
 
+/* nfdump uses LogError - we map it to lnf_seterror */
+void lnf_seterror(char *format, ...);
+

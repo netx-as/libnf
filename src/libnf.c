@@ -2,10 +2,10 @@
 #define NEED_PACKRECORD 1 
 #define _LIBNF_C_ 1
 
-
 #include "config.h"
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -38,8 +38,8 @@
 #include "nfstat.h"
 #include "nfexport.h"
 #include "ipconv.h"
-#include "util.h"
 #include "flist.h"
+#include "util.h"
 
 #include "libnf_struct.h"
 #include "libnf.h"
@@ -62,6 +62,7 @@
 
 /* Global Variables */
 extern extension_descriptor_t extension_descriptor[];
+char error_str[LNF_MAX_STRING];
 
 #define FLOW_RECORD_NEXT(x) x = (common_record_t *)((pointer_addr_t)x + x->size)
 
@@ -1381,4 +1382,35 @@ void lnf_filter_free(lnf_filter_t *filter) {
 	/* TODO nfdump do not have code to release filter :-( */
 }
 
+/************************************************************/
+/* Errrr handling - needs to be updated for threades        */
+/************************************************************/
 
+/* set error string */
+void lnf_seterror(char *format, ...) {
+va_list args;
+
+	va_start(args, format);
+	vsnprintf(error_str, LNF_MAX_STRING - 1, format, args);
+	va_end(args);
+}
+
+/* compatibility with nfdump */
+/* cannot be a macro - is reverence from other files */
+void LogError(char *format, ...) {
+va_list args;
+	va_start(args, format);
+	lnf_seterror(format, args);
+	va_end(args);
+}
+
+/* empry functions - required by nfdump */
+void LogInfo(char *format, ...) { }
+void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
+
+/* get error string */
+void lnf_error(char *buf, int buflen) {
+
+	strncpy(buf, error_str, buflen - 1);
+
+}

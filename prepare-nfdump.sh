@@ -73,7 +73,7 @@ EOT
 
 
 FILES="nffile.c nfx.c nftree.c minilzo.c nf_common.c grammar.y scanner.l \
-		  util.c ipconv.c"
+		  ipconv.c"
 echo "Creating symlinks for $FILES"
 for f in $FILES ; do
 	(cd src && rm -f $f && ln -s ../nfdump/bin/$f && cd ..) || exit 1
