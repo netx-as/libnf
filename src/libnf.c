@@ -41,7 +41,7 @@
 #include "flist.h"
 #include "util.h"
 
-#include "libnf_struct.h"
+#include "libnf_internal.h"
 #include "libnf.h"
 
 #include <stdio.h>
