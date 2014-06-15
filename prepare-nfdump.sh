@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-LIBNF_VERSION="0.99"
+LIBNF_VERSION="0.99_02"
 
 NFDUMP="nfdump-1.6.12"
 NFDUMP_MD5="e55a9130c93cfb9ed24b01bccd691bcb"

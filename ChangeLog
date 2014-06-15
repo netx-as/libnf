@@ -1,4 +1,82 @@
+Revision history for Perl extension Net::NfDump.
 
-2014-06-12
-	- Initial C version based on perl Net::NfDump library 
+0.14 2014-04-24
+	- examples updated to use last version of Net::IP::LPM
+
+0.13 2014-04-20
+	- adjusted to nfdump 1.6.12
+	- support for new record type introdouced by nfdump 1.6.12
+	- transparently reads record types from previous nfdump 
+	- created files are always with the new record type 
+	- !! files created by this version mus be read by nfdump >= 1.6.12
+	- support for new fields (ingress_vrfid, egress_vrfid, event_flag
+	  block_start, block_end, block_step, block_size)
+	- flow_start item changed to event_time 
+	- fw_event removed (use fw_xevent instead) 
+	- doc extended with info about aggregation 
+
+0.11 2013-11-26
+	- adjusted to nfdump 1.6.11
+
+0.10 2013-09-12
+	- decreased test length 
+
+0.09 2013-08-13
+	- adjusted to nfdump 1.6.10p1
+
+0.08 2013-06-06
+	- removed bug in TimeWindowStart, thanks to Pavel Sejnoha
+
+0.07 2013-05-21
+	- removed bug in examples, thanks to James Deaton 
+	- updated to nfdump 1.6.10
+
+0.05 2013-05-03
+	- language corrections
+
+0.05 2013-03-16
+	- silently skip known (but not supported) blocks 
+	- example added (update AS info)
+
+0.04 2013-03-03
+	- the first stable version 
+
+0.03_02 2013-03-03
+	- the version of nfdump updated to 1.6.9
+
+0.03_01 2013-02-28
+	- NEL, NSEL support added 
+	- a few bugs removed
+
+0.02_05 2013-02-26
+	- example1.pl added 
+	- documenation updated 
+
+0.02_04 2013-02-24
+	- a few bugs removed 
+	- clonerow added 
+	- InputFiles and Fields can by handled as a reference to list or comma separated list 
+
+0.02_01 2013-02-11
+	- hasharray functions added
+	- performance optimalisation (4x faster) 
+
+0.01_06 2013-01-20
+	- nfdump source codes added into distribution 
+	- fixes for libnf on OpenBSD apllied
+
+0.01_04 2013-01-15
+	- extra compilation of nfdump utility 
+
+0.01_04 2013-01-14
+	- removed dependency on lex/flex during compilation 
+
+0.01_03  2013-01-12
+	- fixes for multiplaform compilation 
+
+0.01_02  2013-01-10 
+	- documentation update 
+
+0.01_01  2012-11-30 
+	- initial version 
 
