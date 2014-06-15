@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /* uncommon types used by libnf */
 /* IP address, MAC address, MPLS stack */
