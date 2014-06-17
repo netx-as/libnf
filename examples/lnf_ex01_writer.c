@@ -15,16 +15,19 @@ int main (int argc, char **argv) {
 	uint32_t input, output;
 
 	int nrecs = 1;
+	int compress = 1;
 	char *filename = FILENAME;
 	char c;
 
-	while ((c = getopt (argc, argv, "n:f:")) != -1) {
+	while ((c = getopt (argc, argv, "n:f:?")) != -1) {
 		switch (c) {
 			case 'n':
 				nrecs = atoi(optarg);
 			break;
 			case 'f':
 				filename = optarg;
+			case 'C':
+				compress = 0; 
 			break;
 			case '?': 
 				printf("Usage: %s [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
@@ -33,7 +36,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* open lnf file desriptor */
-	if (lnf_open(&filep, filename, LNF_WRITE | LNF_COMP, "myfile") != LNF_OK) {
+	if (lnf_open(&filep, filename, LNF_WRITE | ( compress ? LNF_COMP : 0 ), "myfile") != LNF_OK) {
 		fprintf(stderr, "Can not open file.\n");
 		exit(1);
 	}
