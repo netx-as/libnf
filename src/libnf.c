@@ -1411,7 +1411,7 @@ int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
 void lnf_filter_free(lnf_filter_t *filter) {
 
 	/* TODO nfdump do not have code to release filter :-( */
-	free(filter->engine);
+//	free(filter->engine);
 	free(filter);
 }
 
