@@ -1042,6 +1042,22 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 			m->appl_latency_usec = *((uint64_t *)p);
 			bit_array_set(e, EX_LATENCY, 1);
 			return LNF_OK;
+
+		case LNF_FLD_BREC1: {
+			lnf_brec1_t *brec1 = p;
+
+			lnf_rec_fset(rec, LNF_FLD_FIRST, &brec1->first);
+			lnf_rec_fset(rec, LNF_FLD_LAST, &brec1->last);
+			lnf_rec_fset(rec, LNF_FLD_SRCADDR, &brec1->srcaddr);
+			lnf_rec_fset(rec, LNF_FLD_DSTADDR, &brec1->dstaddr);
+			lnf_rec_fset(rec, LNF_FLD_PROT, &brec1->prot);
+			lnf_rec_fset(rec, LNF_FLD_SRCPORT, &brec1->srcport);
+			lnf_rec_fset(rec, LNF_FLD_DSTPORT, &brec1->dstport);
+			lnf_rec_fset(rec, LNF_FLD_DOCTETS, &brec1->bytes);
+			lnf_rec_fset(rec, LNF_FLD_DPKTS, &brec1->pkts);
+			lnf_rec_fset(rec, LNF_FLD_AGGR_FLOWS, &brec1->flows);
+			return LNF_OK;
+		}
 	}
 
 	return LNF_ERR_UKNFLD;
@@ -1338,6 +1354,21 @@ int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 		case LNF_FLD_APPL_LATENCY_USEC:
 			*((uint64_t *)p) = m->appl_latency_usec;
 			return bit_array_get(e, EX_LATENCY) ? LNF_OK : LNF_ERR_NOTSET;
+
+		case LNF_FLD_BREC1: {
+			lnf_brec1_t *brec1 = p;
+			lnf_rec_fget(rec, LNF_FLD_FIRST, &brec1->first);
+			lnf_rec_fget(rec, LNF_FLD_LAST, &brec1->last);
+			lnf_rec_fget(rec, LNF_FLD_SRCADDR, &brec1->srcaddr);
+			lnf_rec_fget(rec, LNF_FLD_DSTADDR, &brec1->dstaddr);
+			lnf_rec_fget(rec, LNF_FLD_PROT, &brec1->prot);
+			lnf_rec_fget(rec, LNF_FLD_SRCPORT, &brec1->srcport);
+			lnf_rec_fget(rec, LNF_FLD_DSTPORT, &brec1->dstport);
+			lnf_rec_fget(rec, LNF_FLD_DOCTETS, &brec1->bytes);
+			lnf_rec_fget(rec, LNF_FLD_DPKTS, &brec1->pkts);
+			lnf_rec_fget(rec, LNF_FLD_AGGR_FLOWS, &brec1->flows);
+			return LNF_OK;
+		}
 	}
 
 	return LNF_ERR_UKNFLD;

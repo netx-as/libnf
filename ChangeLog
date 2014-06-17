@@ -1,5 +1,12 @@
 Revision history for C and Perl extension of nfdump.
 
+1.01 2014-06-18
+	- c: added structure lnf_brec1_t containing most commonly used records 
+	- c: examples updated to use lnf_brec1_t
+	- c: examples updated to be usable for benchmarking 
+	- perl: updated build system (more resistant)
+	- perl: benchmarking of c code added as the part of perl testing 
+
 1.01 2014-06-15
 	- source code strcitly separated into autonomous 
 	  package (libnf-xxx, universal C API) and perl 

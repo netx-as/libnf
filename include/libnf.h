@@ -1,4 +1,5 @@
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -6,9 +7,23 @@
 /* uncommon types used by libnf */
 /* IP address, MAC address, MPLS stack */
 //typedef struct in6_addr lnf_ip_t;
-typedef struct lnf_ip { uint32_t data[4]; } lnf_ip_t;
-typedef struct lnf_mac { uint8_t data[6]; }  lnf_mac_t;
-typedef struct lnf_mpls { uint32_t data[10]; } lnf_mpls_t;
+typedef struct lnf_ip_s { uint32_t data[4]; } lnf_ip_t;
+typedef struct lnf_mac_s { uint8_t data[6]; }  lnf_mac_t;
+typedef struct lnf_mpls_s { uint32_t data[10]; } lnf_mpls_t;
+
+/* basic record type 1 - contains the most commonly used fields */
+typedef struct lnf_brec1_s {
+	uint64_t	first;			/* LNF_FLD_FIRST */
+	uint64_t	last;			/* LNF_FLD_LAST */
+	lnf_ip_t	srcaddr;		/* LNF_FLD_SRCADDR */
+	lnf_ip_t	dstaddr;		/* LNF_FLD_DSTADDR */
+	uint8_t		prot;			/* LNF_FLD_PROT */
+	uint16_t	srcport;		/* LNF_FLD_SRCPORT */
+	uint16_t	dstport;		/* LNF_FLD_DSTPORT */
+	uint64_t	bytes;			/* LNF_FLD_DOCTETS */
+	uint64_t	pkts;			/* LNF_FLD_DPKTS */
+	uint64_t	flows;			/* LNF_FLD_AGGR_FLOWS */
+} lnf_brec1_t;
 
 #define LNF_MAX_STRING		512
 
@@ -23,7 +38,7 @@ typedef struct lnf_mpls { uint32_t data[10]; } lnf_mpls_t;
 #define LNF_MAC				0xA2
 #define LNF_STRING			0xAA	/* null terminated string */
 #define LNF_MPLS			0xAB	/* mpls labels */
-#define LNF_BASIC_RECORD	0xB1
+#define LNF_BASIC_RECORD1	0xB1
 
 
 #define LNF_MASK_TYPE  		0x000000FF
@@ -96,6 +111,8 @@ typedef struct lnf_mpls { uint32_t data[10]; } lnf_mpls_t;
 #define LNF_FLD_CLIENT_NW_DELAY_USEC	0x570064
 #define LNF_FLD_SERVER_NW_DELAY_USEC	0x580064
 #define LNF_FLD_APPL_LATENCY_USEC		0x590064
+
+#define LNF_FLD_BREC1			0x910000 | LNF_BASIC_RECORD1	/* special field for lnf_brec1_t */
 
 /* text description of fields */
 typedef struct lnf_field_s {
