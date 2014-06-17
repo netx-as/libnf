@@ -8,9 +8,7 @@ AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.12 $Date: 2014-04-02 20:08:48 +0200 (Wed,
 #AC_CONFIG_SRCDIR([grammar.y])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE()
-LT_INIT([pic-only])
-AC_ENABLE_SHARED
-AM_ENABLE_SHARED
+LT_INIT()
 
  
 # Checks for programs.

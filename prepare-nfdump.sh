@@ -44,7 +44,7 @@ echo "Getting configure.in from original nfdump"
 cp nfdump/configure.in configure.ac
 
 echo "Adding LT_INT into configure.ac"
-perl -pi -w -e 's/(AM_INIT_AUTOMAKE.*)/$1\nLT_INIT([pic-only])\nAC_ENABLE_SHARED\nAM_ENABLE_SHARED\n/g;' configure.ac 
+perl -pi -w -e 's/(AM_INIT_AUTOMAKE.*)/$1\nLT_INIT()\n/g;' configure.ac 
 
 #echo "Removing nel/nsel/compat/fixmi options"
 #perl -pi -w -e 's/^AC_ARG_ENABLE\(compat15.*/XXX/m;' configure.ac 
