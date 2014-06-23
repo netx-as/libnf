@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.04 2014-0x-xx
+	-
+
 1.03 2014-06-23
 	- c: headers includes in the examples
 	- c: code preparation for aggregation and sorting
