@@ -81,7 +81,7 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 	return LNF_OK;
 }
 
-int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
+int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
 
 	lnf_fieldlist_t fld;
 	
@@ -93,7 +93,7 @@ int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		case LNF_UINT64: fld.size = sizeof(uint64_t); break;
 		case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
 		case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
-		delafult : 
+		default : 
 			return LNF_ERR_UKNFLD;
 	}
 	fld.numbits = numbits;
@@ -119,6 +119,8 @@ int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			return LNF_ERR_NOMEM;
 		}
 	}
+
+	return LNF_OK;
 }
 
 
@@ -161,6 +163,8 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
 		fld = fld->next;
 	}
+
+	return LNF_OK;
 }
 
 

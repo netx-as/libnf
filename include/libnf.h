@@ -250,7 +250,7 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 #define LNF_SORT_DESC	0x0020	/* sort by item descending */
 #define LNF_SORT_FLAGS	0x00F0
 
-int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
+int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 void lnf_mem_free(lnf_mem_t *lnf_mem);
 

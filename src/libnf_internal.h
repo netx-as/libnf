@@ -97,4 +97,5 @@ typedef struct lnf_mem_s {
 	int	sort_size;
 } lnf_mem_t;
 
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep);
 
