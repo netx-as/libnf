@@ -18,15 +18,8 @@ int main(int argc, char **argv) {
 	lnf_mem_t *memp;
 
 	lnf_brec1_t brec;
-	char *filter1 = FILTER1;
-	char *filter2 = FILTER2;
-	uint32_t input, output;
 
 	int i = 0;
-	int match1 = 0;
-	int match2 = 0;
-	int if1 = 0;
-	int if2 = 0;
 
     int print = 1;
     int filter = 1;
@@ -51,12 +44,6 @@ int main(int argc, char **argv) {
 			case 'f':
 				filename = optarg;
 				break;
-			case '1':
-				filter1 = optarg;
-				break;
-			case '2':
-				filter2 = optarg;
-				break;
 			case '?':
 				printf("Usage: %s [ -p ] [ -f <output file name> ] [ -1 <filter1> ] [ -2 <filter2> ]\n", argv[0]);
 				printf(" -P : do not print records to stdout\n");
@@ -77,9 +64,15 @@ int main(int argc, char **argv) {
 	lnf_mem_init(&memp);
 
 	/* set rules for aggregation srcip/24,srcport,dstas */
-	lnf_mem_add_aggr(memp, LNF_FLD_SRCADDR, 24, 64);
-	lnf_mem_add_aggr(memp, LNF_FLD_SRCPORT, 0, 0);
-	lnf_mem_add_aggr(memp, LNF_FLD_DSTAS, 0, 0);
+	lnf_mem_addf(memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 24, 64);
+	lnf_mem_addf(memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0); 
+	lnf_mem_addf(memp, LNF_FLD_DSTAS, LNF_AGGR_KEY, 0, 0);
+
+	lnf_mem_addf(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
+	lnf_mem_addf(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM|LNF_SORT_DESC, 0, 0);
+	lnf_mem_addf(memp, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
+	lnf_mem_addf(memp, LNF_FLD_TCP_FLAGS, LNF_AGGR_OR, 0, 0);
+	lnf_mem_addf(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
@@ -96,12 +89,10 @@ int main(int argc, char **argv) {
 			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
 			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
 
-			printf(" %s :%d -> %s :%d %d -> %d %llu %llu %llu [%d %d]\n", 
+			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					input, output, 
-					brec.pkts, brec.bytes, brec.flows, 
-					match1, match2);
+					brec.pkts, brec.bytes, brec.flows);
 		}
 	}
 

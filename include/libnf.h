@@ -234,6 +234,27 @@ int	lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec);
 void lnf_filter_free(lnf_filter_t *filter);
 
 
+/* memory heap operations */
+int lnf_mem_init(lnf_mem_t **lnf_mem);
+
+/* flags for lnf_mem_addf */
+#define LNF_AGGR_KEY	0x0000	/* the key item */
+#define LNF_AGGR_MIN	0x0001	/* min value - for LNF_FLD_FIRST */
+#define LNF_AGGR_MAX	0x0002	/* max value - for LNF_FLD_LAST */
+#define LNF_AGGR_SUM	0x0003	/* summary of values - for all counters */
+#define LNF_AGGR_OR		0x0004	/* OR operation - for LNF_TCP_FLAGS */
+#define LNF_AGGR_FLAGS	0x000F
+
+#define LNF_SORT_NONE	0x0000	/* do not sort by this field */
+#define LNF_SORT_ASC	0x0010	/* sort by item ascending */
+#define LNF_SORT_DESC	0x0020	/* sort by item descending */
+#define LNF_SORT_FLAGS	0x00F0
+
+int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
+int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+void lnf_mem_free(lnf_mem_t *lnf_mem);
+
+
 #ifndef IN6_IS_ADDR_V4COMPAT
 #define IN6_IS_ADDR_V4COMPAT(a) \
    ((((uint32_t *) (a))[0] == 0) && (((uint32_t *) (a))[1] == 0) && \

@@ -79,17 +79,22 @@ typedef struct lnf_fieldlist_s {
 	int field;
 	int size;			/* size of the field ib bytes */
 	int offset;			/* offset from the beggining of the record */
+	int aggr_flag;
+	int sort_flag;
 	int numbits;
 	int numbits6;
-	int sortorder;
 	void *next;
 } lnf_fieldlist_t;
 
 
 /* general memheap structure */
 typedef struct lnf_mem_s {
-	lnf_fieldlist_t *aggr_list;
-	lnf_fieldlist_t *sort_list;
+	lnf_fieldlist_t *key_list;		/* list of fields with key values */
+	int	key_size;
+	lnf_fieldlist_t *val_list;		/* list of fields with values (counters etc.) */
+	int	val_size;
+	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
+	int	sort_size;
 } lnf_mem_t;
 
 

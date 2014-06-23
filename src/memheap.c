@@ -37,68 +37,128 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
         return LNF_ERR_NOMEM;
     }
 
-	lnf_mem->aggr_list = NULL;
+	lnf_mem->key_list = NULL;
+	lnf_mem->key_size = 0;
+	lnf_mem->val_list = NULL;
+	lnf_mem->val_size= 0;
 	lnf_mem->sort_list = NULL;
+	lnf_mem->sort_size = 0;
 
 	*lnf_memp =  lnf_mem;
 	return LNF_OK;
 }
 
-int lnf_mem_add_aggr(lnf_mem_t *lnf_mem, int field, int numbits, int numbits6) {
+/* add item to linked list */
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep) {
 
-	lnf_fieldlist_t *fld, *tmp_fld;
-	int offset;
-	
-	fld = malloc(sizeof(lnf_fieldlist_t));
+	lnf_fieldlist_t *node, *tmp_node;
+	int offset = 0;
 
-	if (fld == NULL) {
+	node = malloc(sizeof(lnf_fieldlist_t));
+
+	if (node == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
-	fld->field = field;
+	memcpy(node, snode, sizeof(lnf_fieldlist_t));
+	
+	if (*list == NULL) {
+		*list = node;	
+	} else {
+		tmp_node = *list;
+		offset = tmp_node->size;
+		while (tmp_node->next != NULL) {
+			tmp_node = tmp_node->next;
+			offset = tmp_node->offset + tmp_node->size;
+		}
+		tmp_node->next = node;
+	}
+
+	node->offset = offset;
+	node->next = NULL;
+	*sizep = node->offset + node->size;
+
+	return LNF_OK;
+}
+
+int lnf_mem_addf(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
+
+	lnf_fieldlist_t fld;
+	
+	fld.field = field;
 	switch (LNF_GET_TYPE(field)) { 
-		case LNF_UINT8: fld->size = sizeof(uint8_t); break;
-		case LNF_UINT16: fld->size = sizeof(uint16_t); break;
-		case LNF_UINT32: fld->size = sizeof(uint32_t); break;
-		case LNF_UINT64: fld->size = sizeof(uint64_t); break;
-		case LNF_ADDR: fld->size = sizeof(lnf_ip_t); break;
-		case LNF_MAC: fld->size = sizeof(lnf_mac_t); break;
+		case LNF_UINT8: fld.size = sizeof(uint8_t); break;
+		case LNF_UINT16: fld.size = sizeof(uint16_t); break;
+		case LNF_UINT32: fld.size = sizeof(uint32_t); break;
+		case LNF_UINT64: fld.size = sizeof(uint64_t); break;
+		case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
+		case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
 		delafult : 
-			free(fld);
 			return LNF_ERR_UKNFLD;
 	}
-	fld->numbits = numbits;
-	fld->numbits6 = numbits6;
-	fld->next = NULL;
+	fld.numbits = numbits;
+	fld.numbits6 = numbits6;
+	fld.aggr_flag = flags & LNF_AGGR_FLAGS;
+	fld.sort_flag = flags & LNF_SORT_FLAGS;
 
-		
-	if (lnf_mem->aggr_list == NULL) {
-		lnf_mem->aggr_list = fld;	
-	} else {
-		tmp_fld = lnf_mem->aggr_list;
-		offset = tmp_fld->size;
-		while (tmp_fld->next != NULL) {
-			tmp_fld = tmp_fld->next;
-			offset += tmp_fld->size;
+	/* add to key list */
+
+	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
+		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_size) != LNF_OK ) {
+			return LNF_ERR_NOMEM;
 		}
-		fld->offset = offset;
-		tmp_fld->next = fld;
+	} else { /* add to value list */
+		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_size) != LNF_OK ) {
+			return LNF_ERR_NOMEM;
+		}
+	}
+
+	/* add to sort list */
+	if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
+		if ( lnf_filedlist_add(&lnf_mem->sort_list, &fld, &lnf_mem->sort_size) != LNF_OK ) {
+			return LNF_ERR_NOMEM;
+		}
 	}
 }
 
-int lnf_mem_add_sort(lnf_mem_t *lnf_mem, int field, int flags) {
-
-}
 
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
-	lnf_fieldlist_t *fld = lnf_mem->aggr_list;
+	lnf_fieldlist_t *fld = lnf_mem->key_list;
+	char keybuf[1024];
 
+	printf("XXX: %d, %d, %d\n", lnf_mem->key_size, lnf_mem->val_size, lnf_mem->sort_size);
+	printf("KEY:\n");
+
+	/* build key */
 	while (fld != NULL) {
 
-		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, sortorder: %d\n",
-			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->sortorder);
+		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
+			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
+
+		lnf_rec_fget(rec, fld->field, (char *)keybuf + fld->offset);
+
+		fld = fld->next;
+	}
+
+	fld = lnf_mem->val_list;
+
+	printf("VAL:\n");
+	while (fld != NULL) {
+
+		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
+			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
+		fld = fld->next;
+	}
+
+	fld = lnf_mem->sort_list;
+
+	printf("SORT:\n");
+	while (fld != NULL) {
+
+		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
+			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
 		fld = fld->next;
 	}
 }
