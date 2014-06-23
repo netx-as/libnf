@@ -68,3 +68,28 @@ extension_map_t * lnf_lookup_map(lnf_file_t *lnf_file, bit_array_t *ext );
 /* nfdump uses LogError - we map it to lnf_seterror */
 void lnf_seterror(char *format, ...);
 
+
+
+/****************************************************************/
+/* Mem heap section - Aggergations, Sorting                     */
+/****************************************************************/
+
+/* field list for aggregation and sorting */
+typedef struct lnf_fieldlist_s {
+	int field;
+	int size;			/* size of the field ib bytes */
+	int offset;			/* offset from the beggining of the record */
+	int numbits;
+	int numbits6;
+	int sortorder;
+	void *next;
+} lnf_fieldlist_t;
+
+
+/* general memheap structure */
+typedef struct lnf_mem_s {
+	lnf_fieldlist_t *aggr_list;
+	lnf_fieldlist_t *sort_list;
+} lnf_mem_t;
+
+

@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
 
 	lnf_file_t *filep;
 	lnf_rec_t *recp;
-	lnf_filter_t *filterp1, *filterp2;
+	lnf_mem_t *memp;
+
 	lnf_brec1_t brec;
 	char *filter1 = FILTER1;
 	char *filter2 = FILTER2;
@@ -72,39 +73,21 @@ int main(int argc, char **argv) {
 	}
 
 
-	if (lnf_filter_init(&filterp1, filter1) != LNF_OK) {
-		fprintf(stderr, "Can not init filter1 '%s'\n", filter1);
-		exit(1);
-	}
-
-	if (lnf_filter_init(&filterp2, filter2) != LNF_OK) {
-		fprintf(stderr, "Can not init filter2 '%s'\n", filter2);
-		exit(1);
-	}
-
 	lnf_rec_init(&recp);
+	lnf_mem_init(&memp);
+
+	/* set rules for aggregation srcip/24,srcport,dstas */
+	lnf_mem_add_aggr(memp, LNF_FLD_SRCADDR, 24, 64);
+	lnf_mem_add_aggr(memp, LNF_FLD_SRCPORT, 0, 0);
+	lnf_mem_add_aggr(memp, LNF_FLD_DSTAS, 0, 0);
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
-		if (fget) {
-			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
-			lnf_rec_fget(recp, LNF_FLD_INPUT, &input);
-			lnf_rec_fget(recp, LNF_FLD_OUTPUT, &output);
-		}
 		i++;
 
-		match1 = 0;
-		match2 = 0;
-		if (filter) {
-			if (lnf_filter_match(filterp1, recp)) {
-				if1++;
-				match1 = 1;
-			}
-			if (lnf_filter_match(filterp2, recp)) {
-				if2++;
-				match2 = 1;
-			}
-		}
+		/* add to memory heap */
+		lnf_mem_write(memp,recp);
+		printf("********************\n");
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -122,13 +105,10 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("Total records: %d\n", i);
-	printf("%d records matched by filter1 '%s'\n", if1, filter1);
-	printf("%d records matched by filter2 '%s'\n", if2, filter2);
+	printf("Total input records: %d\n", i);
 
+	lnf_mem_free(memp);
 	lnf_rec_free(recp);
-	lnf_filter_free(filterp1);
-	lnf_filter_free(filterp2);
 	lnf_close(filep);
 }
 

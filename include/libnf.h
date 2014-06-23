@@ -176,6 +176,7 @@ typedef struct lnf_info_s {
 typedef void lnf_file_t;	
 typedef void lnf_rec_t;		
 typedef void lnf_filter_t;
+typedef void lnf_mem_t;
 #endif
 
  
