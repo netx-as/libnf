@@ -1,6 +1,11 @@
 Revision history for C and Perl extension of nfdump.
 
-1.01 2014-06-18
+1.03 2014-06-23
+	- c: headers includes in the examples
+	- c: code preparation for aggregation and sorting
+	- perl: test for pure read withour record processing (-G)
+
+1.02 2014-06-18
 	- c: added structure lnf_brec1_t containing most commonly used records 
 	- c: examples updated to use lnf_brec1_t
 	- c: examples updated to be usable for benchmarking 
