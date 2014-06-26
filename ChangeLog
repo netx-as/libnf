@@ -1,7 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
 1.04 2014-0x-xx
-	-
+	- c: lnf_rec_fget, lnf_rec_fset incerased prtformance (30%) 
+	  Thanks to Vasek Bartos.
 
 1.03 2014-06-23
 	- c: headers includes in the examples
