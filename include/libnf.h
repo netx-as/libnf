@@ -45,8 +45,8 @@ typedef struct lnf_brec1_s {
 #define LNF_MASK_FIELD 		0xFFFF00 
 
 #define LNF_GET_TYPE(x) 	(x & LNF_MASK_TYPE)
-#define LNF_GET_FIELD(x) 	((x & LNF_MASK_FIELD) >> 8)
-//#define LNF_GET_FIELD(x) 	x
+//#define LNF_GET_FIELD(x) 	((x & LNF_MASK_FIELD) >> 8)
+#define LNF_GET_FIELD(x) 	x
 
 /* top two bytes of field identifies data type LNF_UINT8, ... */
 

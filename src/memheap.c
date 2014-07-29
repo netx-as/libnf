@@ -123,6 +123,16 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	return LNF_OK;
 }
 
+/* set bits "from" - "to" to zero value */
+void lnf_clear_bits(char *buf, int from, int to) {
+	int i;
+	
+	for (i = from / 8 ; i <= to / 8; i++) {
+		buf[i] << (i % 8);
+	}
+	
+}
+
 
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
@@ -135,11 +145,23 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	/* build key */
 	while (fld != NULL) {
+		char *ckb = (char *)keybuf + fld->offset;
 
 		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
 
-		lnf_rec_fget(rec, fld->field, (char *)keybuf + fld->offset);
+		/* put contenf of the field to the keybuf + offset */
+		lnf_rec_fget(rec, fld->field, ckb);
+
+		/* clear numbits for IP address field */
+		/* ! address is always stored in network order */
+		if (LNF_GET_TYPE(field) == LNF_ADDR) {
+			if (IN6_IS_ADDR_V4COMPAT(ckb)) {
+				lnf_clear_bits((char *)ckb->data[4], flb->numbits, sizeof(uint32_t) * 8);
+			} else {
+				lnf_clear_bits(ckb, flb->numbits6, sizeof(lnf_ip_t * 8));
+			}
+		}
 
 		fld = fld->next;
 	}
