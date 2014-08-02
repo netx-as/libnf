@@ -1,6 +1,4 @@
 
-#define _LIBNF_C_ 1
-
 #include "config.h"
 
 #include <stdio.h>
@@ -123,14 +121,20 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	return LNF_OK;
 }
 
-/* set bits "from" - "to" to zero value */
-void lnf_clear_bits(char *buf, int from, int to) {
+/* set bits "from" to the end of the buffer to zero value  */
+void lnf_clear_bits(char *buf, int buflen, int from) {
 	int i;
-	
-	for (i = from / 8 ; i <= to / 8; i++) {
-		buf[i] << (i % 8);
-	}
-	
+	int o;
+
+	/* index and (bit) offset for/of the first cleared octet */
+	i = from / 8;
+	o = from % 8;
+
+	while (i < buflen) {
+		buf[i] = buf[i] & ~ ( 0xFF >> o );
+		o = 0;
+		i++;
+	}	
 }
 
 
@@ -138,7 +142,8 @@ void lnf_clear_bits(char *buf, int from, int to) {
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	lnf_fieldlist_t *fld = lnf_mem->key_list;
-	char keybuf[1024];
+	char keybuf[1024]; /* XXX !!! */
+	int keysize = 0;
 
 	printf("XXX: %d, %d, %d\n", lnf_mem->key_size, lnf_mem->val_size, lnf_mem->sort_size);
 	printf("KEY:\n");
@@ -155,16 +160,28 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 		/* clear numbits for IP address field */
 		/* ! address is always stored in network order */
-		if (LNF_GET_TYPE(field) == LNF_ADDR) {
-			if (IN6_IS_ADDR_V4COMPAT(ckb)) {
-				lnf_clear_bits((char *)ckb->data[4], flb->numbits, sizeof(uint32_t) * 8);
+		if (LNF_GET_TYPE(fld->field) == LNF_ADDR) {
+			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
+				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[4]), sizeof(uint32_t), fld->numbits);
 			} else {
-				lnf_clear_bits(ckb, flb->numbits6, sizeof(lnf_ip_t * 8));
+				lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
 			}
 		}
-
+		keysize += fld->size;
 		fld = fld->next;
 	}
+
+	/* the keybuf and keysize is filled */
+	{
+	int i;
+	printf("keybuf: ");
+	for (i = 0; i < keysize; i++) {
+		printf("%02x ", keybuf[i]);
+	}
+	printf("\n");
+	}
+
+
 
 	fld = lnf_mem->val_list;
 

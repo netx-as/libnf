@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
 			char dbuf[INET6_ADDRSTRLEN];
+
+			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
 	
 			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
 			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
