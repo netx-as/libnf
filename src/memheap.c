@@ -36,13 +36,18 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
     }
 
 	lnf_mem->key_list = NULL;
-	lnf_mem->key_size = 0;
+	lnf_mem->key_len = 0;
 	lnf_mem->val_list = NULL;
-	lnf_mem->val_size= 0;
+	lnf_mem->val_len = 0;
 	lnf_mem->sort_list = NULL;
-	lnf_mem->sort_size = 0;
+	lnf_mem->sort_len = 0;
+
+	lnf_mem->hash_table_init = 0;
 
 	*lnf_memp =  lnf_mem;
+
+
+
 	return LNF_OK;
 }
 
@@ -102,18 +107,18 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	/* add to key list */
 
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
-		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_size) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 	} else { /* add to value list */
-		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_size) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 	}
 
 	/* add to sort list */
 	if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
-		if ( lnf_filedlist_add(&lnf_mem->sort_list, &fld, &lnf_mem->sort_size) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->sort_list, &fld, &lnf_mem->sort_len) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 	}
@@ -137,20 +142,13 @@ void lnf_clear_bits(char *buf, int buflen, int from) {
 	}	
 }
 
+/* fill buffer according to the field list */
+int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 
-/* store record in memory heap */
-int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
-
-	lnf_fieldlist_t *fld = lnf_mem->key_list;
-	char keybuf[1024]; /* XXX !!! */
 	int keysize = 0;
 
-	printf("XXX: %d, %d, %d\n", lnf_mem->key_size, lnf_mem->val_size, lnf_mem->sort_size);
-	printf("KEY:\n");
-
-	/* build key */
 	while (fld != NULL) {
-		char *ckb = (char *)keybuf + fld->offset;
+		char *ckb = (char *)buf + fld->offset;
 
 		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
@@ -171,36 +169,76 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		fld = fld->next;
 	}
 
-	/* the keybuf and keysize is filled */
-	{
-	int i;
-	printf("keybuf: ");
-	for (i = 0; i < keysize; i++) {
-		printf("%02x ", keybuf[i]);
-	}
-	printf("\n");
-	}
+	return keysize;
+}
 
+/* callback for updating items in hash table */
+void *lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
+	lnf_fieldlist_t *fld = ((lnf_mem_t *)lnf_mem)->val_list;
 
-	fld = lnf_mem->val_list;
-
-	printf("VAL:\n");
 	while (fld != NULL) {
+		char *hckb = (char *)hval + fld->offset;
+		char *uckb = (char *)uval + fld->offset;
+	/*	
+		switch (LNF_GET_TYPE(fld->field)) {
+			case LNF_UINT8: fld.size = sizeof(uint8_t); break;
+			case LNF_UINT16: fld.size = sizeof(uint16_t); break;
+			case LNF_UINT32: fld.size = sizeof(uint32_t); break;
+			case LNF_UINT64: fld.size = sizeof(uint64_t); break;
+			case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
+			case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
+       		 default :
+            return LNF_ERR_UKNFLD;
+		}
 
-		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
+
+		switch (
+
+		switch (fld->aggr_flag) {
+			case LNF_AGGR_MIN: MAX, SUM, OR 
+				break;
+		}
+
+		printf("CALL  %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
+*/
 		fld = fld->next;
+	
 	}
 
-	fld = lnf_mem->sort_list;
 
-	printf("SORT:\n");
-	while (fld != NULL) {
+	printf("HASH CALLBACK \n");
+}
 
-		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
-			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
-		fld = fld->next;
+
+/* store record in memory heap */
+int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
+
+	lnf_fieldlist_t *fld = lnf_mem->key_list;
+	int keylen, vallen;
+	char keybuf[1024]; /* XXX !!! */
+	char valbuf[1024]; /* XXX !!! */
+
+
+	/* build key */
+	keylen = lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf);
+
+	/* build values */
+	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
+
+
+	/* first record - initialise hash table */
+	if ( lnf_mem->hash_table_init == 0 ) {
+		if (hash_table_init(&lnf_mem->hash_table, keylen, vallen, &lnf_mem_callback) == NULL) {
+			return LNF_ERR_NOMEM;
+		}
+		lnf_mem->hash_table_init = 1;
+	}
+
+	/* insert record */
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, lnf_mem) == NULL) {
+		return LNF_ERR_NOMEM;
 	}
 
 	return LNF_OK;

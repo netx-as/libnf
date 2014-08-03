@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					brec.pkts, brec.bytes, brec.flows);
+					brec.first, brec.bytes, brec.pkts);
 		}
 	}
 

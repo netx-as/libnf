@@ -14,6 +14,7 @@
 #include <nftree.h>
 #include <nfx.h>
 #include "bit_array.h"
+#include "hash_table.h"
 
 
 /* list of maps used in file taht we create */
@@ -90,11 +91,13 @@ typedef struct lnf_fieldlist_s {
 /* general memheap structure */
 typedef struct lnf_mem_s {
 	lnf_fieldlist_t *key_list;		/* list of fields with key values */
-	int	key_size;
+	int	key_len;
 	lnf_fieldlist_t *val_list;		/* list of fields with values (counters etc.) */
-	int	val_size;
+	int	val_len;
 	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
-	int	sort_size;
+	int	sort_len;
+	int  hash_table_init;			/* is the hash table initialised ? */
+	hash_table_t hash_table;
 } lnf_mem_t;
 
 int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep);
