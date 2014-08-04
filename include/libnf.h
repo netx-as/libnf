@@ -213,10 +213,10 @@ typedef void lnf_mem_t;
 #define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
 
 /* other functions */
-void lnf_error(char *buf, int buflen);
+void lnf_error(const char *buf, int buflen);
 
 /* file operations */
-int lnf_open(lnf_file_t **lnf_filep, char *filename, unsigned int flags, char *ident);
+int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, const char *ident);
 void lnf_info(lnf_file_t *lnf_file, lnf_info_t *lnf_info);
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
@@ -256,6 +256,7 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 void lnf_mem_free(lnf_mem_t *lnf_mem);
 
 

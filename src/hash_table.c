@@ -96,7 +96,7 @@ lookup:
 	/* determine bucket and row in bucket */
 	prow =  hash_table_row_ptr(t, index);
 
-	pflags = prow;
+	pflags = (hash_table_row_flags_t *)prow;
 	pkey = prow + sizeof(hash_table_row_flags_t);
 	pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
 
@@ -149,7 +149,7 @@ lookup:
 	
 	index = hash_table_row_next(t, index);
 
-	pflags = prow;
+	pflags = (hash_table_row_flags_t *)prow;
 
 	/* critical section !! */
 	if (!pflags->occupied) {

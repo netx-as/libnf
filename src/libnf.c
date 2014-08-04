@@ -175,7 +175,7 @@ lnf_field_t lnf_fields[] = {
 
 /* open existing nfdump file and prepare for reading records */
 /* only simple wrapper to nfdump function */
-int lnf_open(lnf_file_t **lnf_filep, char * filename, unsigned int flags, char * ident) {
+int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, const char * ident) {
 	int i;
 	lnf_file_t *lnf_file;
 
@@ -188,10 +188,10 @@ int lnf_open(lnf_file_t **lnf_filep, char * filename, unsigned int flags, char *
 	lnf_file->flags = flags;
 	/* open file in either read only or write only mode */
 	if (flags & LNF_WRITE) {
-		lnf_file->nffile = OpenNewFile(filename, NULL, flags & LNF_COMP, 
-								flags & LNF_ANON, ident);
+		lnf_file->nffile = OpenNewFile((char *)filename, NULL, flags & LNF_COMP, 
+								flags & LNF_ANON, (char *)ident);
 	} else {
-		lnf_file->nffile = OpenFile(filename, NULL);
+		lnf_file->nffile = OpenFile((char *)filename, NULL);
 	}
 
 	if (lnf_file->nffile == NULL) {
@@ -1502,8 +1502,8 @@ void LogInfo(char *format, ...) { }
 void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
 
 /* get error string */
-void lnf_error(char *buf, int buflen) {
+void lnf_error(const char *buf, int buflen) {
 
-	strncpy(buf, error_str, buflen - 1);
+	strncpy((char *)buf, error_str, buflen - 1);
 
 }

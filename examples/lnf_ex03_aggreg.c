@@ -22,12 +22,11 @@ int main(int argc, char **argv) {
 	int i = 0;
 
     int print = 1;
-    int filter = 1;
-    int fget = 1;
+    int printa = 1;
     char *filename = FILENAME;
     char c;
 
-	while ((c = getopt (argc, argv, "pPFGf:1:2:")) != -1) {
+	while ((c = getopt (argc, argv, "pPAf:")) != -1) {
 		switch (c) {
 			case 'p':
 				print = 0;
@@ -35,20 +34,16 @@ int main(int argc, char **argv) {
 			case 'P':
 				print = 0;
 				break;
-			case 'G':
-				fget = 0;
-				break;
-			case 'F':
-				filter = 0;
-				break;
 			case 'f':
 				filename = optarg;
 				break;
+			case 'A':
+				printa = 0;
+				break;
 			case '?':
-				printf("Usage: %s [ -p ] [ -f <output file name> ] [ -1 <filter1> ] [ -2 <filter2> ]\n", argv[0]);
-				printf(" -P : do not print records to stdout\n");
-				printf(" -F : do not use filters\n");
-				printf(" -G : do not use lng_rec_fget\n");
+				printf("Usage: %s [ -P ] [ -A ] [ -f <input file name> ] \n", argv[0]);
+				printf(" -P : do not print input records to stdout\n");
+				printf(" -A : do not aggregated records to stdout\n");
 				exit(1);
 		}
 	}
@@ -69,9 +64,9 @@ int main(int argc, char **argv) {
 	lnf_mem_fadd(memp, LNF_FLD_DSTAS, LNF_AGGR_KEY, 0, 0);
 
 	lnf_mem_fadd(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM|LNF_SORT_DESC, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_TCP_FLAGS, LNF_AGGR_OR, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM|LNF_SORT_DESC, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
@@ -80,7 +75,6 @@ int main(int argc, char **argv) {
 
 		/* add to memory heap */
 		lnf_mem_write(memp,recp);
-		printf("********************\n");
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -100,17 +94,16 @@ int main(int argc, char **argv) {
 
 	printf("Total input records: %d\n", i);
 
-	printf("Aggregated records:\n");
 
+	i = 0;
 	while (lnf_mem_read(memp, recp) != LNF_EOF) {
 
 		i++;
 
 		/* add to memory heap */
 		lnf_mem_read(memp, recp);
-		printf("********************\n");
 
-		if (print) {
+		if (printa) {
 			char sbuf[INET6_ADDRSTRLEN];
 			char dbuf[INET6_ADDRSTRLEN];
 
@@ -126,6 +119,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	printf("Total aggregated records: %d\n", i);
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);

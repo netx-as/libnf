@@ -152,9 +152,10 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 
 	while (fld != NULL) {
 		char *ckb = (char *)buf + fld->offset;
-
+/*
 		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
+*/
 
 		/* put contenf of the field to the buf + offset */
 		lnf_rec_fget(rec, fld->field, ckb);
@@ -183,9 +184,6 @@ void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
 	while (fld != NULL) {
 		char *ckb = (char *)buf + fld->offset;
 
-		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x, ckb: %p\n",
-			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag, ckb);
-
 		/*get content of the field from the buf + offset */
 		lnf_rec_fset(rec, fld->field, ckb);
 
@@ -195,7 +193,7 @@ void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
 	return;
 }
 /* callback for updating items in hash table */
-void *lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
+void lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
 	lnf_fieldlist_t *fld = ((lnf_mem_t *)lnf_mem)->val_list;
 
@@ -284,10 +282,7 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	char *key; 
 	char *val;
 
-	printf("XXX index1 %d\n", lnf_mem->hash_index);
 	index = hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_index, &key, &val);
-
-	printf("XXX index2 %d %p\n", index, key);
 
 	if (index <= lnf_mem->hash_index) {
 		//lnf_mem->hash_index = 0;
