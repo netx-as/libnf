@@ -118,7 +118,6 @@ lookup:
 	if (memcmp(pkey, key,  t->keylen) == 0) {
 
 		/* add values */
-		printf(" SAME HASH \n");
 		t->callback(pkey, pval, val, p);
 		return prow;
 
@@ -139,5 +138,27 @@ lookup:
 	return NULL;
 }
 
+/* return next non occupied field */
+unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey, char **pval) {
 
+	hash_table_row_flags_t *pflags;
+	char *prow;
+
+lookup:
+	prow =  hash_table_row_ptr(t, index);
+	
+	index = hash_table_row_next(t, index);
+
+	pflags = prow;
+
+	/* critical section !! */
+	if (!pflags->occupied) {
+		goto lookup;
+	}
+
+	*pkey = (prow + sizeof(hash_table_row_flags_t));
+	*pval = (prow + sizeof(hash_table_row_flags_t) + t->keylen);
+
+	return index;
+}
 

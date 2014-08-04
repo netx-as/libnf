@@ -100,6 +100,33 @@ int main(int argc, char **argv) {
 
 	printf("Total input records: %d\n", i);
 
+	printf("Aggregated records:\n");
+
+	while (lnf_mem_read(memp, recp) != LNF_EOF) {
+
+		i++;
+
+		/* add to memory heap */
+		lnf_mem_read(memp, recp);
+		printf("********************\n");
+
+		if (print) {
+			char sbuf[INET6_ADDRSTRLEN];
+			char dbuf[INET6_ADDRSTRLEN];
+
+			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
+	
+			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
+			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
+
+			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
+					sbuf, brec.srcport, 
+					dbuf, brec.dstport,  
+					brec.first, brec.bytes, brec.pkts);
+		}
+	}
+
+
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);
 	lnf_close(filep);

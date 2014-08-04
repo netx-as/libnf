@@ -33,4 +33,5 @@ typedef struct hash_table_s {
 
 hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, hash_table_callback_t cb);
 void * hash_table_insert(hash_table_t *t, char *key, char *val, void *p);
+unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
 

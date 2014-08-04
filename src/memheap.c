@@ -43,6 +43,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sort_len = 0;
 
 	lnf_mem->hash_table_init = 0;
+	lnf_mem->hash_index = 0;
 
 	*lnf_memp =  lnf_mem;
 
@@ -123,6 +124,8 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		}
 	}
 
+	lnf_mem->hash_index = 0;
+
 	return LNF_OK;
 }
 
@@ -153,7 +156,7 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
 			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
 
-		/* put contenf of the field to the keybuf + offset */
+		/* put contenf of the field to the buf + offset */
 		lnf_rec_fget(rec, fld->field, ckb);
 
 		/* clear numbits for IP address field */
@@ -172,6 +175,25 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 	return keysize;
 }
 
+/* fill record the list from buffer */
+void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
+
+	int keysize = 0;
+
+	while (fld != NULL) {
+		char *ckb = (char *)buf + fld->offset;
+
+		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x, ckb: %p\n",
+			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag, ckb);
+
+		/*get content of the field from the buf + offset */
+		lnf_rec_fset(rec, fld->field, ckb);
+
+		fld = fld->next;
+	}
+
+	return;
+}
 /* callback for updating items in hash table */
 void *lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
@@ -180,42 +202,51 @@ void *lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 	while (fld != NULL) {
 		char *hckb = (char *)hval + fld->offset;
 		char *uckb = (char *)uval + fld->offset;
-	/*	
+		
 		switch (LNF_GET_TYPE(fld->field)) {
-			case LNF_UINT8: fld.size = sizeof(uint8_t); break;
-			case LNF_UINT16: fld.size = sizeof(uint16_t); break;
-			case LNF_UINT32: fld.size = sizeof(uint32_t); break;
-			case LNF_UINT64: fld.size = sizeof(uint64_t); break;
-			case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
-			case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
-       		 default :
-            return LNF_ERR_UKNFLD;
-		}
-
-
-		switch (
-
-		switch (fld->aggr_flag) {
-			case LNF_AGGR_MIN: MAX, SUM, OR 
+			case LNF_UINT8: 
+				switch (fld->aggr_flag) {
+					case LNF_AGGR_SUM: *((uint8_t *)hckb) += *((uint8_t *)uckb); break;
+					case LNF_AGGR_MIN: if ( *((uint8_t *)uckb) < *((uint8_t *)hckb) ) *((uint8_t *)hckb) = *((uint8_t *)uckb); break;
+					case LNF_AGGR_MAX: if ( *((uint8_t *)uckb) > *((uint8_t *)hckb) ) *((uint8_t *)hckb) = *((uint8_t *)uckb); break;
+					case LNF_AGGR_OR: *((uint8_t *)hckb) |= *((uint8_t *)uckb); break;
+				}
 				break;
+			case LNF_UINT16: 
+				switch (fld->aggr_flag) {
+					case LNF_AGGR_SUM: *((uint16_t *)hckb) += *((uint16_t *)uckb); break;
+					case LNF_AGGR_MIN: if ( *((uint16_t *)uckb) < *((uint16_t *)hckb) ) *((uint16_t *)hckb) = *((uint16_t *)uckb); break;
+					case LNF_AGGR_MAX: if ( *((uint16_t *)uckb) > *((uint16_t *)hckb) ) *((uint16_t *)hckb) = *((uint16_t *)uckb); break;
+					case LNF_AGGR_OR: *((uint16_t *)hckb) |= *((uint16_t *)uckb); break;
+				}
+				break;
+			case LNF_UINT32: 
+				switch (fld->aggr_flag) {
+					case LNF_AGGR_SUM: *((uint32_t *)hckb) += *((uint32_t *)uckb); break;
+					case LNF_AGGR_MIN: if ( *((uint32_t *)uckb) < *((uint32_t *)hckb) ) *((uint32_t *)hckb) = *((uint32_t *)uckb); break;
+					case LNF_AGGR_MAX: if ( *((uint32_t *)uckb) > *((uint32_t *)hckb) ) *((uint32_t *)hckb) = *((uint32_t *)uckb); break;
+					case LNF_AGGR_OR: *((uint32_t *)hckb) |= *((uint32_t *)uckb); break;
+				}
+				break;
+			case LNF_UINT64: 
+				switch (fld->aggr_flag) {
+					case LNF_AGGR_SUM: *((uint64_t *)hckb) += *((uint64_t *)uckb); break;
+					case LNF_AGGR_MIN: if ( *((uint64_t *)uckb) < *((uint64_t *)hckb) ) *((uint64_t *)hckb) = *((uint64_t *)uckb); break;
+					case LNF_AGGR_MAX: if ( *((uint64_t *)uckb) > *((uint64_t *)hckb) ) *((uint64_t *)hckb) = *((uint64_t *)uckb); break;
+					case LNF_AGGR_OR: *((uint64_t *)hckb) |= *((uint64_t *)uckb); break;
+				}
+				break;
+			/* other data types are ignored so far */
 		}
 
-		printf("CALL  %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
-			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
-*/
 		fld = fld->next;
-	
 	}
-
-
-	printf("HASH CALLBACK \n");
 }
 
 
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
-	lnf_fieldlist_t *fld = lnf_mem->key_list;
 	int keylen, vallen;
 	char keybuf[1024]; /* XXX !!! */
 	char valbuf[1024]; /* XXX !!! */
@@ -244,6 +275,37 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	return LNF_OK;
 }
 
+
+/* read netx record from memory heap */
+int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
+
+	unsigned long index;
+	int keylen, vallen;
+	char *key; 
+	char *val;
+
+	printf("XXX index1 %d\n", lnf_mem->hash_index);
+	index = hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_index, &key, &val);
+
+	printf("XXX index2 %d %p\n", index, key);
+
+	if (index <= lnf_mem->hash_index) {
+		//lnf_mem->hash_index = 0;
+		return LNF_EOF;
+	}
+
+	lnf_mem->hash_index = index;
+
+	lnf_rec_clear(rec);
+
+	/* fields from key */
+	lnf_mem_fill_rec(lnf_mem->key_list, key, rec);
+
+	/* fields from values */
+	lnf_mem_fill_rec(lnf_mem->val_list, val, rec);
+
+	return LNF_OK;
+}
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
 	free(lnf_mem);

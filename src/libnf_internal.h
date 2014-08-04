@@ -97,6 +97,7 @@ typedef struct lnf_mem_s {
 	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
 	int	sort_len;
 	int  hash_table_init;			/* is the hash table initialised ? */
+	unsigned long hash_index;		/* row index for reading */
 	hash_table_t hash_table;
 } lnf_mem_t;
 
