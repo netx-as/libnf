@@ -3,6 +3,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define FILENAME "./test-file.tmp"
 
@@ -17,21 +19,27 @@ int main (int argc, char **argv) {
 
 	int nrecs = 1;
 	int compress = 1;
+	int aggip = 0;
 	char *filename = FILENAME;
 	char c;
 
-	while ((c = getopt (argc, argv, "n:f:?")) != -1) {
+	while ((c = getopt (argc, argv, "n:f:r:?")) != -1) {
 		switch (c) {
 			case 'n':
 				nrecs = atoi(optarg);
 			break;
 			case 'f':
 				filename = optarg;
+			break;
 			case 'C':
 				compress = 0; 
 			break;
+			case 'r':
+				aggip = atoi(optarg); 
+			break;
 			case '?': 
-				printf("Usage: %s [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
+				printf("Usage: %s [ -r <step > ] [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
+				printf(" -r  : rotate src IP addess (for aggregation testing)\n\n");
 				exit(1);
 		}
 	}
@@ -41,6 +49,8 @@ int main (int argc, char **argv) {
 		fprintf(stderr, "Can not open file.\n");
 		exit(1);
 	}
+
+	srand(time(NULL));
 
 	/* initialise empty record */
 	lnf_rec_init(&recp);
@@ -64,6 +74,10 @@ int main (int argc, char **argv) {
 		input = i % 5; /* make input index interface 0 - 5 */
 		output = i % 10; /* make output index interface 0 - 5 */
 
+		if (random) {
+			brec.bytes = i;
+			brec.srcaddr.data[1] = 1000 + (i % aggip);
+		}
 		/* prepare record */
 		lnf_rec_fset(recp, LNF_FLD_BREC1, &brec);
 	

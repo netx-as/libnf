@@ -100,9 +100,6 @@ int main(int argc, char **argv) {
 
 		i++;
 
-		/* add to memory heap */
-		lnf_mem_read(memp, recp);
-
 		if (printa) {
 			char sbuf[INET6_ADDRSTRLEN];
 			char dbuf[INET6_ADDRSTRLEN];

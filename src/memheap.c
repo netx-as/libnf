@@ -266,7 +266,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	}
 
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, lnf_mem) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 0, lnf_mem) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 

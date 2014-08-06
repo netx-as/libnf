@@ -14,7 +14,7 @@ CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
 
 # Target for the libnfdump library
 lib_LTLIBRARIES=libnf.la
-libnf_la_SOURCES=libnf.c bit_array.c hash_table.c memheap.c \
+libnf_la_SOURCES=libnf.c bit_array.c hash_table.c xxhash.c memheap.c \
 	nffile.c nfx.c nftree.c minilzo.c \
 	nf_common.c grammar.y scanner.l \
 	ipconv.c 

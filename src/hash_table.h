@@ -7,12 +7,13 @@
 #define HASH_TABLE_MAX_BUCKETS 65536
 
 /* number of collision that invoke increase of hash table */
-#define HASH_TABLE_COLLISIONS 4
+#define HASH_TABLE_COLLISIONS 10
 
 /* hash table iflags for every row */
 typedef struct hash_table_row_flags_s {
 	unsigned char occupied:1;
 	unsigned char locked:1;
+	unsigned long hash;
 } hash_table_row_flags_t;
 
 
@@ -24,6 +25,9 @@ typedef struct hash_table_s {
 	int keylen;					/* size of aggregation key */
 	int vallen;					/* size of vallues key */
 	int rowlen;					/* total size of tow (row_flags_t + akey, skey, val) */
+	unsigned long rows_used;		/* number of filled rows */
+	unsigned long collisions;		/* number of collisions */
+	unsigned long rows_inserted;	/* number of collisions */
 	hash_table_callback_t callback;
 	int numbuckets;				/* number of allocated buckets */
 	void * bucket[HASH_TABLE_MAX_BUCKETS];
@@ -32,6 +36,6 @@ typedef struct hash_table_s {
 
 
 hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, hash_table_callback_t cb);
-void * hash_table_insert(hash_table_t *t, char *key, char *val, void *p);
+void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, void *p);
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
 
