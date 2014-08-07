@@ -266,10 +266,11 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	}
 
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 0, lnf_mem) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, lnf_mem) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
+	lnf_mem->rearranged = 0;
 	return LNF_OK;
 }
 
@@ -281,6 +282,12 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	int keylen, vallen;
 	char *key; 
 	char *val;
+
+	/* firs read - rearrange hash table */
+	if (!lnf_mem->rearranged) {
+		hash_table_arrange(&lnf_mem->hash_table, lnf_mem);
+		lnf_mem->rearranged = 1;
+	}
 
 	index = hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_index, &key, &val);
 

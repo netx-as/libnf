@@ -14,6 +14,7 @@ typedef struct hash_table_row_flags_s {
 	unsigned char occupied:1;
 	unsigned char locked:1;
 	unsigned long hash;
+	int numbuckets;
 } hash_table_row_flags_t;
 
 

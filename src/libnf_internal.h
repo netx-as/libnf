@@ -99,6 +99,7 @@ typedef struct lnf_mem_s {
 	int  hash_table_init;			/* is the hash table initialised ? */
 	unsigned long hash_index;		/* row index for reading */
 	hash_table_t hash_table;
+	int rearranged;					/* is the final hash table rearranged ? */
 } lnf_mem_t;
 
 int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep);

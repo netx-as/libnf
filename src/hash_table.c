@@ -13,18 +13,22 @@ void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
 	void *p;
 	int i;
 
-	p = malloc(t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
-
-	/* cannot allocate memroty */
-	if (p == NULL) {
-		return NULL;
-	}
-
-	/* clear allocated memory */
-	memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
-
 	for (i = 0; i < buckets; i++) {
-		t->bucket[t->numbuckets] = p + (i * t->rowlen * HASH_TABLE_BUCKET_SIZE);
+
+		//p = malloc(t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
+		p = malloc(t->rowlen * HASH_TABLE_BUCKET_SIZE);
+
+		/* cannot allocate memroty */
+		if (p == NULL) {
+			return NULL;
+		}
+
+		/* clear allocated memory */
+		//memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
+		memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE);
+
+		//t->bucket[t->numbuckets] = p + (i * t->rowlen * HASH_TABLE_BUCKET_SIZE);
+		t->bucket[t->numbuckets] = p;
 		t->numbuckets++;
 	}
 
@@ -121,13 +125,15 @@ lookup:
 	pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
 
 	/* critical section !! - replace with compare and swap */
-	if (!pflags->occupied) {
+	if (!pflags->locked && !pflags->occupied) {
 
 		pflags->locked = 1;
 		memcpy(pkey, key, t->keylen);
 		memcpy(pval, val, t->vallen);
 		pflags->occupied = 1;
 		pflags->hash = hash;
+		pflags->numbuckets = t->numbuckets;
+
 		t->rows_used++;
 		pflags->locked = 0;
 
@@ -137,17 +143,20 @@ lookup:
 	/* critical section !! */
 
 	/* same key */
-	if (memcmp(pkey, key,  t->keylen) == 0) {
+	if (!pflags->locked && memcmp(pkey, key,  t->keylen) == 0) {
 
 		/* add values */
+		pflags->locked = 1;
 		t->callback(pkey, pval, val, p);
+		pflags->numbuckets = t->numbuckets;
+		pflags->locked = 0;
 		return prow;
 
 	/* collision */
 	} else {
 		index = hash_table_row_next(t, index);
 		t->collisions++;
-		if ((100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE) > 70) {
+		if ( allow_newbckt && (100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE) > 30) {
 //		if (collisions > HASH_TABLE_COLLISIONS * 100) {
 			printf("XXX hash table new bucket total: %d, occupied: %d, buckets: %d ratio: %d collisions: %d rows: %d\n", 
 					t->numbuckets * HASH_TABLE_BUCKET_SIZE, t->rows_used, t->numbuckets, 
@@ -157,6 +166,7 @@ lookup:
 				return NULL;
 			}
 			t->collisions = 0;
+			index = hash_table_index(t, hash);	
 		}
 		goto lookup;
 	}
@@ -168,10 +178,12 @@ lookup:
 void hash_table_arrange(hash_table_t *t, void *p) {
 
 	unsigned long index;
-	void *prow;
+	void *prow, *prow_new;
 	hash_table_row_flags_t *pflags;
 	char *pkey;
 	char *pval;
+
+	printf("XXX arrange \n");
 
 	for (index = 0 ; index < t->numbuckets * HASH_TABLE_BUCKET_SIZE; index++) {
 
@@ -180,11 +192,16 @@ void hash_table_arrange(hash_table_t *t, void *p) {
 
 		if (pflags->occupied) {
 			/* item shoul be placed to the differend position */
-			if ( index != hash_table_index(t, pflags->hash) ) {
+			if ( t->numbuckets != pflags->numbuckets ) {
 				pkey = prow + sizeof(hash_table_row_flags_t);
 				pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
-				hash_table_insert(t, pkey, pval, 0, p); /* do not allow realloc */
-				pflags->occupied = 0;
+				
+				prow_new = hash_table_insert(t, pkey, pval, 0, p); /* do not allow realloc */
+				// if inserted to the a new position then remove from current */
+				if (prow != prow_new) {
+					pflags->locked = 1;
+				} else {
+				}
 			}
 		}
 	}
@@ -205,7 +222,7 @@ lookup:
 
 	pflags = (hash_table_row_flags_t *)prow;
 
-	if (!pflags->occupied) {
+	if (!pflags->occupied || pflags->locked) {
 		goto lookup;
 	}
 
