@@ -19,7 +19,8 @@ typedef struct hash_table_row_flags_s {
 
 
 /* callback called when same key is found */
-typedef void (*hash_table_callback_t)(char *key, char *hval, char *uval, void *p);
+typedef void (*hash_table_aggr_callback_t)(char *key, char *hval, char *uval, void *p);
+typedef int (*hash_table_sort_callback_t)(char *key1, char *val1, char *key2, char *val2, void *p);
 
 /* hash table handler */
 typedef struct hash_table_s {
@@ -29,14 +30,18 @@ typedef struct hash_table_s {
 	unsigned long rows_used;		/* number of filled rows */
 	unsigned long collisions;		/* number of collisions */
 	unsigned long rows_inserted;	/* number of collisions */
-	hash_table_callback_t callback;
+	hash_table_aggr_callback_t aggr_callback;
+	hash_table_sort_callback_t sort_callback;
 	int numbuckets;				/* number of allocated buckets */
 	void * bucket[HASH_TABLE_MAX_BUCKETS];
+	char ** sort_data;
+	unsigned long sort_items;
 } hash_table_t;
 
 
 
-hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, hash_table_callback_t cb);
-void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, void *p);
+hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen,
+            hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb);
+void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, int *firstentry, void *p);
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
 

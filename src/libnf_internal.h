@@ -94,13 +94,19 @@ typedef struct lnf_mem_s {
 	int	key_len;
 	lnf_fieldlist_t *val_list;		/* list of fields with values (counters etc.) */
 	int	val_len;
-	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
-	int	sort_len;
+//	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
+//	int	sort_len;
 	int  hash_table_init;			/* is the hash table initialised ? */
 	unsigned long hash_index;		/* row index for reading */
 	hash_table_t hash_table;
 	int rearranged;					/* is the final hash table rearranged ? */
+	int sort_field;					/* field identification for sorting */
+	int sort_offset;				/* offset in the record field */
+	int sort_flags;					/* search sort field in ket or aggregated value */
+#define LNF_SORT_FLD_NONE 0x0
+#define LNF_SORT_FLD_IN_KEY 0x1
+#define LNF_SORT_FLD_IN_VAL 0x2
 } lnf_mem_t;
 
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep);
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int *offset);
 

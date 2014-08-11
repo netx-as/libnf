@@ -39,8 +39,10 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->key_len = 0;
 	lnf_mem->val_list = NULL;
 	lnf_mem->val_len = 0;
-	lnf_mem->sort_list = NULL;
-	lnf_mem->sort_len = 0;
+//	lnf_mem->sort_list = NULL;
+//	lnf_mem->sort_len = 0;
+	lnf_mem->sort_offset = 0;
+	lnf_mem->sort_flags = LNF_SORT_FLD_NONE;
 
 	lnf_mem->hash_table_init = 0;
 	lnf_mem->hash_index = 0;
@@ -53,10 +55,11 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 }
 
 /* add item to linked list */
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep) {
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int *roffset) {
 
 	lnf_fieldlist_t *node, *tmp_node;
-	int offset = 0;
+	int offset = 0;	
+
 
 	node = malloc(sizeof(lnf_fieldlist_t));
 
@@ -66,6 +69,7 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 
 	memcpy(node, snode, sizeof(lnf_fieldlist_t));
 	
+
 	if (*list == NULL) {
 		*list = node;	
 	} else {
@@ -82,12 +86,15 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 	node->next = NULL;
 	*sizep = node->offset + node->size;
 
+	*roffset = offset;
+
 	return LNF_OK;
 }
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
 
 	lnf_fieldlist_t fld;
+	int offset;
 	
 	fld.field = field;
 	switch (LNF_GET_TYPE(field)) { 
@@ -108,21 +115,25 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	/* add to key list */
 
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
-		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
+		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
+			lnf_mem->sort_field = field;
+			lnf_mem->sort_offset = offset;
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY;
+		}
 	} else { /* add to value list */
-		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
+		}
+		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
+			lnf_mem->sort_field = field;
+			lnf_mem->sort_offset = offset;
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL;
 		}
 	}
 
-	/* add to sort list */
-	if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
-		if ( lnf_filedlist_add(&lnf_mem->sort_list, &fld, &lnf_mem->sort_len) != LNF_OK ) {
-			return LNF_ERR_NOMEM;
-		}
-	}
 
 	lnf_mem->hash_index = 0;
 
@@ -193,7 +204,7 @@ void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
 	return;
 }
 /* callback for updating items in hash table */
-void lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
+void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
 	lnf_fieldlist_t *fld = ((lnf_mem_t *)lnf_mem)->val_list;
 
@@ -241,11 +252,46 @@ void lnf_mem_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 	}
 }
 
+/* callback for comparing two items */
+int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *p) {
+
+	lnf_mem_t *lnf_mem = p;
+	char *i1;
+	char *i2;
+
+	switch (lnf_mem->sort_flags) {
+
+		case LNF_SORT_FLD_IN_KEY:
+			i1 = key1 + lnf_mem->sort_offset;
+			i1 = key2 + lnf_mem->sort_offset;
+			break;
+
+		case LNF_SORT_FLD_IN_VAL:
+			i1 = val1 + lnf_mem->sort_offset;
+			i1 = val2 + lnf_mem->sort_offset;
+			break;
+
+		default: 
+			return 0;
+	}
+
+	switch (LNF_GET_TYPE(lnf_mem->sort_field)) {
+		case LNF_UINT64: 
+			printf("XXX cmp %d %d\n", *(uint64_t *)i1, *(uint64_t *)i2); 
+			return *(uint64_t *)i1 < *(uint64_t *)i2; 
+			break;
+
+		default: 
+			return 0;
+	}
+	
+}
 
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	int keylen, vallen;
+	int firstentry;
 	char keybuf[1024]; /* XXX !!! */
 	char valbuf[1024]; /* XXX !!! */
 
@@ -259,14 +305,15 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	/* first record - initialise hash table */
 	if ( lnf_mem->hash_table_init == 0 ) {
-		if (hash_table_init(&lnf_mem->hash_table, keylen, vallen, &lnf_mem_callback) == NULL) {
+		if (hash_table_init(&lnf_mem->hash_table, keylen, vallen, 
+				&lnf_mem_aggr_callback, &lnf_mem_sort_callback) == NULL) {
 			return LNF_ERR_NOMEM;
 		}
 		lnf_mem->hash_table_init = 1;
 	}
 
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, lnf_mem) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, &firstentry, lnf_mem) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 

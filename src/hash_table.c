@@ -37,12 +37,14 @@ void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
 
 /* initialise hash table */ 
 /* argumets - aggregation key size, sort key size, values size */
-hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, hash_table_callback_t cb) {
+hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, 
+			hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb) {
 
 	t->keylen = keylen;
 	t->vallen = vallen;
 	t->rowlen = sizeof(hash_table_row_flags_t) + vallen + keylen;
-	t->callback = cb;
+	t->aggr_callback = acb;
+	t->sort_callback = scb;
 	
 	t->numbuckets = 0;
 	t->rows_used = 0;
@@ -99,7 +101,7 @@ unsigned long hash_table_row_next(hash_table_t *t, int index) {
 }
 
 /* insert element into hash table */
-void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbckt, void *p) {
+void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbckt, int *first_entry, void *p) {
 
 	unsigned long hash, index, bucket, row, i;
 	void *prow;
@@ -128,6 +130,7 @@ lookup:
 	if (!pflags->locked && !pflags->occupied) {
 
 		pflags->locked = 1;
+
 		memcpy(pkey, key, t->keylen);
 		memcpy(pval, val, t->vallen);
 		pflags->occupied = 1;
@@ -137,6 +140,7 @@ lookup:
 		t->rows_used++;
 		pflags->locked = 0;
 
+		*first_entry = 1;
 		return prow;
 
 	}
@@ -147,9 +151,12 @@ lookup:
 
 		/* add values */
 		pflags->locked = 1;
-		t->callback(pkey, pval, val, p);
+
+		t->aggr_callback(pkey, pval, val, p);
 		pflags->numbuckets = t->numbuckets;
 		pflags->locked = 0;
+
+		*first_entry = 0;
 		return prow;
 
 	/* collision */
@@ -182,8 +189,13 @@ void hash_table_arrange(hash_table_t *t, void *p) {
 	hash_table_row_flags_t *pflags;
 	char *pkey;
 	char *pval;
+	int firstentry;
 
 	printf("XXX arrange \n");
+
+	/* prepare sort array */
+	t->sort_items = 0;
+	t->sort_data = malloc(t->rows_used * sizeof(char *));
 
 	for (index = 0 ; index < t->numbuckets * HASH_TABLE_BUCKET_SIZE; index++) {
 
@@ -196,35 +208,35 @@ void hash_table_arrange(hash_table_t *t, void *p) {
 				pkey = prow + sizeof(hash_table_row_flags_t);
 				pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
 				
-				prow_new = hash_table_insert(t, pkey, pval, 0, p); /* do not allow realloc */
+				prow_new = hash_table_insert(t, pkey, pval, 0, &firstentry, p); /* do not allow realloc */
 				// if inserted to the a new position then remove from current */
 				if (prow != prow_new) {
 					pflags->locked = 1;
-				} else {
+				} 
+				/* we created first entry - add to list */
+				if (firstentry) {
+					t->sort_data[t->sort_items++] = prow;
 				}
+			} else {
+				/* item is on the right position */
+				t->sort_data[t->sort_items++] = prow;
 			}
 		}
 	}
 	
 }
 
-/* return next non occupied field */
+/* return next field */
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey, char **pval) {
 
 	hash_table_row_flags_t *pflags;
 	char *prow;
 
-lookup:
-
-	prow =  hash_table_row_ptr(t, index);
-	
-	index = hash_table_row_next(t, index);
-
-	pflags = (hash_table_row_flags_t *)prow;
-
-	if (!pflags->occupied || pflags->locked) {
-		goto lookup;
+	if (index >= t->sort_items) {
+		return 0;
 	}
+
+	prow = t->sort_data[index++];
 
 	*pkey = (prow + sizeof(hash_table_row_flags_t));
 	*pval = (prow + sizeof(hash_table_row_flags_t) + t->keylen);
