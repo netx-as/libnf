@@ -263,12 +263,12 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 
 		case LNF_SORT_FLD_IN_KEY:
 			i1 = key1 + lnf_mem->sort_offset;
-			i1 = key2 + lnf_mem->sort_offset;
+			i2 = key2 + lnf_mem->sort_offset;
 			break;
 
 		case LNF_SORT_FLD_IN_VAL:
 			i1 = val1 + lnf_mem->sort_offset;
-			i1 = val2 + lnf_mem->sort_offset;
+			i2 = val2 + lnf_mem->sort_offset;
 			break;
 
 		default: 
@@ -277,10 +277,23 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 
 	switch (LNF_GET_TYPE(lnf_mem->sort_field)) {
 		case LNF_UINT64: 
-			printf("XXX cmp %d %d\n", *(uint64_t *)i1, *(uint64_t *)i2); 
 			return *(uint64_t *)i1 < *(uint64_t *)i2; 
 			break;
-
+		case LNF_UINT32: 
+			return *(uint32_t *)i1 < *(uint32_t *)i2; 
+			break;
+		case LNF_UINT16: 
+			return *(uint16_t *)i1 < *(uint16_t *)i2; 
+			break;
+		case LNF_UINT8: 
+			return *(uint8_t *)i1 < *(uint8_t *)i2; 
+			break;
+		case LNF_ADDR:
+			return (memcmp(i1, i2, sizeof(lnf_ip_t)) > 0); 
+			break;
+		case LNF_MAC: 
+			return (memcmp(i1, i2, sizeof(lnf_mac_t)) > 0 ); 
+			break;
 		default: 
 			return 0;
 	}
@@ -306,14 +319,14 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	/* first record - initialise hash table */
 	if ( lnf_mem->hash_table_init == 0 ) {
 		if (hash_table_init(&lnf_mem->hash_table, keylen, vallen, 
-				&lnf_mem_aggr_callback, &lnf_mem_sort_callback) == NULL) {
+				&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
 			return LNF_ERR_NOMEM;
 		}
 		lnf_mem->hash_table_init = 1;
 	}
 
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, &firstentry, lnf_mem) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, &firstentry) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 

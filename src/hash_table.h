@@ -32,6 +32,7 @@ typedef struct hash_table_s {
 	unsigned long rows_inserted;	/* number of collisions */
 	hash_table_aggr_callback_t aggr_callback;
 	hash_table_sort_callback_t sort_callback;
+	void * callback_data;		/* data tructure handled when called callback */
 	int numbuckets;				/* number of allocated buckets */
 	void * bucket[HASH_TABLE_MAX_BUCKETS];
 	char ** sort_data;
@@ -41,7 +42,7 @@ typedef struct hash_table_s {
 
 
 hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen,
-            hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb);
-void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, int *firstentry, void *p);
+            hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb, void *callback_data);
+void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, int *firstentry);
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
 
