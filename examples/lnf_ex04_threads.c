@@ -25,7 +25,7 @@ void *process_file(void *p) {
 	int i = 0;
 	int tid;
 
-	tid = pthread_self();
+	tid = (int)pthread_self();
 
 	char *filename = p;
 
@@ -37,8 +37,6 @@ void *process_file(void *p) {
 	}
 
 	lnf_rec_init(&recp);
-
-	printf("[#%x] filep %p, recp %p\n", tid, filep, recp);
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
@@ -102,7 +100,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	
 
 	/* initalise one instance of memory heap (share by all threads) */
 	lnf_mem_init(&memp);
@@ -117,24 +114,26 @@ int main(int argc, char **argv) {
 
 	/* read data from files in the separate threads */
 
-	for ( i = 1; i < argc && i < MAX_THREADS; i++ ) {
+	for ( i = optind; i < argc && i < MAX_THREADS; i++ ) {
 
-		if ( pthread_create(&th[i], NULL, process_file, argv[i]) < 0) {
-			fprintf(stderr, "Can not create thread for %s (%s(\n", argv[i], strerror(errno));
+		numthreads = i - optind;
+		if ( pthread_create(&th[numthreads], NULL, process_file, argv[i]) < 0) {
+			fprintf(stderr, "Can not create thread for %s\n", argv[i]);
 			break;
 		}
 
-		numthreads = i;
 	}
 
 
 	/* wait for threads */
-	for ( i = 1; i <= numthreads; i++ ) {
+	for ( i = 0; i <= numthreads; i++ ) {
 		if( pthread_join(th[i], NULL) ) {
 			fprintf(stderr, "Error joining thread\n");
 			break;
 		}
 	}
+
+	printf("threads ended \n");
 
 	/* print the records out */
 	i = 0;
