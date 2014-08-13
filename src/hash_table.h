@@ -1,4 +1,6 @@
 
+#include <stdint.h>
+
 /* the hash table is organized in buckets */
 /* every bucket can contain 2^16 items */
 /* the maximum number of items for hash */
