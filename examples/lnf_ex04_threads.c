@@ -38,6 +38,7 @@ void *process_file(void *p) {
 
 	lnf_rec_init(&recp);
 
+	printf("[#%x] filep %p, recp %p\n", tid, filep, recp);
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
