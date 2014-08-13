@@ -11,8 +11,8 @@
 
 /* hash table iflags for every row */
 typedef struct hash_table_row_flags_s {
-	unsigned char occupied:1;
-	unsigned char locked:1;
+	uint8_t occupied;
+	uint8_t locked;
 	unsigned long hash;
 	int numbuckets;
 } hash_table_row_flags_t;
@@ -24,12 +24,13 @@ typedef int (*hash_table_sort_callback_t)(char *key1, char *val1, char *key2, ch
 
 /* hash table handler */
 typedef struct hash_table_s {
+	int	alocating_buckets;		/* in process of allocationg new buckets */
 	int keylen;					/* size of aggregation key */
 	int vallen;					/* size of vallues key */
 	int rowlen;					/* total size of tow (row_flags_t + akey, skey, val) */
 	unsigned long rows_used;		/* number of filled rows */
-	unsigned long collisions;		/* number of collisions */
-	unsigned long rows_inserted;	/* number of collisions */
+//	unsigned long collisions;		/* number of collisions */
+//	unsigned long rows_inserted;	/* number of rows  */
 	hash_table_aggr_callback_t aggr_callback;
 	hash_table_sort_callback_t sort_callback;
 	void * callback_data;		/* data tructure handled when called callback */

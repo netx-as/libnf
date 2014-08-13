@@ -7,6 +7,9 @@
 #include "hash_table.h"
 #include "xxhash.h"
 
+#define HASH_ATOMIC_CAS(ptr, comp, exch) (__sync_bool_compare_and_swap(ptr, comp, exch))
+#define HASH_ATOMIC_INC(ptr) (__sync_add_and_fetch(ptr, 1))
+
 /* allocane a new bucket in hash table */
 void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
 		
@@ -24,7 +27,6 @@ void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
 		}
 
 		/* clear allocated memory */
-		//memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
 		memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE);
 
 		//t->bucket[t->numbuckets] = p + (i * t->rowlen * HASH_TABLE_BUCKET_SIZE);
@@ -40,6 +42,8 @@ void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
 hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, 
 			hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb, void *callback_data) {
 
+	t->alocating_buckets = 0;
+	t->numbuckets = 0;
 	t->keylen = keylen;
 	t->vallen = vallen;
 	t->rowlen = sizeof(hash_table_row_flags_t) + vallen + keylen;
@@ -47,13 +51,15 @@ hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen,
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
 	
-	t->numbuckets = 0;
 	t->rows_used = 0;
-	t->rows_inserted = 0;
 
 	/* allocate first bucket */
-	if (hash_table_allocate_new_bucket(t, 1) == NULL) {
-		return NULL;
+	if (HASH_ATOMIC_CAS(&t->alocating_buckets, 0, 1) && t->numbuckets == 0) {
+		if (hash_table_allocate_new_bucket(t, 1) == NULL) {
+			t->alocating_buckets = 0;
+			return NULL;
+		}
+		t->alocating_buckets = 0;
 	}
 
 	return t;
@@ -109,13 +115,13 @@ void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck
 	hash_table_row_flags_t *pflags;
 	char *pkey;
 	char *pval;
+//	int *locked;
 	int collisions = 0;
 
 	//hash = hash_table_hash(key, t->keylen);	
 	hash = XXH64(key, t->keylen, 0);	
 
 	index = hash_table_index(t, hash);	
-	t->rows_inserted++;
 
 	
 lookup:
@@ -127,59 +133,61 @@ lookup:
 	pkey = prow + sizeof(hash_table_row_flags_t);
 	pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
 
-	/* critical section !! - replace with compare and swap */
-	if (!pflags->locked && !pflags->occupied) {
+	/* critical section !! - uses compare and swap */
+	if ( HASH_ATOMIC_CAS(&(pflags->locked), 0, 1) ) {
+		if (!pflags->occupied) {
 
-		pflags->locked = 1;
+//			pflags->locked = 1;
 
-		memcpy(pkey, key, t->keylen);
-		memcpy(pval, val, t->vallen);
-		pflags->occupied = 1;
-		pflags->hash = hash;
-		pflags->numbuckets = t->numbuckets;
+			memcpy(pkey, key, t->keylen);
+			memcpy(pval, val, t->vallen);
+			pflags->occupied = 1;
+			pflags->hash = hash;
+			pflags->numbuckets = t->numbuckets;
 
-		t->rows_used++;
+			HASH_ATOMIC_INC(&t->rows_used);
+			pflags->locked = 0;
+
+			*first_entry = 1;
+			return prow;
+
+		} else if (memcmp(pkey, key,  t->keylen) == 0) {
+			/* same key */
+
+			/* add values */
+//			pflags->locked = 1;
+
+			t->aggr_callback(pkey, pval, val, t->callback_data);
+			pflags->numbuckets = t->numbuckets;
+			pflags->locked = 0;
+
+			*first_entry = 0;
+			return prow;
+		}
 		pflags->locked = 0;
+	} /* ATOMIC_CAS */
 
-		*first_entry = 1;
-		return prow;
+	/* collision or attempt to use locked row -> go to the next one */
+	index = hash_table_row_next(t, index);
 
-	}
-	/* critical section !! */
+	if (HASH_ATOMIC_CAS(&t->alocating_buckets, 0, 1)) {
 
-	/* same key */
-	if (!pflags->locked && memcmp(pkey, key,  t->keylen) == 0) {
-
-		/* add values */
-		pflags->locked = 1;
-
-		t->aggr_callback(pkey, pval, val, t->callback_data);
-		pflags->numbuckets = t->numbuckets;
-		pflags->locked = 0;
-
-		*first_entry = 0;
-		return prow;
-
-	/* collision */
-	} else {
-		index = hash_table_row_next(t, index);
-		t->collisions++;
 		if ( allow_newbckt && (100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE) > 30) {
-//		if (collisions > HASH_TABLE_COLLISIONS * 100) {
-			printf("XXX hash table new bucket total: %d, occupied: %d, buckets: %d ratio: %d collisions: %d rows: %d\n", 
+//			if (collisions > HASH_TABLE_COLLISIONS * 100) {
+			printf("XXX hash table new bucket total: %u, occupied: %u, buckets: %u ratio: %u\n", 
 					t->numbuckets * HASH_TABLE_BUCKET_SIZE, t->rows_used, t->numbuckets, 
-					(100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE), 
-					t->collisions, t->rows_inserted );
+					(100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE));
+
 			if (hash_table_allocate_new_bucket(t, t->numbuckets * 2) == NULL) {
+				t->alocating_buckets = 0;
 				return NULL;
 			}
-			t->collisions = 0;
 			index = hash_table_index(t, hash);	
 		}
-		goto lookup;
+		t->alocating_buckets = 0;
 	}
 
-	return NULL;
+	goto lookup;
 }
 
 int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
