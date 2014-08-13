@@ -108,5 +108,9 @@ typedef struct lnf_mem_s {
 #define LNF_SORT_FLD_IN_VAL 0x2
 } lnf_mem_t;
 
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int *offset);
+
+#define LNF_MAX_KEY_LEN 512			/* maximum key length for hash table */
+#define LNF_MAX_VAL_LEN 256			/* maximum aggregated values length for hash table */
+
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
 

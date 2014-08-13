@@ -45,4 +45,6 @@ hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen,
             hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb, void *callback_data);
 void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck, int *firstentry);
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
+void hash_table_free(hash_table_t *t);
+
 

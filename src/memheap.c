@@ -55,7 +55,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 }
 
 /* add item to linked list */
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int *roffset) {
+int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *roffset) {
 
 	lnf_fieldlist_t *node, *tmp_node;
 	int offset = 0;	
@@ -79,6 +79,11 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 			tmp_node = tmp_node->next;
 			offset = tmp_node->offset + tmp_node->size;
 		}
+		/* not enough space in buffer */
+		if (maxsize <= node->offset + node->size) {
+			free(node);
+			return LNF_ERR_NOMEM;
+		}
 		tmp_node->next = node;
 	}
 
@@ -89,6 +94,20 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 	*roffset = offset;
 
 	return LNF_OK;
+}
+
+void lnf_filedlist_free(lnf_fieldlist_t *list) {
+
+	lnf_fieldlist_t *node, *tmp_node;
+	int offset = 0;	
+
+	node = list;
+
+	while (node == NULL) {
+		tmp_node = node;
+		node = node->next;
+		free(tmp_node);
+	}
 }
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
@@ -115,7 +134,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	/* add to key list */
 
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
-		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len, &offset) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len, LNF_MAX_KEY_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
@@ -124,7 +143,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY;
 		}
 	} else { /* add to value list */
-		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len, &offset) != LNF_OK ) {
+		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
@@ -163,10 +182,6 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 
 	while (fld != NULL) {
 		char *ckb = (char *)buf + fld->offset;
-/*
-		printf(" %x : size %d, offset %d, masklen4 %d, masklen6 %d, aggr: %x, sort: %x\n",
-			fld->field, fld->size, fld->offset, fld->numbits, fld->numbits6, fld->aggr_flag, fld->sort_flag);
-*/
 
 		/* put contenf of the field to the buf + offset */
 		lnf_rec_fget(rec, fld->field, ckb);
@@ -305,8 +320,8 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	int keylen, vallen;
 	int firstentry;
-	char keybuf[1024]; /* XXX !!! */
-	char valbuf[1024]; /* XXX !!! */
+	char keybuf[LNF_MAX_KEY_LEN]; 
+	char valbuf[LNF_MAX_VAL_LEN];
 
 
 	/* build key */
@@ -314,7 +329,6 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	/* build values */
 	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
-
 
 	/* first record - initialise hash table */
 	if ( lnf_mem->hash_table_init == 0 ) {
@@ -370,6 +384,14 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 }
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
+
+	hash_table_free(&lnf_mem->hash_table);
+
+	/* clean lists */
+	lnf_filedlist_free(lnf_mem->key_list);
+	lnf_filedlist_free(lnf_mem->val_list);
+
 	free(lnf_mem);
+
 }
 

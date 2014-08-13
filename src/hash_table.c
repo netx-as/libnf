@@ -264,3 +264,12 @@ unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey
 	return index;
 }
 
+void hash_table_free(hash_table_t *t) {
+
+	int i;
+
+	for (i = 0; i < t->numbuckets; i++) {
+		free(t->bucket[i]);
+	}
+	free(t->sort_data);
+}
