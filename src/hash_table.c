@@ -118,8 +118,10 @@ void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck
 //	int *locked;
 	int collisions = 0;
 
+//	return &i;
+
 	//hash = hash_table_hash(key, t->keylen);	
-	hash = XXH64(key, t->keylen, 0);	
+//	hash = XXH64(key, t->keylen, 0);	
 
 	index = hash_table_index(t, hash);	
 

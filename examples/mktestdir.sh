@@ -2,7 +2,7 @@
 
 set -x
 
-RECS=100000000
+RECS=50000000
 DIR=testdir
 
 mkdir ${DIR}

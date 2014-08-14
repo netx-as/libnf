@@ -315,6 +315,19 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 	
 }
 
+int lnf_mem_done(lnf_mem_t *lnf_mem) {
+
+	if (hash_table_init(&lnf_mem->hash_table, lnf_mem->key_len, lnf_mem->val_len, 
+			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
+
+		return LNF_ERR_NOMEM;
+
+	}
+
+	lnf_mem->rearranged = 0;
+
+	return LNF_OK;
+}
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
@@ -330,21 +343,11 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	/* build values */
 	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
 
-	/* first record - initialise hash table */
-	if ( lnf_mem->hash_table_init == 0 ) {
-		if (hash_table_init(&lnf_mem->hash_table, keylen, vallen, 
-				&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
-			return LNF_ERR_NOMEM;
-		}
-		lnf_mem->hash_table_init = 1;
-	}
-
 	/* insert record */
 	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, &firstentry) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
-	lnf_mem->rearranged = 0;
 	return LNF_OK;
 }
 

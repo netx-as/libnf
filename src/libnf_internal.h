@@ -113,4 +113,5 @@ typedef struct lnf_mem_s {
 #define LNF_MAX_VAL_LEN 256			/* maximum aggregated values length for hash table */
 
 int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
+int lnf_mem_done(lnf_mem_t *lnf_mem);
 
