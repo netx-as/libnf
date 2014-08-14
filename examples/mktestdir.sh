@@ -2,11 +2,11 @@
 
 set -x
 
-RECS=50000000
+RECS=100000000
 DIR=testdir
 
 mkdir ${DIR}
-for i in 1 2 3 4 5 6 7 8 9 ; do 
-	time ./lnf_ex01_writer -n ${RECS} -r $i -f ${DIR}/tf-${i}
+for i in 01 02 03 04 05 06 07 08 09 10 11 12 ; do 
+	time ./lnf_ex01_writer -n ${RECS} -r $i -f ${DIR}/tf-${i} &
 done 
 

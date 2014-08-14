@@ -43,7 +43,7 @@ void *process_file(void *p) {
 		i++;
 
 		/* add to memory heap */
-		lnf_mem_write(memp, recp);
+//		lnf_mem_write(memp, recp);
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
