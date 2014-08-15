@@ -10,186 +10,88 @@
 #define HASH_ATOMIC_CAS(ptr, comp, exch) (__sync_bool_compare_and_swap(ptr, comp, exch))
 #define HASH_ATOMIC_INC(ptr) (__sync_add_and_fetch(ptr, 1))
 
-/* allocane a new bucket in hash table */
-void * hash_table_allocate_new_bucket(hash_table_t *t, int buckets) {
-		
-	void *p;
-	int i;
-
-	for (i = 0; i < buckets; i++) {
-
-		//p = malloc(t->rowlen * HASH_TABLE_BUCKET_SIZE * buckets);
-		p = malloc(t->rowlen * HASH_TABLE_BUCKET_SIZE);
-
-		/* cannot allocate memroty */
-		if (p == NULL) {
-			return NULL;
-		}
-
-		/* clear allocated memory */
-		memset(p, 0x0, t->rowlen * HASH_TABLE_BUCKET_SIZE);
-
-		//t->bucket[t->numbuckets] = p + (i * t->rowlen * HASH_TABLE_BUCKET_SIZE);
-		t->bucket[t->numbuckets] = p;
-		t->numbuckets++;
-	}
-
-	return p;	
-}
 
 /* initialise hash table */ 
 /* argumets - aggregation key size, sort key size, values size */
-hash_table_t * hash_table_init(hash_table_t *t, int keylen, int vallen, 
-			hash_table_aggr_callback_t acb, hash_table_sort_callback_t scb, void *callback_data) {
+hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
+			hash_table_aggr_callback_t acb, 
+			hash_table_sort_callback_t scb, 
+			void *callback_data) {
 
-	t->alocating_buckets = 0;
-	t->numbuckets = 0;
-	t->keylen = keylen;
-	t->vallen = vallen;
-	t->rowlen = sizeof(hash_table_row_flags_t) + vallen + keylen;
+	t->buckets = calloc(sizeof(void *), numbuckets);
+	if (t->buckets == NULL) {
+		return NULL;
+	}
+
+	t->numbuckets = numbuckets;
 	t->aggr_callback = acb;
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
+	t->entrypoint = NULL;	/* entry point */
 	
-	t->rows_used = 0;
-
-	/* allocate first bucket */
-	if (HASH_ATOMIC_CAS(&t->alocating_buckets, 0, 1) && t->numbuckets == 0) {
-		if (hash_table_allocate_new_bucket(t, 1) == NULL) {
-			t->alocating_buckets = 0;
-			return NULL;
-		}
-		t->alocating_buckets = 0;
-	}
+//	t->rows_used = 0;
 
 	return t;
 
 }
 
-/* compute hash function */
-unsigned long hash_table_hash(char * key, int len) {
+void hash_table_entry_len(hash_table_t *t, int keylen, int vallen) {
 
-	int i;	
-	unsigned long h = 0;
-	char *hp = (char *)&h;
+	t->keylen = keylen;	
+	t->vallen = vallen;	
 
-	for (i = 0; i < len; i++) {
-		printf("HASH: %d %d %x \n", i % sizeof(h), i, key[i] & 0xFF);
-		//hp[i % sizeof(h)] += key[i] & 0xFF;
-		h += key[i] & 0xFF;
-	}
-
-	return h;
-}
-
-/* return index to hash table */
-unsigned long hash_table_index(hash_table_t *t, unsigned long hash) {
-
-	return hash % (t->numbuckets * HASH_TABLE_BUCKET_SIZE);
-
-}
-
-/* get row ptw according index */
-void * hash_table_row_ptr(hash_table_t *t, int index) {
-
-	unsigned long bucket, row;
-
-	bucket = index % t->numbuckets;
-	row = index % HASH_TABLE_BUCKET_SIZE;	
-
-	return t->bucket[bucket] + (row * t->rowlen); 
-}
-
-unsigned long hash_table_row_next(hash_table_t *t, int index) {
-	
-	index++;
-
-	return index < (t->numbuckets * HASH_TABLE_BUCKET_SIZE) ? index : 0;
 }
 
 /* insert element into hash table */
-void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbckt, int *first_entry) {
+char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 
-	unsigned long hash, index, bucket, row, i;
-	void *prow;
-	hash_table_row_flags_t *pflags;
+	unsigned long hash, index;
+	char *prow;
+	hash_table_row_hdr_t *phdr;
 	char *pkey;
 	char *pval;
-//	int *locked;
-	int collisions = 0;
 
-//	return &i;
+	hash = XXH64(key, t->keylen, 0);	
 
-	//hash = hash_table_hash(key, t->keylen);	
-//	hash = XXH64(key, t->keylen, 0);	
+	index = hash % t->numbuckets;
 
-	index = hash_table_index(t, hash);	
+	prow = t->buckets[index];
 
-	
-lookup:
+	while (prow != NULL) {
+		/* collison */
+		phdr = (hash_table_row_hdr_t *)prow;
+		pkey = prow + sizeof(hash_table_row_hdr_t);
+		pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
 
-	/* determine bucket and row in bucket */
-	prow =  hash_table_row_ptr(t, index);
-
-	pflags = (hash_table_row_flags_t *)prow;
-	pkey = prow + sizeof(hash_table_row_flags_t);
-	pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
-
-	/* critical section !! - uses compare and swap */
-	if ( HASH_ATOMIC_CAS(&(pflags->locked), 0, 1) ) {
-		if (!pflags->occupied) {
-
-//			pflags->locked = 1;
-
-			memcpy(pkey, key, t->keylen);
-			memcpy(pval, val, t->vallen);
-			pflags->occupied = 1;
-			pflags->hash = hash;
-			pflags->numbuckets = t->numbuckets;
-
-			HASH_ATOMIC_INC(&t->rows_used);
-			pflags->locked = 0;
-
-			*first_entry = 1;
-			return prow;
-
-		} else if (memcmp(pkey, key,  t->keylen) == 0) {
-			/* same key */
-
-			/* add values */
-//			pflags->locked = 1;
-
+		if (memcmp(pkey, key, t->keylen) == 0) {
+			/* same key - aggregate value */
 			t->aggr_callback(pkey, pval, val, t->callback_data);
-			pflags->numbuckets = t->numbuckets;
-			pflags->locked = 0;
-
-			*first_entry = 0;
 			return prow;
+		} else {
+			/* keys do not match - try next item in list */
+			prow = phdr->next;
 		}
-		pflags->locked = 0;
-	} /* ATOMIC_CAS */
-
-	/* collision or attempt to use locked row -> go to the next one */
-	index = hash_table_row_next(t, index);
-
-	if (HASH_ATOMIC_CAS(&t->alocating_buckets, 0, 1)) {
-
-		if ( allow_newbckt && (100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE) > 30) {
-//			if (collisions > HASH_TABLE_COLLISIONS * 100) {
-			printf("XXX hash table new bucket total: %u, occupied: %u, buckets: %u ratio: %u\n", 
-					t->numbuckets * HASH_TABLE_BUCKET_SIZE, t->rows_used, t->numbuckets, 
-					(100 * t->rows_used) / (t->numbuckets * HASH_TABLE_BUCKET_SIZE));
-
-			if (hash_table_allocate_new_bucket(t, t->numbuckets * 2) == NULL) {
-				t->alocating_buckets = 0;
-				return NULL;
-			}
-			index = hash_table_index(t, hash);	
-		}
-		t->alocating_buckets = 0;
 	}
 
-	goto lookup;
+	/* new entry */
+	prow = malloc(sizeof(hash_table_row_hdr_t) + t->keylen + t->vallen);
+
+	if (prow == NULL) {
+		return NULL;
+	}
+
+	phdr = (hash_table_row_hdr_t *)prow;
+	pkey = prow + sizeof(hash_table_row_hdr_t);
+	pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
+
+	memcpy(pkey, key, t->keylen);
+	memcpy(pval, val, t->vallen);
+	phdr->hash = hash;
+	phdr->next = t->buckets[index];
+
+	t->buckets[index] = prow;
+
+	return prow;
 }
 
 int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
@@ -198,88 +100,89 @@ int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
 	char *pkey1, *pval1;
 	char *pkey2, *pval2;
 
-	pkey1 = (prow1 + sizeof(hash_table_row_flags_t));
-	pval1 = (prow1 + sizeof(hash_table_row_flags_t) + t->keylen);
+	pkey1 = (prow1 + sizeof(hash_table_row_hdr_t));
+	pval1 = (prow1 + sizeof(hash_table_row_hdr_t) + t->keylen);
 	
-	pkey2 = (prow2 + sizeof(hash_table_row_flags_t));
-	pval2 = (prow2 + sizeof(hash_table_row_flags_t) + t->keylen);
+	pkey2 = (prow2 + sizeof(hash_table_row_hdr_t));
+	pval2 = (prow2 + sizeof(hash_table_row_hdr_t) + t->keylen);
 
 	return t->sort_callback(pkey1, pval1, pkey2, pval2, t->callback_data);
 
 }
 
-/* insert element into hash table */
-void hash_table_arrange(hash_table_t *t, void *p) {
+/* convert hash table into linked list */
+void hash_table_sort(hash_table_t *t) {
 
 	unsigned long index;
-	void *prow, *prow_new;
-	hash_table_row_flags_t *pflags;
-	char *pkey;
-	char *pval;
-	int firstentry;
+	char *prow_tmp;
+	hash_table_row_hdr_t *phdr;
 
-	printf("XXX arrange \n");
+	for (index = 0; index < t->numbuckets; index++) {
 
-	/* prepare sort array */
-	t->sort_items = 0;
-	t->sort_data = malloc(t->rows_used * sizeof(char *));
+		if (t->buckets[index] != NULL) {
+			
+			prow_tmp = t->buckets[index];
 
-	for (index = 0 ; index < t->numbuckets * HASH_TABLE_BUCKET_SIZE; index++) {
-
-		prow =  hash_table_row_ptr(t, index);
-		pflags = (hash_table_row_flags_t *)prow;
-
-		if (pflags->occupied) {
-			/* item shoul be placed to the differend position */
-			if ( t->numbuckets != pflags->numbuckets ) {
-				pkey = prow + sizeof(hash_table_row_flags_t);
-				pval = prow + sizeof(hash_table_row_flags_t) + t->keylen;
-				
-				prow_new = hash_table_insert(t, pkey, pval, 0, &firstentry); /* do not allow realloc */
-				// if inserted to the a new position then remove from current */
-				if (prow != prow_new) {
-					pflags->locked = 1;
-				} 
-				/* we created first entry - add to list */
-				if (firstentry) {
-					t->sort_data[t->sort_items++] = prow;
-				}
-			} else {
-				/* item is on the right position */
-				t->sort_data[t->sort_items++] = prow;
+			while (prow_tmp != NULL) {
+				phdr = (hash_table_row_hdr_t *)prow_tmp;	
+				prow_tmp = phdr->next;
 			}
-		}
-	}
 
-	printf("HEAP sort\n");
-	heap_sort(t->sort_data, t->sort_items, &hash_table_sort_callback, t);
+			phdr->next = t->entrypoint;
+			t->entrypoint = t->buckets[index];
+
+		} 
+	}	
+
+	//heap_sort(t->sort_data, t->sort_items, &hash_table_sort_callback, t);
 	
 }
 
 /* return next field */
-unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey, char **pval) {
+char * hash_table_first(hash_table_t *t) {
 
-	hash_table_row_flags_t *pflags;
-	char *prow;
+	return  t->entrypoint;
 
-	if (index >= t->sort_items) {
-		return 0;
-	}
+}
 
-	prow = t->sort_data[index++];
+char * hash_table_next(hash_table_t *t, char *prow) {
 
-	*pkey = (prow + sizeof(hash_table_row_flags_t));
-	*pval = (prow + sizeof(hash_table_row_flags_t) + t->keylen);
+	hash_table_row_hdr_t *phdr;
 
-	return index;
+	phdr = (hash_table_row_hdr_t *)prow;	
+
+	return phdr->next;
+}
+
+void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
+
+	hash_table_row_hdr_t *phdr;
+
+	if (prow == NULL) {
+		prow = t->entrypoint;
+	} 
+
+	phdr = (hash_table_row_hdr_t *)prow;	
+	*pkey = (prow + sizeof(hash_table_row_hdr_t));
+	*pval = (prow + sizeof(hash_table_row_hdr_t) + t->keylen);
+
 }
 
 void hash_table_free(hash_table_t *t) {
 
-	int i;
+	char *prow, *tmp;
+	hash_table_row_hdr_t *phdr;
 
-	for (i = 0; i < t->numbuckets; i++) {
-		free(t->bucket[i]);
-	}
-	free(t->sort_data);
+	free(t->buckets);
+
+	prow = t->entrypoint;
+
+	while (prow != NULL) {
+		phdr = (hash_table_row_hdr_t *)prow;
+		tmp = prow;
+		prow = phdr->next;
+		free(tmp);
+	}	
+
+//	free(t->sort_data);
 }

@@ -96,8 +96,7 @@ typedef struct lnf_mem_s {
 	int	val_len;
 //	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
 //	int	sort_len;
-	int  hash_table_init;			/* is the hash table initialised ? */
-	unsigned long hash_index;		/* row index for reading */
+	char * hash_ptr;				/* row pointer for reading */
 	hash_table_t hash_table;
 	int rearranged;					/* is the final hash table rearranged ? */
 	int sort_field;					/* field identification for sorting */
@@ -106,12 +105,21 @@ typedef struct lnf_mem_s {
 #define LNF_SORT_FLD_NONE 0x0
 #define LNF_SORT_FLD_IN_KEY 0x1
 #define LNF_SORT_FLD_IN_VAL 0x2
+	int sorted;						/* is the table sorted ? */
 } lnf_mem_t;
 
 
 #define LNF_MAX_KEY_LEN 512			/* maximum key length for hash table */
 #define LNF_MAX_VAL_LEN 256			/* maximum aggregated values length for hash table */
 
+void lnf_filedlist_free(lnf_fieldlist_t *list);
+void lnf_clear_bits(char *buf, int buflen, int from);
+int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf);
+void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec);
+
+
 int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
+void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
+int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *p);
 int lnf_mem_done(lnf_mem_t *lnf_mem);
 

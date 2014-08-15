@@ -44,12 +44,22 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sort_offset = 0;
 	lnf_mem->sort_flags = LNF_SORT_FLD_NONE;
 
-	lnf_mem->hash_table_init = 0;
-	lnf_mem->hash_index = 0;
+	lnf_mem->hash_ptr = NULL;
+	lnf_mem->sorted = 0;
+
+
+	/* XXX !!!! */
+	if (hash_table_init(&lnf_mem->hash_table, 65535,
+			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
+
+		free(lnf_mem);
+		return LNF_ERR_NOMEM;
+
+	}
+	
+	hash_table_entry_len(&lnf_mem->hash_table, 0, 0);
 
 	*lnf_memp =  lnf_mem;
-
-
 
 	return LNF_OK;
 }
@@ -68,7 +78,8 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 	}
 
 	memcpy(node, snode, sizeof(lnf_fieldlist_t));
-	
+
+	node->offset = 0;
 
 	if (*list == NULL) {
 		*list = node;	
@@ -99,7 +110,6 @@ int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep
 void lnf_filedlist_free(lnf_fieldlist_t *list) {
 
 	lnf_fieldlist_t *node, *tmp_node;
-	int offset = 0;	
 
 	node = list;
 
@@ -132,7 +142,6 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	fld.sort_flag = flags & LNF_SORT_FLAGS;
 
 	/* add to key list */
-
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
 		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len, LNF_MAX_KEY_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
@@ -154,7 +163,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	}
 
 
-	lnf_mem->hash_index = 0;
+	hash_table_entry_len(&lnf_mem->hash_table, lnf_mem->key_len, lnf_mem->val_len);
 
 	return LNF_OK;
 }
@@ -205,8 +214,6 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 /* fill record the list from buffer */
 void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
 
-	int keysize = 0;
-
 	while (fld != NULL) {
 		char *ckb = (char *)buf + fld->offset;
 
@@ -226,7 +233,7 @@ void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 	while (fld != NULL) {
 		char *hckb = (char *)hval + fld->offset;
 		char *uckb = (char *)uval + fld->offset;
-		
+
 		switch (LNF_GET_TYPE(fld->field)) {
 			case LNF_UINT8: 
 				switch (fld->aggr_flag) {
@@ -315,24 +322,10 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 	
 }
 
-int lnf_mem_done(lnf_mem_t *lnf_mem) {
-
-	if (hash_table_init(&lnf_mem->hash_table, lnf_mem->key_len, lnf_mem->val_len, 
-			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
-
-		return LNF_ERR_NOMEM;
-
-	}
-
-	lnf_mem->rearranged = 0;
-
-	return LNF_OK;
-}
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	int keylen, vallen;
-	int firstentry;
 	char keybuf[LNF_MAX_KEY_LEN]; 
 	char valbuf[LNF_MAX_VAL_LEN];
 
@@ -344,7 +337,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
 
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf, 1, &firstentry) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
@@ -355,25 +348,23 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 /* read netx record from memory heap */
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
-	unsigned long index;
-	int keylen, vallen;
 	char *key; 
 	char *val;
 
-	/* firs read - rearrange hash table */
-	if (!lnf_mem->rearranged) {
-		hash_table_arrange(&lnf_mem->hash_table, lnf_mem);
-		lnf_mem->rearranged = 1;
+	if (!lnf_mem->sorted) {
+		hash_table_sort(&lnf_mem->hash_table);
+		lnf_mem->sorted = 1;
+		lnf_mem->hash_ptr = hash_table_first(&lnf_mem->hash_table);
+	} else {
+		lnf_mem->hash_ptr = hash_table_next(&lnf_mem->hash_table, lnf_mem->hash_ptr);
 	}
 
-	index = hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_index, &key, &val);
-
-	if (index <= lnf_mem->hash_index) {
+	if (lnf_mem->hash_ptr == NULL) {
 		//lnf_mem->hash_index = 0;
 		return LNF_EOF;
 	}
 
-	lnf_mem->hash_index = index;
+	hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_ptr, &key, &val);
 
 	lnf_rec_clear(rec);
 

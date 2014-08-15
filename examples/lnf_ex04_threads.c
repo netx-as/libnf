@@ -112,8 +112,6 @@ int main(int argc, char **argv) {
 	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
 
-	lnf_mem_done(memp);
-
 	/* read data from files in the separate threads */
 
 	for ( i = optind; i < argc && i < MAX_THREADS; i++ ) {

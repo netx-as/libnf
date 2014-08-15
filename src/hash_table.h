@@ -12,12 +12,10 @@
 #define HASH_TABLE_COLLISIONS 10
 
 /* hash table iflags for every row */
-typedef struct hash_table_row_flags_s {
-	uint8_t occupied;
-	uint8_t locked;
+typedef struct hash_table_row_hdr_s {
 	unsigned long hash;
-	int numbuckets;
-} hash_table_row_flags_t;
+	char *next;
+} hash_table_row_hdr_t;
 
 
 /* callback called when same key is found */
@@ -26,20 +24,21 @@ typedef int (*hash_table_sort_callback_t)(char *key1, char *val1, char *key2, ch
 
 /* hash table handler */
 typedef struct hash_table_s {
-	int	alocating_buckets;		/* in process of allocationg new buckets */
+//	int	alocating_buckets;		/* in process of allocationg new buckets */
 	int keylen;					/* size of aggregation key */
 	int vallen;					/* size of vallues key */
-	int rowlen;					/* total size of tow (row_flags_t + akey, skey, val) */
-	unsigned long rows_used;		/* number of filled rows */
+//	int rowlen;					/* total size of tow (row_flags_t + akey, skey, val) */
+//	unsigned long rows_used;		/* number of filled rows */
 //	unsigned long collisions;		/* number of collisions */
 //	unsigned long rows_inserted;	/* number of rows  */
 	hash_table_aggr_callback_t aggr_callback;
 	hash_table_sort_callback_t sort_callback;
 	void * callback_data;		/* data tructure handled when called callback */
 	int numbuckets;				/* number of allocated buckets */
-	void * bucket[HASH_TABLE_MAX_BUCKETS];
-	char ** sort_data;
-	unsigned long sort_items;
+	char ** buckets;
+	char * entrypoint;
+//	char ** sort_data;
+//	unsigned long sort_items;
 } hash_table_t;
 
 
@@ -50,4 +49,19 @@ void * hash_table_insert(hash_table_t *t, char *key, char *val, int allow_newbck
 unsigned long hash_table_fetch(hash_table_t *t, unsigned long index, char **key, char **val);
 void hash_table_free(hash_table_t *t);
 */
+
+hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
+            hash_table_aggr_callback_t acb,
+            hash_table_sort_callback_t scb,
+            void *callback_data);
+
+char * hash_table_first(hash_table_t *t);
+char * hash_table_next(hash_table_t *t, char *prow);
+void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval);
+void hash_table_entry_len(hash_table_t *t, int keylen, int vallen);
+char * hash_table_insert(hash_table_t *t, char *key, char *val);
+int hash_table_sort_callback(char *prow1, char *prow2, void *p);
+void hash_table_sort(hash_table_t *t);
+void hash_table_free(hash_table_t *t);
+
 

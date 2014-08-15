@@ -66,9 +66,9 @@ int main(int argc, char **argv) {
 	lnf_mem_fadd(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_TCP_FLAGS, LNF_AGGR_OR, 0, 0);
-//	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM|LNF_SORT_DESC, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
+
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
