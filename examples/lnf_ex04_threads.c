@@ -47,7 +47,7 @@ int process_file(char *filename) {
 		i++;
 
 		/* add to memory heap */
-//		lnf_mem_write(memp, recp);
+		lnf_mem_write(memp, recp);
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -88,8 +88,7 @@ void *process_thread(void *p) {
 		/* get next file */
 		pthread_mutex_lock(&mutex);
 		if (filelist[fileidx] == NULL) {
-			pthread_mutex_unlock(&mutex);
-			return NULL; 
+			goto DONE;
 		} else {
 			filename = filelist[fileidx];
 			fileidx++;
@@ -103,6 +102,11 @@ void *process_thread(void *p) {
 		totalrows += rows;
 		pthread_mutex_unlock(&mutex);
 	}
+
+DONE:
+	printf("MERGE\n");
+
+	lnf_mem_merge_threads(memp);
 
 	return NULL;
 }

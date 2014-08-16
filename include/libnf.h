@@ -237,6 +237,7 @@ int	lnf_filter_init(lnf_filter_t **filterp, char *expr);
 int	lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec);
 void lnf_filter_free(lnf_filter_t *filter);
 
+#define LNF_MAX_THREADS 128		/* maximum threads */
 
 /* memory heap operations */
 int lnf_mem_init(lnf_mem_t **lnf_mem);
@@ -256,6 +257,7 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 void lnf_mem_free(lnf_mem_t *lnf_mem);
 

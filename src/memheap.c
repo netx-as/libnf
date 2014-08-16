@@ -46,20 +46,54 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 
 	lnf_mem->hash_ptr = NULL;
 	lnf_mem->sorted = 0;
+	lnf_mem->numthreads = 0;
+	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
+		free(lnf_mem);
+        return LNF_ERR_OTHER;
+	}
+	
+	if (pthread_key_create(&lnf_mem->thread_id_key, NULL) != 0) {
+		free(lnf_mem);
+        return LNF_ERR_OTHER;
+	}
 
+	*lnf_memp =  lnf_mem;
 
-	/* XXX !!!! */
-	if (hash_table_init(&lnf_mem->hash_table, 65535,
+	return LNF_OK;
+}
+
+/* initialise thread specific data structures */
+int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
+
+	int *id; 
+
+	if (lnf_mem->numthreads > LNF_MAX_THREADS) {
+		return LNF_ERR_OTHER;	
+	}
+
+	id = malloc(sizeof(int));
+
+	if (id == NULL) {
+		return LNF_ERR_NOMEM;
+	}
+
+	/* determine ID for the current thread and store */
+	pthread_mutex_lock(&lnf_mem->thread_mutex);
+
+	*id = lnf_mem->numthreads;
+	lnf_mem->numthreads++;
+	pthread_setspecific(lnf_mem->thread_id_key, (void *)id);
+		
+	pthread_mutex_unlock(&lnf_mem->thread_mutex);
+
+	if (hash_table_init(&lnf_mem->hash_table[*id], HASH_TABLE_INIT_SIZE,
 			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
 
-		free(lnf_mem);
 		return LNF_ERR_NOMEM;
 
 	}
 	
-	hash_table_entry_len(&lnf_mem->hash_table, 0, 0);
-
-	*lnf_memp =  lnf_mem;
+	hash_table_entry_len(&lnf_mem->hash_table[*id], lnf_mem->key_len, lnf_mem->val_len);
 
 	return LNF_OK;
 }
@@ -161,9 +195,6 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL;
 		}
 	}
-
-
-	hash_table_entry_len(&lnf_mem->hash_table, lnf_mem->key_len, lnf_mem->val_len);
 
 	return LNF_OK;
 }
@@ -326,6 +357,7 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	int keylen, vallen;
+	int *id;
 	char keybuf[LNF_MAX_KEY_LEN]; 
 	char valbuf[LNF_MAX_VAL_LEN];
 
@@ -336,14 +368,93 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	/* build values */
 	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
 
+	id = pthread_getspecific(lnf_mem->thread_id_key);
+
+	/* no thread specific data */
+	if (id == NULL) {
+		int ret = lnf_mem_thread_init(lnf_mem);
+		if (ret != LNF_OK) {
+			return ret;
+		}
+		id = pthread_getspecific(lnf_mem->thread_id_key);
+		if (id == NULL) {
+			return LNF_ERR_OTHER;
+		}
+		lnf_mem->thread_status[*id] = LNF_TH_WRITE;
+	}
+
+
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table, keybuf, valbuf) == NULL) {
+	if (hash_table_insert(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
 	return LNF_OK;
 }
 
+/* merge data in hash tables from all threads */
+int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
+
+	int *id;
+	int merged, merging, i;
+
+	id = pthread_getspecific(lnf_mem->thread_id_key);
+
+	if (id == NULL) {
+		return LNF_OK;
+	}
+
+	/* set status of the current thread to "ready for merge" */
+	lnf_mem->thread_status[*id] = LNF_TH_MERGE;
+
+	for (;;) {
+		merging = 0xFF;
+		merged = 0xFF;
+
+		/* choose merging and merged hash */
+		pthread_mutex_lock(&lnf_mem->thread_mutex);
+
+		for (i = 0; i < lnf_mem->numthreads; i++) {
+			if (lnf_mem->thread_status[i] == LNF_TH_MERGE) {
+				merging = i; 
+				lnf_mem->thread_status[i] = LNF_TH_MERGING;
+			}
+		}
+
+		printf("XXXX %d %d \n", i, lnf_mem->numthreads);
+
+		/* nothing to merge */
+		if (i == lnf_mem->numthreads) {
+			pthread_mutex_unlock(&lnf_mem->thread_mutex);
+			return LNF_OK;
+		}
+
+		for (i = 0; i < lnf_mem->numthreads; i++) {
+			if (lnf_mem->thread_status[i] == LNF_TH_MERGE) {
+				merged = i; 
+				lnf_mem->thread_status[i] = LNF_TH_MERGED;
+			}
+		}
+
+		/* nothing to merge */
+		if (i == lnf_mem->numthreads) {
+			pthread_mutex_unlock(&lnf_mem->thread_mutex);
+			return LNF_OK;
+		}
+
+		pthread_mutex_unlock(&lnf_mem->thread_mutex);
+
+
+		printf("MERGE %d <- %d \n", merging, merged);
+
+
+		pthread_mutex_lock(&lnf_mem->thread_mutex);
+		lnf_mem->thread_status[merging] = LNF_TH_MERGE; 
+		lnf_mem->thread_status[merged] = LNF_TH_CLEARED; 
+		pthread_mutex_unlock(&lnf_mem->thread_mutex);
+	}
+	
+}
 
 /* read netx record from memory heap */
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
@@ -352,11 +463,11 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	char *val;
 
 	if (!lnf_mem->sorted) {
-		hash_table_sort(&lnf_mem->hash_table);
+		hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;
-		lnf_mem->hash_ptr = hash_table_first(&lnf_mem->hash_table);
+		lnf_mem->hash_ptr = hash_table_first(&lnf_mem->hash_table[0]);
 	} else {
-		lnf_mem->hash_ptr = hash_table_next(&lnf_mem->hash_table, lnf_mem->hash_ptr);
+		lnf_mem->hash_ptr = hash_table_next(&lnf_mem->hash_table[0], lnf_mem->hash_ptr);
 	}
 
 	if (lnf_mem->hash_ptr == NULL) {
@@ -364,7 +475,7 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		return LNF_EOF;
 	}
 
-	hash_table_fetch(&lnf_mem->hash_table, lnf_mem->hash_ptr, &key, &val);
+	hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->hash_ptr, &key, &val);
 
 	lnf_rec_clear(rec);
 
@@ -379,7 +490,7 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
 
-	hash_table_free(&lnf_mem->hash_table);
+	hash_table_free(&lnf_mem->hash_table[0]);
 
 	/* clean lists */
 	lnf_filedlist_free(lnf_mem->key_list);

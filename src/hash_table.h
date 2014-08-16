@@ -1,15 +1,8 @@
 
 #include <stdint.h>
 
-/* the hash table is organized in buckets */
-/* every bucket can contain 2^16 items */
-/* the maximum number of items for hash */
-/* table is 2^16 * HASH_TABLE_MAX_BUCKETS */
-#define HASH_TABLE_BUCKET_SIZE 65536
-#define HASH_TABLE_MAX_BUCKETS 65536
+#define HASH_TABLE_INIT_SIZE 65536
 
-/* number of collision that invoke increase of hash table */
-#define HASH_TABLE_COLLISIONS 10
 
 /* hash table iflags for every row */
 typedef struct hash_table_row_hdr_s {
