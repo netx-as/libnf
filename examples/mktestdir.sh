@@ -1,12 +1,18 @@
 #!/bin/bash 
 
-set -x
+#set -x
 
-RECS=50000000
-DIR=testdir
+FILES=50			# num files 
+RECS=10000000		# records per file 
+DIR=testdir			# test dir 
 
+rm -rf ${DIR}
 mkdir ${DIR}
-for i in 01 02 03 04 05 06 07 08 09 10 11 12 ; do 
-	time ./lnf_ex01_writer -n ${RECS} -r $i -f ${DIR}/tf-${i} & 
+
+for i in $(seq 1 ${FILES}) ; do 
+	i=$(printf %04d ${i})
+#	time ./lnf_ex01_writer -n ${RECS} -r $i -f ${DIR}/tf-${i} & 
+	echo $i
+	./lnf_ex01_writer -n ${RECS} -r $i -f ${DIR}/tf-${i}  
 done 
 

@@ -9,15 +9,21 @@
 #include <errno.h>
 
 #define MAX_THREADS 50
-#define FILENAME "./test-file.tmp"
+#define MAX_FILES 10000
 
 /* global variable */
 lnf_mem_t *memp;
 int print = 1;
+int totalrows = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+char *filelist[MAX_FILES];
+int fileidx = 0;
 
-/* thread loop */
-void *process_file(void *p);
-void *process_file(void *p) {
+
+
+/* process one file */
+int process_file(char *filename);
+int process_file(char *filename) {
 
 	lnf_file_t *filep;
 	lnf_rec_t *recp;
@@ -27,13 +33,11 @@ void *process_file(void *p) {
 
 	tid = (int)pthread_self();
 
-	char *filename = p;
-
 	printf("[#%x] Processing %s\n", tid, filename);
 
 	if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
 		fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
-		return NULL;
+		return 0;
 	}
 
 	lnf_rec_init(&recp);
@@ -43,7 +47,7 @@ void *process_file(void *p) {
 		i++;
 
 		/* add to memory heap */
-		lnf_mem_write(memp, recp);
+//		lnf_mem_write(memp, recp);
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -63,7 +67,42 @@ void *process_file(void *p) {
 
 	lnf_close(filep);
 
-	printf("[#%x] Total input records: %d\n", tid, i);
+	printf("[#%x] Total input records in file %s : %d\n", tid, filename, i);
+
+	return i; 
+}
+
+
+/* thread loop */
+void *process_thread(void *p);
+void *process_thread(void *p) {
+
+	int rows;
+	int tid;
+	char *filename;
+
+	tid = (int)pthread_self();
+
+	for (;;) {
+
+		/* get next file */
+		pthread_mutex_lock(&mutex);
+		if (filelist[fileidx] == NULL) {
+			pthread_mutex_unlock(&mutex);
+			return NULL; 
+		} else {
+			filename = filelist[fileidx];
+			fileidx++;
+		}
+		pthread_mutex_unlock(&mutex);
+
+		/* process file */
+		rows =  process_file(filename);
+
+		pthread_mutex_lock(&mutex);
+		totalrows += rows;
+		pthread_mutex_unlock(&mutex);
+	}
 
 	return NULL;
 }
@@ -80,10 +119,10 @@ int main(int argc, char **argv) {
 	int i = 0;
 
     int printa = 1;
-	int numthreads = 0;
+	int numthreads = 1;
     char c;
 
-	while ((c = getopt (argc, argv, "pPA:")) != -1) {
+	while ((c = getopt (argc, argv, "pPAt:")) != -1) {
 		switch (c) {
 			case 'p':
 			case 'P':
@@ -92,14 +131,20 @@ int main(int argc, char **argv) {
 			case 'A':
 				printa = 0;
 				break;
+			case 't': 
+				numthreads = atoi(optarg);
+				if (numthreads > MAX_THREADS) {
+					numthreads = MAX_THREADS - 1;
+				}
+				break;
 			case '?':
 				printf("Usage: %s [ -P ] [ -A ] [ <file1> <file2> ... ] \n", argv[0]);
 				printf(" -P : do not print input records to stdout\n");
 				printf(" -A : do not aggregated records to stdout\n");
+				printf(" -t : num threads\n");
 				exit(1);
 		}
 	}
-
 
 	/* initalise one instance of memory heap (share by all threads) */
 	lnf_mem_init(&memp);
@@ -112,28 +157,34 @@ int main(int argc, char **argv) {
 	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
 
-	/* read data from files in the separate threads */
 
-	for ( i = optind; i < argc && i < MAX_THREADS; i++ ) {
+	/* prepare file list */
+	for (i = optind; i < argc; i++) {
+		filelist[i -  optind] = argv[i];
+	}
+	filelist[i -  optind] = NULL;
 
-		numthreads = i - optind;
-		if ( pthread_create(&th[numthreads], NULL, process_file, argv[i]) < 0) {
-			fprintf(stderr, "Can not create thread for %s\n", argv[i]);
+
+	/*  prepare and run threads */
+	pthread_mutex_init(&mutex, NULL);
+
+	for ( i = 0 ; i < numthreads ; i++ ) {
+		if ( pthread_create(&th[i], NULL, process_thread, NULL) < 0) {
+			fprintf(stderr, "Can not create thread for %d\n", i);
 			break;
 		}
-
 	}
 
 
 	/* wait for threads */
-	for ( i = 0; i <= numthreads; i++ ) {
+	for ( i = 0; i < numthreads; i++ ) {
 		if( pthread_join(th[i], NULL) ) {
 			fprintf(stderr, "Error joining thread\n");
 			break;
 		}
 	}
 
-	printf("threads ended \n");
+	printf("Threads ended, total input records %d \n", totalrows);
 
 	/* print the records out */
 	i = 0;
