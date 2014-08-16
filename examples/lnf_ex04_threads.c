@@ -88,6 +88,7 @@ void *process_thread(void *p) {
 		/* get next file */
 		pthread_mutex_lock(&mutex);
 		if (filelist[fileidx] == NULL) {
+			pthread_mutex_unlock(&mutex);
 			goto DONE;
 		} else {
 			filename = filelist[fileidx];
@@ -104,7 +105,6 @@ void *process_thread(void *p) {
 	}
 
 DONE:
-	printf("MERGE\n");
 
 	lnf_mem_merge_threads(memp);
 

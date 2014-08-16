@@ -396,7 +396,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 
 	int *id;
-	int merged, merging, i;
+	int id2, i, finish, merge;
 
 	id = pthread_getspecific(lnf_mem->thread_id_key);
 
@@ -404,54 +404,52 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 		return LNF_OK;
 	}
 
+//	printf("READY FOR MERGE %d\n", *id);
+
 	/* set status of the current thread to "ready for merge" */
+	pthread_mutex_lock(&lnf_mem->thread_mutex);
 	lnf_mem->thread_status[*id] = LNF_TH_MERGE;
+	pthread_mutex_unlock(&lnf_mem->thread_mutex);
 
 	for (;;) {
-		merging = 0xFF;
-		merged = 0xFF;
 
-		/* choose merging and merged hash */
+		/* choose somebody who can merge with me */
 		pthread_mutex_lock(&lnf_mem->thread_mutex);
 
-		for (i = 0; i < lnf_mem->numthreads; i++) {
-			if (lnf_mem->thread_status[i] == LNF_TH_MERGE) {
-				merging = i; 
-				lnf_mem->thread_status[i] = LNF_TH_MERGING;
-			}
-		}
+		finish = 1;
+		merge = 0;
 
-		printf("XXXX %d %d \n", i, lnf_mem->numthreads);
-
-		/* nothing to merge */
-		if (i == lnf_mem->numthreads) {
-			pthread_mutex_unlock(&lnf_mem->thread_mutex);
-			return LNF_OK;
-		}
-
-		for (i = 0; i < lnf_mem->numthreads; i++) {
-			if (lnf_mem->thread_status[i] == LNF_TH_MERGE) {
-				merged = i; 
+		for (i = *id + 1; i < lnf_mem->numthreads; i++) {
+			if (lnf_mem->thread_status[*id] == LNF_TH_MERGE && lnf_mem->thread_status[i] == LNF_TH_MERGE) {
+				id2 = i; 
 				lnf_mem->thread_status[i] = LNF_TH_MERGED;
+				lnf_mem->thread_status[*id] = LNF_TH_MERGING;
+				finish = 0;
+				merge = 1;
+			}
+			if (lnf_mem->thread_status[i] != LNF_TH_CLEARED) {
+				finish = 0;
 			}
 		}
 
 		/* nothing to merge */
-		if (i == lnf_mem->numthreads) {
+		if (finish) {
 			pthread_mutex_unlock(&lnf_mem->thread_mutex);
+//			printf("FINISH %d \n", *id );
 			return LNF_OK;
 		}
 
+
 		pthread_mutex_unlock(&lnf_mem->thread_mutex);
 
+		if (merge) {
+//			printf("MERGE %d <- %d [%d] \n", *id, id2, lnf_mem->numthreads);
 
-		printf("MERGE %d <- %d \n", merging, merged);
-
-
-		pthread_mutex_lock(&lnf_mem->thread_mutex);
-		lnf_mem->thread_status[merging] = LNF_TH_MERGE; 
-		lnf_mem->thread_status[merged] = LNF_TH_CLEARED; 
-		pthread_mutex_unlock(&lnf_mem->thread_mutex);
+			pthread_mutex_lock(&lnf_mem->thread_mutex);
+			lnf_mem->thread_status[*id] = LNF_TH_MERGE; 
+			lnf_mem->thread_status[id2] = LNF_TH_CLEARED; 
+			pthread_mutex_unlock(&lnf_mem->thread_mutex);
+		}
 	}
 	
 }
