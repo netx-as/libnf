@@ -55,6 +55,7 @@ void hash_table_entry_len(hash_table_t *t, int keylen, int vallen);
 char * hash_table_insert(hash_table_t *t, char *key, char *val);
 int hash_table_sort_callback(char *prow1, char *prow2, void *p);
 void hash_table_sort(hash_table_t *t);
+hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts);
 void hash_table_free(hash_table_t *t);
 
 

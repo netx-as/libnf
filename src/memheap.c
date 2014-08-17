@@ -445,6 +445,13 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 		if (merge) {
 //			printf("MERGE %d <- %d [%d] \n", *id, id2, lnf_mem->numthreads);
 
+			if (hash_table_merge(&lnf_mem->hash_table[*id], &lnf_mem->hash_table[id2]) == NULL) {
+//				printf("MERGE FAIL: %d\n", *id);
+				return LNF_ERR_NOMEM;
+			}
+//			printf("MERGE %d <- %d [%d] DONE \n", *id, id2, lnf_mem->numthreads);
+			hash_table_free(&lnf_mem->hash_table[id2]);
+
 			pthread_mutex_lock(&lnf_mem->thread_mutex);
 			lnf_mem->thread_status[*id] = LNF_TH_MERGE; 
 			lnf_mem->thread_status[id2] = LNF_TH_CLEARED; 

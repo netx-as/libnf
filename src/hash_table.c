@@ -168,6 +168,35 @@ void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
 
 }
 
+
+/* merge ts table into td */
+hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
+	
+	char *prow, *pkey, *pval;
+	hash_table_row_hdr_t *phdr;
+	int index;
+
+	for (index = 0; index < ts->numbuckets; index++) {
+
+		if (ts->buckets[index] != NULL) {
+			
+			prow = ts->buckets[index];
+
+			while (prow != NULL) {
+				phdr = (hash_table_row_hdr_t *)prow;	
+				pkey = (prow + sizeof(hash_table_row_hdr_t));
+				pval = (prow + sizeof(hash_table_row_hdr_t) + ts->keylen);
+				if (hash_table_insert(td, pkey, pval) == NULL) {
+					return NULL;
+				}
+				prow = phdr->next;
+			}
+		} 
+	}
+
+	return td;
+}
+
 void hash_table_free(hash_table_t *t) {
 
 	char *prow, *tmp;
