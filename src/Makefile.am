@@ -3,6 +3,7 @@ AM_YFLAGS = -d
 
 INCLUDES = $(DEPS_CFLAGS)
 LDADD = $(DEPS_LIBS)
+AM_LDFLAGS=-pthread
 
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin

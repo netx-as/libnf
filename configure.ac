@@ -254,6 +254,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([nameser8_compat.h])
 AC_CHECK_HEADERS([features.h arpa/inet.h fcntl.h netinet/in.h fts.h stdint.h stdlib.h stddef.h string.h sys/socket.h syslog.h unistd.h iso/limits_iso.h])
 AC_CHECK_HEADERS(pcap-bpf.h net/bpf.h)
+AC_CHECK_HEADERS(pthread.h)
 
 AC_CHECK_HEADERS(sys/types.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h netdb.h resolv.h,
                  [], [],
@@ -297,6 +298,8 @@ AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(inet_ntoa socket strchr strdup strerror strrchr strstr scandir)
+
+ LIBS="$LIBS -lpthread"
 
 dnl The res_search may be in libsocket as well, and if it is
 dnl make sure to check for dn_skipname in libresolv, or if res_search
