@@ -16,7 +16,7 @@ int main (void) {
 	printf("Supported items:\n");
 	while (f->index != 0) {
 
-		printf("  0x%08x  %-20s %s\n", f->index, f->name, f->fld_descr);
+		printf("  0x%08x 0x%02x 0x%02x  %-20s %s\n", f->index, f->default_aggr, f->default_sort, f->name, f->fld_descr);
 		f++;
 	}
 

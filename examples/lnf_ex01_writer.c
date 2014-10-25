@@ -19,7 +19,7 @@ int main (int argc, char **argv) {
 
 	int nrecs = 1;
 	int compress = 1;
-	int aggip = 0;
+	int aggip = 1;
 	char *filename = FILENAME;
 	char c;
 

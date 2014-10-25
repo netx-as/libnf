@@ -121,6 +121,8 @@ typedef struct lnf_brec1_s {
 /* text description of fields */
 typedef struct lnf_field_s {
 	int index;			/* numerical index of field */
+	int default_aggr;	/* default aggregation function */
+	int default_sort;	/* default sort order */
 	char *name;			/* field name */
 	char *fld_descr;	/* short description */
 } lnf_field_t;
