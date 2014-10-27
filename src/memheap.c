@@ -231,6 +231,7 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 		if (LNF_GET_TYPE(fld->field) == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
 				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[4]), sizeof(uint32_t), fld->numbits);
+				fprintf(stderr, "XXX clearbits4: %d\n", fld->numbits);
 			} else {
 				lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
 			}
