@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "hash_table.h"
+#include "heap_sort.h"
 #include "xxhash.h"
 
 #define HASH_ATOMIC_CAS(ptr, comp, exch) (__sync_bool_compare_and_swap(ptr, comp, exch))
@@ -27,7 +28,8 @@ hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
 	t->aggr_callback = acb;
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
-	t->entrypoint = NULL;	/* entry point */
+//	t->entrypoint = NULL;	/* entry point */
+	t->numentries = 0;
 	
 //	t->rows_used = 0;
 
@@ -75,6 +77,7 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 
 	/* new entry */
 	prow = malloc(sizeof(hash_table_row_hdr_t) + t->keylen + t->vallen);
+	t->numentries++;	
 
 	if (prow == NULL) {
 		return NULL;
@@ -110,57 +113,77 @@ int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
 
 }
 
-/* convert hash table into linked list */
-void hash_table_sort(hash_table_t *t) {
+/* convert hash table into simple array */
+int hash_table_sort(hash_table_t *t) {
 
 	unsigned long index;
 	char *prow_tmp;
 	hash_table_row_hdr_t *phdr;
+	unsigned long index_array = 0;
+
+	t->sort_array = malloc(t->numentries * sizeof(void *));
+			
+	if (t->sort_array == NULL) {
+		return 0;
+	}
 
 	for (index = 0; index < t->numbuckets; index++) {
-
+		
 		if (t->buckets[index] != NULL) {
 			
 			prow_tmp = t->buckets[index];
 
 			while (prow_tmp != NULL) {
-				phdr = (hash_table_row_hdr_t *)prow_tmp;	
+				t->sort_array[index_array++] = prow_tmp;
+				phdr = (hash_table_row_hdr_t *)prow_tmp;
 				prow_tmp = phdr->next;
 			}
 
-			phdr->next = t->entrypoint;
-			t->entrypoint = t->buckets[index];
+//			phdr->next = t->entrypoint;
+//			t->entrypoint = t->buckets[index];
 
 		} 
 	}	
 
-	//heap_sort(t->sort_data, t->sort_items, &hash_table_sort_callback, t);
+	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
+	return 1;
 	
 }
 
 /* return next field */
 char * hash_table_first(hash_table_t *t) {
 
-	return  t->entrypoint;
+	//return  t->entrypoint;
+	t->read_index = 0;
+	return  t->sort_array[t->read_index++];
 
 }
 
 char * hash_table_next(hash_table_t *t, char *prow) {
 
-	hash_table_row_hdr_t *phdr;
+//	hash_table_row_hdr_t *phdr;
 
-	phdr = (hash_table_row_hdr_t *)prow;	
+//	phdr = (hash_table_row_hdr_t *)prow;	
 
-	return phdr->next;
+//	return phdr->next;
+
+	t->read_index++;
+	if (t->read_index > t->numentries) {
+		return NULL;
+	}
+
+	return  t->sort_array[t->read_index];
 }
 
 void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
 
 	hash_table_row_hdr_t *phdr;
 
+/*
 	if (prow == NULL) {
 		prow = t->entrypoint;
-	} 
+	}
+*/ 
 
 	phdr = (hash_table_row_hdr_t *)prow;	
 	*pkey = (prow + sizeof(hash_table_row_hdr_t));
@@ -199,19 +222,25 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 
 void hash_table_free(hash_table_t *t) {
 
-	char *prow, *tmp;
-	hash_table_row_hdr_t *phdr;
+//	char *prow, *tmp;
+//	hash_table_row_hdr_t *phdr;
+	unsigned long index;
 
 	free(t->buckets);
 
-	prow = t->entrypoint;
+//	prow = t->entrypoint;
 
+	for (index = 0 ; index < t->numentries; index++) {
+		free(t->sort_array[index]);
+	}
+
+/*	
 	while (prow != NULL) {
 		phdr = (hash_table_row_hdr_t *)prow;
 		tmp = prow;
 		prow = phdr->next;
 		free(tmp);
 	}	
-
-//	free(t->sort_data);
+*/
+	free(t->sort_array);
 }

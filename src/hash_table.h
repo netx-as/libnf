@@ -29,8 +29,11 @@ typedef struct hash_table_s {
 	void * callback_data;		/* data tructure handled when called callback */
 	int numbuckets;				/* number of allocated buckets */
 	char ** buckets;
-	char * entrypoint;
-//	char ** sort_data;
+//	char * entrypoint;
+	unsigned long numentries; 
+	unsigned long read_index; 
+	
+	char ** sort_array;
 //	unsigned long sort_items;
 } hash_table_t;
 
@@ -54,7 +57,7 @@ void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval);
 void hash_table_entry_len(hash_table_t *t, int keylen, int vallen);
 char * hash_table_insert(hash_table_t *t, char *key, char *val);
 int hash_table_sort_callback(char *prow1, char *prow2, void *p);
-void hash_table_sort(hash_table_t *t);
+int hash_table_sort(hash_table_t *t);
 hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts);
 void hash_table_free(hash_table_t *t);
 
