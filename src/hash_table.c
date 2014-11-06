@@ -145,50 +145,29 @@ int hash_table_sort(hash_table_t *t) {
 		} 
 	}	
 
+	free(t->buckets);
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
 	return 1;
 	
 }
 
-/* return next field */
-char * hash_table_first(hash_table_t *t) {
-
-	//return  t->entrypoint;
-	t->read_index = 0;
-	return  t->sort_array[t->read_index++];
-
-}
-
-char * hash_table_next(hash_table_t *t, char *prow) {
-
-//	hash_table_row_hdr_t *phdr;
-
-//	phdr = (hash_table_row_hdr_t *)prow;	
-
-//	return phdr->next;
-
-	t->read_index++;
-	if (t->read_index > t->numentries) {
-		return NULL;
-	}
-
-	return  t->sort_array[t->read_index];
-}
-
-void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
+/* fetch data on "index"; if the index is out of range then return 0 */
+int hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey, char **pval) {
 
 	hash_table_row_hdr_t *phdr;
+	char * prow;
 
-/*
-	if (prow == NULL) {
-		prow = t->entrypoint;
+	if (index >= t->numentries) {
+		return 0;
 	}
-*/ 
+
+	prow = t->sort_array[index];
 
 	phdr = (hash_table_row_hdr_t *)prow;	
 	*pkey = (prow + sizeof(hash_table_row_hdr_t));
 	*pval = (prow + sizeof(hash_table_row_hdr_t) + t->keylen);
 
+	return 1;
 }
 
 
@@ -226,7 +205,7 @@ void hash_table_free(hash_table_t *t) {
 //	hash_table_row_hdr_t *phdr;
 	unsigned long index;
 
-	free(t->buckets);
+//	free(t->buckets);
 
 //	prow = t->entrypoint;
 

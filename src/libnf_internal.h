@@ -114,7 +114,8 @@ typedef struct lnf_mem_s {
 #define LNF_TH_CLEARED 0x4			/* merge process done - hash table destroyed and ID cleared */
 	int numthreads;					/* participating number of threads */
 	hash_table_t hash_table[LNF_MAX_THREADS];	/* thread specific instance */
-	char * hash_ptr;				/* row pointer for reading */
+//	char * hash_ptr;				/* row pointer for reading */
+	unsigned long read_index;		/* index for nex read */
 	int rearranged;					/* is the final hash table rearranged */
 	int sorted;						/* is the table sorted ? */
 } lnf_mem_t;

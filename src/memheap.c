@@ -44,9 +44,10 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sort_offset = 0;
 	lnf_mem->sort_flags = LNF_SORT_FLD_NONE;
 
-	lnf_mem->hash_ptr = NULL;
+	//lnf_mem->hash_ptr = NULL;
 	lnf_mem->sorted = 0;
 	lnf_mem->numthreads = 0;
+	lnf_mem->read_index = 0;
 	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
 		free(lnf_mem);
         return LNF_ERR_OTHER;
@@ -230,7 +231,7 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 		/* ! address is always stored in network order */
 		if (LNF_GET_TYPE(fld->field) == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
-				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[4]), sizeof(uint32_t), fld->numbits);
+				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
 			} else {
 				lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
 			}
@@ -470,17 +471,14 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	if (!lnf_mem->sorted) {
 		hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;
-		lnf_mem->hash_ptr = hash_table_first(&lnf_mem->hash_table[0]);
-	} else {
-		lnf_mem->hash_ptr = hash_table_next(&lnf_mem->hash_table[0], lnf_mem->hash_ptr);
+		lnf_mem->read_index = 0;
 	}
 
-	if (lnf_mem->hash_ptr == NULL) {
-		//lnf_mem->hash_index = 0;
+	if (!hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->read_index, &key, &val)) {
 		return LNF_EOF;
 	}
 
-	hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->hash_ptr, &key, &val);
+	lnf_mem->read_index++;
 
 	lnf_rec_clear(rec);
 
