@@ -1,9 +1,10 @@
 Revision history for C and Perl extension of nfdump.
 
 1.04 2014-0x-xx
+	- perl: added example examples/example2.pl 
 	- perl: added test 08-aggreg-sort.t 
 	- perl: aggregation and sorting added into 
-	  Net::NfDump (Aggreg => xxx and SortBy => xxx attributes)
+	  Net::NfDump (Aggreg => 1 and SortBy => <field> attributes)
 	- c: lnf_field_t structure extended with default sort and 
 	  aggregation order 
 	- c: added example lnf_ex04_threads.c 
