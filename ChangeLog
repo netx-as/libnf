@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.05 2014-xx-xx
+	- 
+
 1.04 2014-11-17
 	- perl: added example examples/example2.pl 
 	- perl: added test 08-aggreg-sort.t 
