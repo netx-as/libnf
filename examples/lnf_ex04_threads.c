@@ -10,6 +10,7 @@
 
 #define MAX_THREADS 50
 #define MAX_FILES 10000
+#define LLUI long long unsigned int
 
 /* global variable */
 lnf_mem_t *memp;
@@ -61,7 +62,7 @@ int process_file(char *filename) {
 			printf(" [#%x] %s :%d -> %s :%d %llu %llu %llu\n",  tid,
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					brec.first, brec.bytes, brec.pkts);
+					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
 	}
 
@@ -209,7 +210,7 @@ int main(int argc, char **argv) {
 			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					brec.first, brec.bytes, brec.pkts);
+					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
 	}
 
