@@ -251,6 +251,8 @@ AC_CHECK_FUNCS(fpurge __fpurge)
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
+AC_CHECK_HEADERS(pthread.h)
+LIBS="$LIBS -lpthread"
 AC_CHECK_HEADERS([nameser8_compat.h])
 AC_CHECK_HEADERS([features.h arpa/inet.h fcntl.h netinet/in.h fts.h stdint.h stdlib.h stddef.h string.h sys/socket.h syslog.h unistd.h iso/limits_iso.h])
 AC_CHECK_HEADERS(pcap-bpf.h net/bpf.h)
