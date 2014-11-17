@@ -66,7 +66,7 @@ sed -i -e 's/AC_OUTPUT.*//g' configure.ac 	#makefiles
 sed -i -e 's/echo ".*//g' configure.ac 		#comments
 
 echo "Adding pthread.h checj into configure.ac" 
-sed -i -e 's/AC_HEADER_STDC/AC_HEADER_STDC\nAC_CHECK_HEADERS(pthread.h)\nLIBS="$LIBS -lpthread"/g' configure.ac 	#thread
+perl -pi -w -e 's/AC_HEADER_STDC/AC_HEADER_STDC\nAC_CHECK_HEADERS(pthread.h)\nLIBS="\$LIBS -lpthread"/g;' configure.ac 
 
 echo "Adding extra configuration into configure.ac"
 cat >> configure.ac << EOT 
