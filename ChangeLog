@@ -1,6 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
-1.05 2014-xx-xx
+1.05 2014-12-05
+	- c: build system update 
+	- c: added --enable-threads for thread support; disabled by default
+	- c: flex, bison is not needed for building 
 	- c: adjusted to nfdump 1.6.13
 
 1.04 2014-11-17

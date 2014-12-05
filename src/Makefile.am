@@ -3,15 +3,16 @@ AM_YFLAGS = -d
 
 INCLUDES = $(DEPS_CFLAGS)
 LDADD = $(DEPS_LIBS)
-AM_LDFLAGS=-pthread
+#AM_LDFLAGS=-pthread
 
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
 
-EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h xxhash.h
+EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h xxhash.h scanner.c grammar.c 
 #util.h
 
-CLEANFILES = lex.yy.c grammar.c grammar.h scanner.c scanner.h
+CLEANFILES = lex.yy.c 
+#grammar.c grammar.h scanner.c scanner.h
 
 # Target for the libnfdump library
 lib_LTLIBRARIES=libnf.la

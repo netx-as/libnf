@@ -46,6 +46,9 @@ if test "${enable_threads}" = "yes" ; then
 	AC_CHECK_HEADERS(pthread.h)
 	AC_CHECK_FUNCS(pthread_mutex_init pthread_key_create pthread_mutex_lock pthread_mutex_unlock)
 	AC_CHECK_FUNCS(pthread_setspecific pthread_getspecific) 
+	AM_CONDITIONAL(LNF_THREADS, true)
+else
+	AM_CONDITIONAL(LNF_THREADS, false)
 fi
 
 
@@ -53,7 +56,7 @@ CFLAGS="$CFLAGS -DNSEL"
 
 AC_PROG_YACC
 AC_PROG_LEX
-which $LEX > /dev/null 2>&1
+#which $LEX > /dev/null 2>&1
 #if test $? = 1; then
 #	AC_MSG_ERROR(No lex or flex found on system)
 #fi
@@ -210,46 +213,6 @@ AC_MSG_RESULT($ac_cv_struct_semun)
 if test "$ac_cv_struct_semun" = "yes"; then
 	AC_DEFINE(HAVE_SEMUN, 1, [Define if sys/sem.h defines struct semun])
 fi
-
-AC_MSG_CHECKING(for the %z format string in printf())
-AC_TRY_RUN([
-#include <stdio.h>
-#include <sys/types.h>
-
-int main() {
-int 	i;
-size_t	s;
-char	string[16];
-
-	s = 12345;
-	i = snprintf(string,16,"%zu", s);
-
-	return i == 5 ? 0 : 1;
-}
-],
-[
-	AC_MSG_RESULT(yes)
-	AC_DEFINE([HAVE_SIZE_T_Z_FORMAT], [1],
-                                      [Define to 1 if you have a printf() that supports the %z format string.])
-],
-[
-	AC_MSG_RESULT(no)
-],
-[
-	AC_MSG_RESULT(no)
-]
-)
-
-#AC_CONFIG_FILES([Makefile])
-
-
-
-
-
-
-
-
-
 
 
 AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)

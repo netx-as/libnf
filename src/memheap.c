@@ -48,6 +48,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sorted = 0;
 	lnf_mem->numthreads = 0;
 	lnf_mem->read_index = 0;
+#ifdef LNF_THREADS
 	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
 		free(lnf_mem);
         return LNF_ERR_OTHER;
@@ -57,6 +58,9 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 		free(lnf_mem);
         return LNF_ERR_OTHER;
 	}
+#else 
+	lnf_mem->thread_id_key = NULL;
+#endif
 
 	*lnf_memp =  lnf_mem;
 
@@ -78,14 +82,20 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 		return LNF_ERR_NOMEM;
 	}
 
-	/* determine ID for the current thread and store */
+#ifdef LNF_THREADS
 	pthread_mutex_lock(&lnf_mem->thread_mutex);
+#endif
 
+	/* determine ID for the current thread and store */
 	*id = lnf_mem->numthreads;
 	lnf_mem->numthreads++;
+
+#ifdef LNF_THREADS
 	pthread_setspecific(lnf_mem->thread_id_key, (void *)id);
-		
 	pthread_mutex_unlock(&lnf_mem->thread_mutex);
+#else
+	lnf_mem->thread_id_key = id;
+#endif
 
 	if (hash_table_init(&lnf_mem->hash_table[*id], HASH_TABLE_INIT_SIZE,
 			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
@@ -369,7 +379,11 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	/* build values */
 	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
 
+#ifdef LNF_THREADS
 	id = pthread_getspecific(lnf_mem->thread_id_key);
+#else 
+	id = lnf_mem->thread_id_key;
+#endif
 
 	/* no thread specific data */
 	if (id == NULL) {
@@ -377,7 +391,12 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		if (ret != LNF_OK) {
 			return ret;
 		}
+
+#ifdef LNF_THREADS
 		id = pthread_getspecific(lnf_mem->thread_id_key);
+#else
+		id = lnf_mem->thread_id_key;
+#endif
 		if (id == NULL) {
 			return LNF_ERR_OTHER;
 		}
@@ -395,6 +414,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 /* merge data in hash tables from all threads */
 int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
+#ifdef LNF_THREADS
 
 	int *id;
 	int id2, i, finish, merge;
@@ -459,7 +479,10 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 			pthread_mutex_unlock(&lnf_mem->thread_mutex);
 		}
 	}
-	
+
+#else 
+	return LNF_OK;
+#endif	/* ifdef LNF_THREADS */
 }
 
 /* read netx record from memory heap */

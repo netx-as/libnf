@@ -13,7 +13,9 @@
 #include <rbtree.h>
 #include <nftree.h>
 #include <nfx.h>
+#ifdef LNF_THREADS
 #include <pthread.h>
+#endif
 #include "bit_array.h"
 #include "hash_table.h"
 
@@ -104,8 +106,12 @@ typedef struct lnf_mem_s {
 #define LNF_SORT_FLD_NONE 0x0
 #define LNF_SORT_FLD_IN_KEY 0x1
 #define LNF_SORT_FLD_IN_VAL 0x2
+#ifdef LNF_THREADS
 	pthread_key_t thread_id_key;	/* key for thread specific id */
 	pthread_mutex_t thread_mutex;
+#else
+	int* thread_id_key;				/* id when threads are not supported */
+#endif
 	int thread_status[LNF_MAX_THREADS];		/* status of the current thread */
 #define LNF_TH_WRITE 0x1			/* writing record - set after first write */
 #define LNF_TH_MERGE 0x2			/* writing done - ready for merge */
