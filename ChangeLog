@@ -1,7 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.05 2014-xx-xx
-	- 
+	- c: adjusted to nfdump 1.6.13
 
 1.04 2014-11-17
 	- perl: added example examples/example2.pl 
