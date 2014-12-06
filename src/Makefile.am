@@ -1,3 +1,6 @@
+
+.NOTPARALLEL:
+
 BUILT_SOURCES = grammar.h
 AM_YFLAGS = -d
 
