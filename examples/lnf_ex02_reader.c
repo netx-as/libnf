@@ -87,6 +87,8 @@ int main(int argc, char **argv) {
 	while (lnf_read(filep, recp) != LNF_EOF) {
 
 		if (fget) {
+			lnf_rec_fget(recp, LNF_FLD_INPUT, &input);
+		
 			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
 			lnf_rec_fget(recp, LNF_FLD_INPUT, &input);
 			lnf_rec_fget(recp, LNF_FLD_OUTPUT, &output);

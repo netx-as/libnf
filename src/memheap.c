@@ -23,6 +23,7 @@
 
 #include "libnf_internal.h"
 #include "libnf.h"
+#include "fields.h"
 
 
 /* initialize memory heap structure */
@@ -171,7 +172,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	int offset;
 	
 	fld.field = field;
-	switch (LNF_GET_TYPE(field)) { 
+	switch (__lnf_fld_type(field)) { 
 		case LNF_UINT8: fld.size = sizeof(uint8_t); break;
 		case LNF_UINT16: fld.size = sizeof(uint16_t); break;
 		case LNF_UINT32: fld.size = sizeof(uint32_t); break;
@@ -235,11 +236,11 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 		char *ckb = (char *)buf + fld->offset;
 
 		/* put contenf of the field to the buf + offset */
-		lnf_rec_fget(rec, fld->field, ckb);
+		__lnf_rec_fget(rec, fld->field, ckb);
 
 		/* clear numbits for IP address field */
 		/* ! address is always stored in network order */
-		if (LNF_GET_TYPE(fld->field) == LNF_ADDR) {
+		if (__lnf_fld_type(fld->field) == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
 				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
 			} else {
@@ -276,7 +277,7 @@ void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 		char *hckb = (char *)hval + fld->offset;
 		char *uckb = (char *)uval + fld->offset;
 
-		switch (LNF_GET_TYPE(fld->field)) {
+		switch (__lnf_fld_type(fld->field)) {
 			case LNF_UINT8: 
 				switch (fld->aggr_flag) {
 					case LNF_AGGR_SUM: *((uint8_t *)hckb) += *((uint8_t *)uckb); break;
@@ -339,7 +340,7 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 			return 0;
 	}
 
-	switch (LNF_GET_TYPE(lnf_mem->sort_field)) {
+	switch (__lnf_fld_type(lnf_mem->sort_field)) {
 		case LNF_UINT64: 
 			return *(uint64_t *)i1 < *(uint64_t *)i2; 
 			break;

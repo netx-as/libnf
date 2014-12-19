@@ -30,6 +30,7 @@ typedef struct lnf_brec1_s {
 /* type of fields */
 /* note: if the fields type allows two kind of data type  */
 /* for example UINT32 and UINT64 libnf always uses the biggest one */
+#define LNF_NONE			0x00
 #define LNF_UINT8			0x08
 #define LNF_UINT16			0x16
 #define LNF_UINT32			0x32
@@ -116,7 +117,9 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_SERVER_NW_DELAY_USEC	( 0x3f00 | LNF_UINT64 )
 #define LNF_FLD_APPL_LATENCY_USEC		( 0x4000 | LNF_UINT64 )
 
-#define LNF_FLD_BREC1			( 0x41000 | LNF_BASIC_RECORD1 ) 	/* special field for lnf_brec1_t */
+#define LNF_FLD_BREC1			( 0x4100 | LNF_BASIC_RECORD1 ) 	/* special field for lnf_brec1_t */
+
+#define LNF_FLD_TERM_			( 0xFFFF ) 						/* ID of last record */
 
 /* text description of fields */
 typedef struct lnf_field_s {
@@ -262,6 +265,10 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 void lnf_mem_free(lnf_mem_t *lnf_mem);
+
+
+/* fields management */
+int lnf_fld_type(int field);
 
 
 #ifndef IN6_IS_ADDR_V4COMPAT

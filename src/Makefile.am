@@ -19,7 +19,7 @@ CLEANFILES = lex.yy.c
 
 # Target for the libnfdump library
 lib_LTLIBRARIES=libnf.la
-libnf_la_SOURCES=libnf.c bit_array.c heap_sort.c hash_table.c xxhash.c memheap.c \
+libnf_la_SOURCES=libnf.c bit_array.c heap_sort.c hash_table.c xxhash.c memheap.c fields.c \
 	nffile.c nfx.c nftree.c minilzo.c \
 	nf_common.c grammar.y scanner.l \
 	ipconv.c 
