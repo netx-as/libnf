@@ -211,20 +211,34 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	return LNF_OK;
 }
 
-/* set bits "from" to the end of the buffer to zero value  */
-void lnf_clear_bits(char *buf, int buflen, int from) {
-	int i;
-	int o;
+/* set bits "from" to zero value (for IPv4) */
+static void inline lnf_clear_bits_v4(uint32_t *buf, int from) {
+	uint32_t tmp;
 
-	/* index and (bit) offset for/of the first cleared octet */
-	i = from / 8;
-	o = from % 8;
+	if ( from < sizeof(uint32_t) * 8 ) {
+		tmp = ntohl(*buf);
+		tmp &= ~ ( 0xFFFFFFFF >> from );
+		*buf = htonl(tmp); 
+	}
 
-	while (i < buflen) {
-		buf[i] = buf[i] & ~ ( 0xFF >> o );
-		o = 0;
-		i++;
-	}	
+}
+
+/* set bits "from" to zero value (for IPv6) */
+static void inline lnf_clear_bits_v6(uint64_t *buf, int from) {
+	uint64_t tmp;
+
+	if ( from == sizeof(uint64_t) ) {		/* 64 bits */
+		buf[1] = 0x0;						/* clear top 64 bits */
+	} else if ( from < sizeof(uint64_t) ) {	/* 0..63 bits */
+		tmp = ntohl(buf[0]);
+		tmp &= ~ ( 0xFFFFFFFFFFFFFFFF >> from );
+		buf[0] = htonl(tmp); 
+	} else if ( from > sizeof(uint64_t) && from < 2 * sizeof(uint64_t) ) {
+		tmp = ntohl(buf[1]);				/* 65 .. 127 bits */
+		tmp &= ~ ( 0xFFFFFFFFFFFFFFFF >> (from - sizeof(uint64_t)));
+		buf[1] = htonl(tmp); 
+	} /* else 128 bits */
+
 }
 
 /* fill buffer according to the field list */
@@ -242,9 +256,11 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 		/* ! address is always stored in network order */
 		if (__lnf_fld_type(fld->field) == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
-				lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
+				lnf_clear_bits_v4((uint32_t *)&(((lnf_ip_t *)ckb)->data[3]), fld->numbits);
+				//lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
 			} else {
-				lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
+				lnf_clear_bits_v6((uint64_t *)ckb, fld->numbits6);
+				//lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
 			}
 		}
 		keysize += fld->size;
