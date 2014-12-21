@@ -78,15 +78,21 @@ void lnf_seterror(char *format, ...);
 /* Mem heap section - Aggergations, Sorting                     */
 /****************************************************************/
 
+/* define aggregation function prototype */
+/* gets *a and *b and set result to *a */
+typedef void (*lnf_mem_aggr_func_t)(char *a, char *b);
+
 /* field list for aggregation and sorting */
 typedef struct lnf_fieldlist_s {
 	int field;
 	int size;			/* size of the field ib bytes */
+	int type;			/* field data type */
 	int offset;			/* offset from the beggining of the record */
 	int aggr_flag;
 	int sort_flag;
 	int numbits;
 	int numbits6;
+	lnf_mem_aggr_func_t	aggr_func;	/* function called for aggregation */
 	void *next;
 } lnf_fieldlist_t;
 

@@ -25,6 +25,42 @@
 #include "libnf.h"
 #include "fields.h"
 
+/* define aggregation functions */
+/* gets *a and *b and set result to *a */
+#define GEN_AGGR_SUM(name, type) static void name (char *a, char *b) { \
+	*(( type *)a) += *(( type *)b);	\
+}								
+GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT8, uint8_t);
+GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT16, uint16_t);
+GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT32, uint32_t);
+GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT64, uint64_t);
+
+
+#define GEN_AGGR_OR(name, type) static void name (char *a, char *b) { \
+	*(( type *)a) |= *(( type *)b);	\
+}
+GEN_AGGR_OR(lnf_mem_aggr_OR_UINT8, uint8_t);
+GEN_AGGR_OR(lnf_mem_aggr_OR_UINT16, uint16_t);
+GEN_AGGR_OR(lnf_mem_aggr_OR_UINT32, uint32_t);
+GEN_AGGR_OR(lnf_mem_aggr_OR_UINT64, uint64_t);
+								
+#define GEN_AGGR_MIN(name, type) static void name (char *a, char *b) {	\
+	if ( *((type *)a) > *((type *)b) ) *((type *)a) = *((type *)b); \
+}
+GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT8, uint8_t);
+GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT16, uint16_t);
+GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT32, uint32_t);
+GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT64, uint64_t);
+
+#define GEN_AGGR_MAX(name, type) static void name (char *a, char *b) {	\
+	if ( *((type *)a) < *((type *)b) ) *((type *)a) = *((type *)b); \
+}
+GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT8, uint8_t);
+GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT16, uint16_t);
+GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT32, uint32_t);
+GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT64, uint64_t);
+
+static void lnf_mem_aggr_EMPTY (char *a, char *b) { }
 
 /* initialize memory heap structure */
 int lnf_mem_init(lnf_mem_t **lnf_memp) {
@@ -172,7 +208,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	int offset;
 	
 	fld.field = field;
-	switch (__lnf_fld_type(field)) { 
+	switch (lnf_fld_type(field)) { 
 		case LNF_UINT8: fld.size = sizeof(uint8_t); break;
 		case LNF_UINT16: fld.size = sizeof(uint16_t); break;
 		case LNF_UINT32: fld.size = sizeof(uint32_t); break;
@@ -182,10 +218,47 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		default : 
 			return LNF_ERR_UKNFLD;
 	}
+
+	fld.type = lnf_fld_type(field);
 	fld.numbits = numbits;
 	fld.numbits6 = numbits6;
 	fld.aggr_flag = flags & LNF_AGGR_FLAGS;
 	fld.sort_flag = flags & LNF_SORT_FLAGS;
+
+	/* select aggregation func for item */
+	fld.aggr_func = lnf_mem_aggr_EMPTY;
+	switch (lnf_fld_type(fld.field)) {
+		case LNF_UINT8: 
+			switch (fld.aggr_flag) {
+			case LNF_AGGR_SUM: fld.aggr_func = lnf_mem_aggr_SUM_UINT8; break;
+			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_UINT8; break;
+			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_UINT8; break;
+			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_OR_UINT8; break;
+			} break;
+		case LNF_UINT16: 
+			switch (fld.aggr_flag) {
+			case LNF_AGGR_SUM: fld.aggr_func = lnf_mem_aggr_SUM_UINT16; break;
+			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_UINT16; break;
+			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_UINT16; break;
+			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_OR_UINT16; break;
+			} break;
+		case LNF_UINT32: 
+			switch (fld.aggr_flag) {
+			case LNF_AGGR_SUM: fld.aggr_func = lnf_mem_aggr_SUM_UINT32; break;
+			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_UINT32; break;
+			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_UINT32; break;
+			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_OR_UINT32; break;
+			} break;
+		case LNF_UINT64: 
+			switch (fld.aggr_flag) {
+			case LNF_AGGR_SUM: fld.aggr_func = lnf_mem_aggr_SUM_UINT64; break;
+			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_UINT64; break;
+			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_UINT64; break;
+			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_OR_UINT64; break;
+			} break;
+		/* other data types are ignored so far */
+	}
+	
 
 	/* add to key list */
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
@@ -254,7 +327,7 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
 
 		/* clear numbits for IP address field */
 		/* ! address is always stored in network order */
-		if (__lnf_fld_type(fld->field) == LNF_ADDR) {
+		if (fld->type == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
 				lnf_clear_bits_v4((uint32_t *)&(((lnf_ip_t *)ckb)->data[3]), fld->numbits);
 				//lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
@@ -293,41 +366,7 @@ void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 		char *hckb = (char *)hval + fld->offset;
 		char *uckb = (char *)uval + fld->offset;
 
-		switch (__lnf_fld_type(fld->field)) {
-			case LNF_UINT8: 
-				switch (fld->aggr_flag) {
-					case LNF_AGGR_SUM: *((uint8_t *)hckb) += *((uint8_t *)uckb); break;
-					case LNF_AGGR_MIN: if ( *((uint8_t *)uckb) < *((uint8_t *)hckb) ) *((uint8_t *)hckb) = *((uint8_t *)uckb); break;
-					case LNF_AGGR_MAX: if ( *((uint8_t *)uckb) > *((uint8_t *)hckb) ) *((uint8_t *)hckb) = *((uint8_t *)uckb); break;
-					case LNF_AGGR_OR: *((uint8_t *)hckb) |= *((uint8_t *)uckb); break;
-				}
-				break;
-			case LNF_UINT16: 
-				switch (fld->aggr_flag) {
-					case LNF_AGGR_SUM: *((uint16_t *)hckb) += *((uint16_t *)uckb); break;
-					case LNF_AGGR_MIN: if ( *((uint16_t *)uckb) < *((uint16_t *)hckb) ) *((uint16_t *)hckb) = *((uint16_t *)uckb); break;
-					case LNF_AGGR_MAX: if ( *((uint16_t *)uckb) > *((uint16_t *)hckb) ) *((uint16_t *)hckb) = *((uint16_t *)uckb); break;
-					case LNF_AGGR_OR: *((uint16_t *)hckb) |= *((uint16_t *)uckb); break;
-				}
-				break;
-			case LNF_UINT32: 
-				switch (fld->aggr_flag) {
-					case LNF_AGGR_SUM: *((uint32_t *)hckb) += *((uint32_t *)uckb); break;
-					case LNF_AGGR_MIN: if ( *((uint32_t *)uckb) < *((uint32_t *)hckb) ) *((uint32_t *)hckb) = *((uint32_t *)uckb); break;
-					case LNF_AGGR_MAX: if ( *((uint32_t *)uckb) > *((uint32_t *)hckb) ) *((uint32_t *)hckb) = *((uint32_t *)uckb); break;
-					case LNF_AGGR_OR: *((uint32_t *)hckb) |= *((uint32_t *)uckb); break;
-				}
-				break;
-			case LNF_UINT64: 
-				switch (fld->aggr_flag) {
-					case LNF_AGGR_SUM: *((uint64_t *)hckb) += *((uint64_t *)uckb); break;
-					case LNF_AGGR_MIN: if ( *((uint64_t *)uckb) < *((uint64_t *)hckb) ) *((uint64_t *)hckb) = *((uint64_t *)uckb); break;
-					case LNF_AGGR_MAX: if ( *((uint64_t *)uckb) > *((uint64_t *)hckb) ) *((uint64_t *)hckb) = *((uint64_t *)uckb); break;
-					case LNF_AGGR_OR: *((uint64_t *)hckb) |= *((uint64_t *)uckb); break;
-				}
-				break;
-			/* other data types are ignored so far */
-		}
+		fld->aggr_func(hckb, uckb); 
 
 		fld = fld->next;
 	}

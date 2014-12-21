@@ -501,7 +501,7 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod}:
 // pod:  Layer 3 information
 // pod:  =====================
-	[LNF_FLD_SRCADDR ] {
+	[LNF_FLD_SRCADDR ] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
 		"srcip",	"Source IP address",
 		lnf_field_fget_SRCADDR},
