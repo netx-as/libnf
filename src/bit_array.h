@@ -1,10 +1,11 @@
 
-
 /* bit operations  */
+
+#define BA_TYPE char
+
 typedef struct bit_array_s {
 	int size;
 	char *data;
-#define BA_DATA_LEN 8	/* size in bits of one item - sizeof(char) */
 } bit_array_t;
 
 
@@ -15,4 +16,14 @@ int bit_array_set(bit_array_t *a, int pos, int val);
 int bit_array_cmp(bit_array_t *a, bit_array_t *b);
 int bit_array_copy(bit_array_t *d, bit_array_t *s);
 void bit_array_release(bit_array_t *a);
+
+
+/* fast functions without boundary check */
+static void inline __bit_array_set(bit_array_t *a, int pos, int val) {
+    a->data[pos] = val;
+}
+
+static int inline __bit_array_get(bit_array_t *a, int pos) {
+	return a->data[pos];
+}
 
