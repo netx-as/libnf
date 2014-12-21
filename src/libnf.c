@@ -508,7 +508,7 @@ begin:
 
 	i = 0;
 	while (lnf_rec->master_record->map_ref->ex_id[i]) {
-		bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->map_ref->ex_id[i], 1);
+		__bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->map_ref->ex_id[i], 1);
 		i++;
 	}
 

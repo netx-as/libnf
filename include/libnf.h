@@ -52,74 +52,74 @@ typedef struct lnf_brec1_s {
 /* top two bytes of field identifies data type LNF_UINT8, ... */
 
 #define LNF_FLD_ZERO			0x00
-#define LNF_FLD_FIRST			( 0x0100 | LNF_UINT64 )
-#define LNF_FLD_LAST			( 0x0200 | LNF_UINT64 )
-#define LNF_FLD_RECEIVED		( 0x0300 | LNF_UINT64 )
-#define LNF_FLD_DOCTETS			( 0x0400 | LNF_UINT64 )
-#define LNF_FLD_DPKTS			( 0x0500 | LNF_UINT64 )
-#define LNF_FLD_OUT_BYTES		( 0x0600 | LNF_UINT64 )
-#define LNF_FLD_OUT_PKTS		( 0x0700 | LNF_UINT64 )
-#define LNF_FLD_AGGR_FLOWS		( 0x0800 | LNF_UINT64 )
-#define LNF_FLD_SRCPORT 		( 0x0900 | LNF_UINT16 )
-#define LNF_FLD_DSTPORT			( 0x0a00 | LNF_UINT16 )
-#define LNF_FLD_TCP_FLAGS		( 0x0b00 | LNF_UINT8 )
-#define LNF_FLD_SRCADDR 		( 0x0c00 | LNF_ADDR )
-#define LNF_FLD_DSTADDR			( 0x0d00 | LNF_ADDR )
-#define LNF_FLD_IP_NEXTHOP		( 0x0e00 | LNF_ADDR )
-#define LNF_FLD_SRC_MASK		( 0x0f00 | LNF_UINT8 )
-#define LNF_FLD_DST_MASK		( 0x1000 | LNF_UINT8 )
-#define LNF_FLD_TOS				( 0x1100 | LNF_UINT8 )
-#define LNF_FLD_DST_TOS			( 0x1200 | LNF_UINT8 )
-#define LNF_FLD_SRCAS			( 0x1300 | LNF_UINT32 )
-#define LNF_FLD_DSTAS			( 0x1400 | LNF_UINT32 )
-#define LNF_FLD_BGPNEXTADJACENTAS	( 0x1500 | LNF_UINT32 )
-#define LNF_FLD_BGPPREVADJACENTAS	( 0x1600 | LNF_UINT32 )
-#define LNF_FLD_BGP_NEXTHOP			( 0x1700 | LNF_ADDR )
-#define LNF_FLD_PROT	 		( 0x1800 | LNF_UINT8 )
-#define LNF_FLD_SRC_VLAN		( 0x1900 | LNF_UINT16 )
-#define LNF_FLD_DST_VLAN		( 0x1a00 | LNF_UINT16 )
-#define LNF_FLD_IN_SRC_MAC		( 0x1b00 | LNF_MAC )
-#define LNF_FLD_OUT_SRC_MAC		( 0x1c00 | LNF_MAC )
-#define LNF_FLD_IN_DST_MAC		( 0x1d00 | LNF_MAC )
-#define LNF_FLD_OUT_DST_MAC		( 0x1e00 | LNF_MAC )
-#define LNF_FLD_MPLS_LABEL		( 0x1f00 | LNF_MPLS )
-#define LNF_FLD_INPUT			( 0x2000 | LNF_UINT16 )
-#define LNF_FLD_OUTPUT			( 0x2100 | LNF_UINT16 )
-#define LNF_FLD_DIR				( 0x2200 | LNF_UINT8 )
-#define LNF_FLD_FWD_STATUS		( 0x2300 | LNF_UINT8 )
-#define LNF_FLD_IP_ROUTER		( 0x2400 | LNF_ADDR )
-#define LNF_FLD_ENGINE_TYPE		( 0x2500 | LNF_UINT8 )
-#define LNF_FLD_ENGINE_ID		( 0x2600 | LNF_UINT8 )
-#define LNF_FLD_EVENT_TIME		( 0x2700 | LNF_UINT64 )
-#define LNF_FLD_CONN_ID			( 0x2800 | LNF_UINT32 )
-#define LNF_FLD_ICMP_CODE		( 0x2900 | LNF_UINT8 )
-#define LNF_FLD_ICMP_TYPE		( 0x2a00 | LNF_UINT8 )
-#define LNF_FLD_FW_XEVENT		( 0x2b00 | LNF_UINT16 )
-#define LNF_FLD_XLATE_SRC_IP	( 0x2c00 | LNF_ADDR )
-#define LNF_FLD_XLATE_DST_IP	( 0x2d00 | LNF_ADDR )
-#define LNF_FLD_XLATE_SRC_PORT	( 0x2e00 | LNF_UINT16 )
-#define LNF_FLD_XLATE_DST_PORT	( 0x2f00 | LNF_UINT16 )
-#define LNF_FLD_INGRESS_ACL_ID	( 0x3000 | LNF_UINT32 )
-#define LNF_FLD_INGRESS_ACE_ID	( 0x3100 | LNF_UINT32 )
-#define LNF_FLD_INGRESS_XACE_ID	( 0x3200 | LNF_UINT32 )
-#define LNF_FLD_EGRESS_ACL_ID	( 0x3300 | LNF_UINT32 )
-#define LNF_FLD_EGRESS_ACE_ID	( 0x3400 | LNF_UINT32 )
-#define LNF_FLD_EGRESS_XACE_ID	( 0x3500 | LNF_UINT32 )
-#define LNF_FLD_USERNAME		( 0x3600 | LNF_STRING )
-#define LNF_FLD_INGRESS_VRFID	( 0x3700 | LNF_UINT32 )
-#define LNF_FLD_EVENT_FLAG		( 0x3800 | LNF_UINT8 )
-#define LNF_FLD_EGRESS_VRFID	( 0x3900 | LNF_UINT32 )
-#define LNF_FLD_BLOCK_START		( 0x3a00 | LNF_UINT16 )
-#define LNF_FLD_BLOCK_END		( 0x3b00 | LNF_UINT16 )
-#define LNF_FLD_BLOCK_STEP		( 0x3c00 | LNF_UINT16 )
-#define LNF_FLD_BLOCK_SIZE		( 0x3d00 | LNF_UINT16 )
-#define LNF_FLD_CLIENT_NW_DELAY_USEC	( 0x3e00 | LNF_UINT64 )
-#define LNF_FLD_SERVER_NW_DELAY_USEC	( 0x3f00 | LNF_UINT64 )
-#define LNF_FLD_APPL_LATENCY_USEC		( 0x4000 | LNF_UINT64 )
+#define LNF_FLD_FIRST			0x01 
+#define LNF_FLD_LAST			0x02 
+#define LNF_FLD_RECEIVED		0x03 
+#define LNF_FLD_DOCTETS			0x04 
+#define LNF_FLD_DPKTS			0x05 
+#define LNF_FLD_OUT_BYTES		0x06 
+#define LNF_FLD_OUT_PKTS		0x07 
+#define LNF_FLD_AGGR_FLOWS		0x08 
+#define LNF_FLD_SRCPORT 		0x09 
+#define LNF_FLD_DSTPORT			0x0a 
+#define LNF_FLD_TCP_FLAGS		0x0b 
+#define LNF_FLD_SRCADDR 		0x0c 
+#define LNF_FLD_DSTADDR			0x0d 
+#define LNF_FLD_IP_NEXTHOP		0x0e 
+#define LNF_FLD_SRC_MASK		0x0f 
+#define LNF_FLD_DST_MASK		0x10 
+#define LNF_FLD_TOS				0x11 
+#define LNF_FLD_DST_TOS			0x12 
+#define LNF_FLD_SRCAS			0x13 
+#define LNF_FLD_DSTAS			0x14 
+#define LNF_FLD_BGPNEXTADJACENTAS	0x15 
+#define LNF_FLD_BGPPREVADJACENTAS	0x16 
+#define LNF_FLD_BGP_NEXTHOP			0x17 
+#define LNF_FLD_PROT	 		0x18
+#define LNF_FLD_SRC_VLAN		0x19
+#define LNF_FLD_DST_VLAN		0x1a
+#define LNF_FLD_IN_SRC_MAC		0x1b
+#define LNF_FLD_OUT_SRC_MAC		0x1c
+#define LNF_FLD_IN_DST_MAC		0x1d
+#define LNF_FLD_OUT_DST_MAC		0x1e
+#define LNF_FLD_MPLS_LABEL		0x1f
+#define LNF_FLD_INPUT			0x20
+#define LNF_FLD_OUTPUT			0x21
+#define LNF_FLD_DIR				0x22
+#define LNF_FLD_FWD_STATUS		0x23
+#define LNF_FLD_IP_ROUTER		0x24
+#define LNF_FLD_ENGINE_TYPE		0x25
+#define LNF_FLD_ENGINE_ID		0x26
+#define LNF_FLD_EVENT_TIME		0x27
+#define LNF_FLD_CONN_ID			0x28
+#define LNF_FLD_ICMP_CODE		0x29
+#define LNF_FLD_ICMP_TYPE		0x2a
+#define LNF_FLD_FW_XEVENT		0x2b
+#define LNF_FLD_XLATE_SRC_IP	0x2c
+#define LNF_FLD_XLATE_DST_IP	0x2d
+#define LNF_FLD_XLATE_SRC_PORT	0x2e
+#define LNF_FLD_XLATE_DST_PORT	0x2f
+#define LNF_FLD_INGRESS_ACL_ID	0x30
+#define LNF_FLD_INGRESS_ACE_ID	0x31
+#define LNF_FLD_INGRESS_XACE_ID	0x32
+#define LNF_FLD_EGRESS_ACL_ID	0x33
+#define LNF_FLD_EGRESS_ACE_ID	0x34
+#define LNF_FLD_EGRESS_XACE_ID	0x35
+#define LNF_FLD_USERNAME		0x36
+#define LNF_FLD_INGRESS_VRFID	0x37
+#define LNF_FLD_EVENT_FLAG		0x38
+#define LNF_FLD_EGRESS_VRFID	0x39
+#define LNF_FLD_BLOCK_START		0x3a
+#define LNF_FLD_BLOCK_END		0x3b
+#define LNF_FLD_BLOCK_STEP		0x3c
+#define LNF_FLD_BLOCK_SIZE		0x3d
+#define LNF_FLD_CLIENT_NW_DELAY_USEC	0x3e 
+#define LNF_FLD_SERVER_NW_DELAY_USEC	0x3f 
+#define LNF_FLD_APPL_LATENCY_USEC		0x40 
 
-#define LNF_FLD_BREC1			( 0x4100 | LNF_BASIC_RECORD1 ) 	/* special field for lnf_brec1_t */
+#define LNF_FLD_BREC1			 0x41 				/* special field for lnf_brec1_t */
 
-#define LNF_FLD_TERM_			( 0xFFFF ) 						/* ID of last record */
+#define LNF_FLD_TERM_			 0x50  						/* ID of last record */
 
 /* text description of fields */
 typedef struct lnf_field_s {
