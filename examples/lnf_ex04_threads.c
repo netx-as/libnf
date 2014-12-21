@@ -180,7 +180,6 @@ int main(int argc, char **argv) {
 		}
 	}
 
-
 	/* wait for threads */
 	for ( i = 0; i < numthreads; i++ ) {
 		if( pthread_join(th[i], NULL) ) {

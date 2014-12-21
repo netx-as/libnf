@@ -527,6 +527,7 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 				return LNF_ERR_NOMEM;
 			}
 //			printf("MERGE %d <- %d [%d] DONE \n", *id, id2, lnf_mem->numthreads);
+//			printf("FREE %d\n", id2);
 			hash_table_free(&lnf_mem->hash_table[id2]);
 
 			pthread_mutex_lock(&lnf_mem->thread_mutex);

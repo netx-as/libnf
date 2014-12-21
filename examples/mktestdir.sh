@@ -2,7 +2,7 @@
 
 #set -x
 
-FILES=50			# num files 
+FILES=500			# num files 
 RECS=10000000		# records per file 
 DIR=testdir			# test dir 
 

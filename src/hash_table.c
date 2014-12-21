@@ -28,6 +28,7 @@ hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
 	t->aggr_callback = acb;
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
+	t->sort_array = NULL;
 //	t->entrypoint = NULL;	/* entry point */
 	t->numentries = 0;
 	
@@ -146,6 +147,7 @@ int hash_table_sort(hash_table_t *t) {
 	}	
 
 	free(t->buckets);
+	t->buckets = NULL;
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
 	return 1;
 	
@@ -191,35 +193,37 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 				if (hash_table_insert(td, pkey, pval) == NULL) {
 					return NULL;
 				}
+				/* row inserted into new table - we can remove it */
+				free(prow);
 				prow = phdr->next;
 			}
 		} 
 	}
+
+	/* all items are in a new table */
+	free(ts->buckets);
+	ts->buckets = NULL;
 
 	return td;
 }
 
 void hash_table_free(hash_table_t *t) {
 
-//	char *prow, *tmp;
-//	hash_table_row_hdr_t *phdr;
 	unsigned long index;
 
-//	free(t->buckets);
 
-//	prow = t->entrypoint;
-
-	for (index = 0 ; index < t->numentries; index++) {
-		free(t->sort_array[index]);
+	/* if has was sorted remove all items */
+	if (t->sort_array != NULL) {
+		for (index = 0 ; index < t->numentries; index++) {
+			if (t->sort_array[index] != NULL) {
+				free(t->sort_array[index]);
+			}
+		}
+		free(t->sort_array);
 	}
 
-/*	
-	while (prow != NULL) {
-		phdr = (hash_table_row_hdr_t *)prow;
-		tmp = prow;
-		prow = phdr->next;
-		free(tmp);
-	}	
-*/
-	free(t->sort_array);
+	/* remove buckets structure */
+	if (t->buckets != NULL) {
+		free(t->buckets);
+	}
 }
