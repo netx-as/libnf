@@ -8,10 +8,6 @@
 #include "heap_sort.h"
 #include "xxhash.h"
 
-#define HASH_ATOMIC_CAS(ptr, comp, exch) (__sync_bool_compare_and_swap(ptr, comp, exch))
-#define HASH_ATOMIC_INC(ptr) (__sync_add_and_fetch(ptr, 1))
-
-
 /* initialise hash table */ 
 /* argumets - aggregation key size, sort key size, values size */
 hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
