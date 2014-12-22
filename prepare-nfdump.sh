@@ -91,7 +91,7 @@ echo "##########################################################"
 echo "# STAGE 3: checking definitions of all items in libnf    #"
 echo "##########################################################"
 echo ""
-##./check_items_map.pl || exit 1
+./check_items_map.pl || exit 1
 
 echo ""
 echo "##########################################################"

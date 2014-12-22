@@ -28,7 +28,7 @@ my $MAP_DESCR_FILE = "nfdump/bin/nfx.c";
 my $MASTER_RECORD_FILE = "nfdump/bin/nffile.h";
 
 # path to libnf C and H source files
-my $LIBNF_C_FILE = "src/libnf.c";
+my $LIBNF_C_FILE = "src/fields.c";
 
 
 # The perl structure parsed from 
@@ -138,9 +138,10 @@ sub get_func_content() {
 
 		# /* TAG for check_items_map.pl: function_name */
 		# and ^}$ . 
-		if (/TAG for check_items_map.pl: (\w+)/) {
+		#if (/TAG for check_items_map.pl: (\w+)/) {
+		if (/static int inline lnf_field_(f[gs]et)_/) {
 			$funcname = $1;
-			$LIBNF_C_FUNC{$funcname} = "";
+#			$LIBNF_C_FUNC{$funcname} = "";
 			next;
 		}
 		if (/^}$/) {
@@ -148,7 +149,11 @@ sub get_func_content() {
 		}
 
 		if (defined($funcname)) {
-			$LIBNF_C_FUNC{$funcname} .= $_;
+			if (defined($LIBNF_C_FUNC{$funcname})) {
+				$LIBNF_C_FUNC{$funcname} .= $_;
+			} else {
+				$LIBNF_C_FUNC{$funcname} = $_;
+			}
 		}
 	}
 }
@@ -188,8 +193,8 @@ foreach (@MAP_DESCR) {
 	next if ($_->{'description'} =~ /^$/);
 	next if ($_->{'description'} =~ /Compat NEL/);
 
-	my $read = str_count($LIBNF_C_FUNC{'lnf_rec_fget'}, $_->{'id'}); 
-	my $write = str_count($LIBNF_C_FUNC{'lnf_rec_fset'}, $_->{'id'}); 
+	my $read = str_count($LIBNF_C_FUNC{'fget'}, $_->{'id'}); 
+	my $write = str_count($LIBNF_C_FUNC{'fset'}, $_->{'id'}); 
 
 	next if ($read > 0 && $write > 0);
 
@@ -214,8 +219,8 @@ foreach (@MASTER_RECORD) {
 	next if ($_->{'name'} =~ /exporter_sysid/); 
 	next if ($_->{'name'} =~ /nat_flags/); 
 
-	my $read = str_count($LIBNF_C_FUNC{'lnf_rec_fget'}, $_->{'name'}); 
-	my $write = str_count($LIBNF_C_FUNC{'lnf_rec_fset'}, $_->{'name'}); 
+	my $read = str_count($LIBNF_C_FUNC{'fget'}, $_->{'name'}); 
+	my $write = str_count($LIBNF_C_FUNC{'fset'}, $_->{'name'}); 
 
 	next if ($read > 0 && $write > 0);
 
