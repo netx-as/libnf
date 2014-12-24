@@ -59,6 +59,9 @@
 #include "nfdump_inline.c"
 #include "nffile_inline.c"
 
+/*! \brief Brief text 
+* Some TEXT libnf bla bla 
+*/ 
 
 /* Global Variables */
 extern extension_descriptor_t extension_descriptor[];

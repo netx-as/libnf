@@ -1,3 +1,8 @@
+/*! \file libnf.h
+	\brief A Documented file.
+    Details.
+*/
+
 
 
 #include <stdio.h>
@@ -119,15 +124,15 @@ typedef struct lnf_brec1_s {
 
 #define LNF_FLD_BREC1			 0x41 				/* special field for lnf_brec1_t */
 
-#define LNF_FLD_TERM_			 0x50  						/* ID of last record */
+#define LNF_FLD_TERM_			 0xFF  						/* ID of last record */
 
 /* text description of fields */
 typedef struct lnf_field_s {
-	int index;			/* numerical index of field */
-	int default_aggr;	/* default aggregation function */
-	int default_sort;	/* default sort order */
-	char *name;			/* field name */
-	char *fld_descr;	/* short description */
+	int index;			/*!< numerical index of field */
+	int default_aggr;	/*!< default aggregation function */
+	int default_sort;	/*!< default sort order */
+	char *name;			/**< field name */
+	char *fld_descr;	/**< short description */
 } lnf_field_t;
 
 /* info structure returned by lnf_info function */
@@ -261,6 +266,13 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 #define LNF_SORT_FLAGS	0x00F0
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
+
+#define LNF_FAST_AGGR_NONE	0x0000	/* do not set fast aggregation mode */
+#define LNF_FAST_AGGR_BASIC	0x0001	/* perform aggregation on items FIRST,LAST,BYTES,PKTS */
+#define LNF_FAST_AGGR_ALL	0x0002	/* aggregation on all items */
+
+int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int flags);
+
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);

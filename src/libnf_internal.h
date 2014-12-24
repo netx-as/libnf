@@ -106,6 +106,7 @@ typedef struct lnf_mem_s {
 	int	val_len;
 //	lnf_fieldlist_t *sort_list;		/* list of fields to sort */
 //	int	sort_len;
+	int fastaggr_mode;				/* mode is fast aggergation is enabled */
 	int sort_field;					/* field identification for sorting */
 	int sort_offset;				/* offset in the record field */
 	int sort_flags;					/* search sort field in ket or aggregated value */
@@ -143,8 +144,19 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf);
 void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec);
 
 
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
+int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
+void lnf_mem_fastaggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
 void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
 int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *p);
 int lnf_mem_done(lnf_mem_t *lnf_mem);
+
+
+/* structure for fast aggregation support */
+typedef struct lnf_fastaggr_s {
+	uint64_t	first;
+	uint64_t	last;
+	uint64_t	doctets;
+	uint64_t	dpkts;
+	uint64_t	aggr_flows;
+} lnf_fastaggr_t;
 

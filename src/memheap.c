@@ -81,6 +81,8 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sort_offset = 0;
 	lnf_mem->sort_flags = LNF_SORT_FLD_NONE;
 
+	lnf_mem->fastaggr_mode = LNF_FAST_AGGR_NONE;
+
 	//lnf_mem->hash_ptr = NULL;
 	lnf_mem->sorted = 0;
 	lnf_mem->numthreads = 0;
@@ -108,6 +110,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 
 	int *id; 
+	void *aggr_callback;
 
 	if (lnf_mem->numthreads > LNF_MAX_THREADS) {
 		return LNF_ERR_OTHER;	
@@ -134,8 +137,14 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 	lnf_mem->thread_id_key = id;
 #endif
 
+	if (lnf_mem->fastaggr_mode == LNF_FAST_AGGR_BASIC) {
+		aggr_callback = &lnf_mem_fastaggr_callback;
+	} else {
+		aggr_callback = &lnf_mem_aggr_callback;
+	}
+
 	if (hash_table_init(&lnf_mem->hash_table[*id], HASH_TABLE_INIT_SIZE,
-			&lnf_mem_aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
+			aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
 
 		return LNF_ERR_NOMEM;
 
@@ -146,13 +155,41 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 	return LNF_OK;
 }
 
-/* add item to linked list */
-int lnf_filedlist_add(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *roffset) {
+/*! 
+* add item to linked list 
+* if the node with same ID exists in list then only update 
+* aggr_flag, sort_flag numbits and numbits6 
+* @sizep sum size of all fields 
+* @offset of updated of added item 
+*/
+int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *roffset) {
 
 	lnf_fieldlist_t *node, *tmp_node;
 	int offset = 0;	
 
+	/* find item in list and update */
+	tmp_node = *list;
+	while (tmp_node != NULL) {
+		if (tmp_node->field == snode->field) {
+			tmp_node->aggr_flag = snode->aggr_flag;
+			tmp_node->sort_flag = snode->sort_flag;
+			tmp_node->numbits = snode->numbits;
+			tmp_node->numbits6 = snode->numbits6;
+			tmp_node->aggr_func = snode->aggr_func;
 
+			*roffset = tmp_node->offset;
+			/* go via remaining items in list to find the size of the list */
+			while (tmp_node != NULL) {
+				*sizep = tmp_node->offset + tmp_node->size;
+			}
+
+			return LNF_OK;	
+		}
+		tmp_node = tmp_node->next;
+	}
+
+
+	/* field was not found - add into list */
 	node = malloc(sizeof(lnf_fieldlist_t));
 
 	if (node == NULL) {
@@ -200,6 +237,26 @@ void lnf_filedlist_free(lnf_fieldlist_t *list) {
 		node = node->next;
 		free(tmp_node);
 	}
+}
+
+/* set fast aggregation mode */
+int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int mode) {
+
+	if (mode != LNF_FAST_AGGR_BASIC && mode != LNF_FAST_AGGR_ALL) {
+		return LNF_ERR_OTHER;
+	}
+
+	lnf_mem->fastaggr_mode = LNF_FAST_AGGR_BASIC;
+
+	lnf_mem_fadd(lnf_mem, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
+	lnf_mem_fadd(lnf_mem, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
+	lnf_mem_fadd(lnf_mem, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(lnf_mem, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(lnf_mem, LNF_FLD_AGGR_FLOWS, LNF_AGGR_SUM, 0, 0);
+
+//	lnf_mem->fastaggr_mode = LNF_FAST_AGGR_ALL;
+
+	return LNF_OK;
 }
 
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
@@ -262,7 +319,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 
 	/* add to key list */
 	if ((flags & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
-		if ( lnf_filedlist_add(&lnf_mem->key_list, &fld, &lnf_mem->key_len, LNF_MAX_KEY_LEN, &offset) != LNF_OK ) {
+		if ( lnf_filedlist_add_or_upd(&lnf_mem->key_list, &fld, &lnf_mem->key_len, LNF_MAX_KEY_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
@@ -271,7 +328,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY;
 		}
 	} else { /* add to value list */
-		if ( lnf_filedlist_add(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
+		if ( lnf_filedlist_add_or_upd(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
@@ -350,13 +407,14 @@ void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec) {
 		char *ckb = (char *)buf + fld->offset;
 
 		/*get content of the field from the buf + offset */
-		lnf_rec_fset(rec, fld->field, ckb);
+		__lnf_rec_fset(rec, fld->field, ckb);
 
 		fld = fld->next;
 	}
 
 	return;
 }
+
 /* callback for updating items in hash table */
 void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
@@ -370,6 +428,20 @@ void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
 		fld = fld->next;
 	}
+}
+
+/* callback for updating items in hash table - fast aggregation version */
+void lnf_mem_fastaggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
+
+	lnf_fastaggr_t *h = (lnf_fastaggr_t *)hval;
+	lnf_fastaggr_t *u = (lnf_fastaggr_t *)hval;
+
+	if (u->first < h->first) h->first = u->first;
+	if (u->last > h->last) h->last = u->last;
+	h->doctets += u->doctets;
+	h->dpkts += u->dpkts;
+	h->aggr_flows += u->aggr_flows;
+
 }
 
 /* callback for comparing two items */
@@ -423,17 +495,29 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
-	int keylen, vallen;
 	int *id;
 	char keybuf[LNF_MAX_KEY_LEN]; 
 	char valbuf[LNF_MAX_VAL_LEN];
+	lnf_fastaggr_t *fa = (lnf_fastaggr_t *)valbuf;
 
 
 	/* build key */
-	keylen = lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf);
+	lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf);
 
 	/* build values */
-	vallen = lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
+	if (lnf_mem->fastaggr_mode == LNF_FAST_AGGR_BASIC) {
+	
+		__lnf_rec_fget(rec, LNF_FLD_FIRST, (void *)&fa->first);	
+		__lnf_rec_fget(rec, LNF_FLD_LAST, (void *)&fa->last);	
+		__lnf_rec_fget(rec, LNF_FLD_DOCTETS, (void *)&fa->doctets);	
+		__lnf_rec_fget(rec, LNF_FLD_DPKTS, (void *)&fa->dpkts);	
+		__lnf_rec_fget(rec, LNF_FLD_AGGR_FLOWS, (void *)&fa->aggr_flows);	
+
+	//	lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf + sizeof(lnf_fastaggr_t));
+
+	} else {
+		lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
+	}
 
 #ifdef LNF_THREADS
 	id = pthread_getspecific(lnf_mem->thread_id_key);
