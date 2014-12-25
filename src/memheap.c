@@ -165,7 +165,7 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *roffset) {
 
 	lnf_fieldlist_t *node, *tmp_node;
-	int offset = 0;	
+	int offset = 0;
 
 	/* find item in list and update */
 	tmp_node = *list;
@@ -181,6 +181,7 @@ int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int
 			/* go via remaining items in list to find the size of the list */
 			while (tmp_node != NULL) {
 				*sizep = tmp_node->offset + tmp_node->size;
+				tmp_node = tmp_node->next;
 			}
 
 			return LNF_OK;	
@@ -273,14 +274,18 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
 		case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
 		default : 
-			return LNF_ERR_UKNFLD;
+			return LNF_ERR_UNKFLD;
 	}
 
 	fld.type = lnf_fld_type(field);
 	fld.numbits = numbits;
 	fld.numbits6 = numbits6;
-	fld.aggr_flag = flags & LNF_AGGR_FLAGS;
-	fld.sort_flag = flags & LNF_SORT_FLAGS;
+	if (!flags) {
+		lnf_fld_info(field, NULL, NULL, &fld.aggr_flag, &fld.sort_flag);
+	} else {
+		fld.aggr_flag = flags & LNF_AGGR_FLAGS;
+		fld.sort_flag = flags & LNF_SORT_FLAGS;
+	}
 
 	/* select aggregation func for item */
 	fld.aggr_func = lnf_mem_aggr_EMPTY;
@@ -357,16 +362,17 @@ static void inline lnf_clear_bits_v4(uint32_t *buf, int from) {
 static void inline lnf_clear_bits_v6(uint64_t *buf, int from) {
 	uint64_t tmp;
 
-	if ( from == sizeof(uint64_t) ) {		/* 64 bits */
+	if ( from == sizeof(uint64_t) * 8 ) {		/* 64 bits */
 		buf[1] = 0x0;						/* clear top 64 bits */
-	} else if ( from < sizeof(uint64_t) ) {	/* 0..63 bits */
-		tmp = ntohl(buf[0]);
+	} else if ( from < sizeof(uint64_t) * 8 ) {	/* 0..63 bits */
+		tmp = ntohll(buf[0]);
 		tmp &= ~ ( 0xFFFFFFFFFFFFFFFF >> from );
-		buf[0] = htonl(tmp); 
-	} else if ( from > sizeof(uint64_t) && from < 2 * sizeof(uint64_t) ) {
-		tmp = ntohl(buf[1]);				/* 65 .. 127 bits */
-		tmp &= ~ ( 0xFFFFFFFFFFFFFFFF >> (from - sizeof(uint64_t)));
-		buf[1] = htonl(tmp); 
+		buf[0] = htonll(tmp); 
+		buf[1] = 0x0;						/* clear top 64 bits */
+	} else if ( from > sizeof(uint64_t) * 8 && from < 2 * sizeof(uint64_t) * 8 ) {
+		tmp = ntohll(buf[1]);				/* 65 .. 127 bits */
+		tmp &= ~ ( 0xFFFFFFFFFFFFFFFF >> (from - sizeof(uint64_t) * 8 ));
+		buf[1] = htonll(tmp); 
 	} /* else 128 bits */
 
 }

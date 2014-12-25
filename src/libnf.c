@@ -235,7 +235,7 @@ lnf_field_t lnf_fields[] = {
 	"nprobe latency server_nw_delay_usec"},
 	{LNF_FLD_APPL_LATENCY_USEC,			LNF_AGGR_KEY,	LNF_SORT_ASC,	"al",	
 	"nprobe latency appl_latency_usec"},
-	{LNF_FLD_ZERO,						0,				0,				NULL,	
+	{LNF_FLD_ZERO_,						0,				0,				NULL,	
 	NULL}
 };
 
@@ -715,13 +715,13 @@ void lnf_rec_free(lnf_rec_t *rec) {
 }
 
 
-/* returns LN_OK or LNF_ERR_UKNFLD */
+/* returns LN_OK or LNF_ERR_UNKFLD */
 /* TAG for check_items_map.pl: lnf_rec_fset */
 int lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 
 	if (lnf_fld_type(field) == LNF_NONE) {
 
-		return LNF_ERR_UKNFLD;
+		return LNF_ERR_UNKFLD;
 
 	}
 
@@ -730,13 +730,13 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 }
 
 
-/* returns LN_OK or LNF_ERR_UKNFLD */
+/* returns LN_OK or LNF_ERR_UNKFLD */
 /* TAG for check_items_map.pl: lnf_rec_fget */
 int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 
 	if (lnf_fld_type(field) == LNF_NONE) {
 
-		return LNF_ERR_UKNFLD;
+		return LNF_ERR_UNKFLD;
 
 	}
 

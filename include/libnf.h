@@ -56,7 +56,7 @@ typedef struct lnf_brec1_s {
 
 /* top two bytes of field identifies data type LNF_UINT8, ... */
 
-#define LNF_FLD_ZERO			0x00
+#define LNF_FLD_ZERO_			0x00
 #define LNF_FLD_FIRST			0x01 
 #define LNF_FLD_LAST			0x02 
 #define LNF_FLD_RECEIVED		0x03 
@@ -209,7 +209,7 @@ typedef void lnf_mem_t;
 #define LNF_ERR_WRITE		-0x00F0	/* write error */
 
 #define LNF_ERR_NOTSET		-0x0100	/* item is not set  */
-#define LNF_ERR_UKNFLD		-0x0200	/* unknown field  */
+#define LNF_ERR_UNKFLD		-0x0200	/* unknown field  */
 #define LNF_ERR_FILTER		-0x0400	/* cannot compile filter  */
 #define LNF_ERR_NOMEM		-0x0800	/* cannot allocate memory  */
 #define LNF_ERR_OTHER		-0x0F00	/* some other error */
@@ -281,6 +281,8 @@ void lnf_mem_free(lnf_mem_t *lnf_mem);
 
 /* fields management */
 int lnf_fld_type(int field);
+int lnf_fld_info(int field, char **name, char **descr, int *aggreg, int *sort);
+int lnf_fld_parse(char *str, int *numbits, int *numbits6);
 
 
 #ifndef IN6_IS_ADDR_V4COMPAT

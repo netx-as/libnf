@@ -1419,7 +1419,7 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_BREC1] = {
 		LNF_BASIC_RECORD1,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
-		"brec1",	"basic recor 1",
+		"brec1",	"basic record 1",
 		lnf_field_fget_BREC1,
 		lnf_field_fset_BREC1},
 
@@ -1430,4 +1430,83 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL}
 };
 
+
+/* return info information for fiels 
+*/
+int lnf_fld_info(int field, char **name, char **descr, int *aggreg, int *sort) {
+
+	lnf_field_def_t *fe;
+
+	if (field < LNF_FLD_ZERO_ || field > LNF_FLD_TERM_) {
+		return LNF_ERR_UNKFLD;
+	}
+
+	fe = &lnf_fields_def[field];
+
+	if (fe->type != LNF_NONE) {
+		return LNF_ERR_UNKFLD;
+	}
+
+	if (name != NULL) {
+		*name = fe->name;
+	}
+
+	if (descr != NULL) {
+		*descr = fe->fld_descr;
+	}
+		
+	if (aggreg != NULL) {
+		*aggreg = fe->default_aggr;
+	}
+
+	if (sort != NULL) {
+		*aggreg = fe->default_sort;
+	}
+
+	return LNF_OK;
+}
+
+/* parse fields from string 
+* accepted format like srcip/24/64 
+*/
+int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
+
+	char *name, *strbits;
+	int field = LNF_FLD_ZERO_;
+	int i;
+
+
+	/* find first token */
+	name = strsep(&str, "/");
+
+	if (name == NULL) {	
+		return LNF_ERR_OTHER;
+	}
+
+	/* find ID for field */
+	for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
+		if (lnf_fields_def[i].name != NULL && strcmp(name, lnf_fields_def[i].name) == 0) {
+			field = i;
+		}
+	}
+
+	if (field == LNF_FLD_ZERO_) {
+		return LNF_FLD_ZERO_;
+	}
+
+	/* numbits */
+	if (str != NULL) {
+		strbits = strsep(&str, "/");
+		if (strbits != NULL && numbits != NULL) {
+			*numbits = strtol(strbits, NULL, 10);
+		}
+	}
+	
+	/* numbits6 */
+	if (str != NULL && numbits6 != NULL) {
+		*numbits6 = strtol(str, NULL, 10);
+	}
+
+	return field;
+}
 

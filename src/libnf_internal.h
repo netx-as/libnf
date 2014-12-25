@@ -19,6 +19,17 @@
 #include "bit_array.h"
 #include "hash_table.h"
 
+#ifndef HAVE_HTONLL
+#ifdef WORDS_BIGENDIAN
+#	define ntohll(n)	(n)
+#	define htonll(n)	(n)
+#else
+#	define ntohll(n)	(((uint64_t)ntohl(n)) << 32) + ntohl((n) >> 32)
+#	define htonll(n)	(((uint64_t)htonl(n)) << 32) + htonl((n) >> 32)
+#endif
+#define HAVE_HTONLL 1
+#endif
+
 
 /* list of maps used in file taht we create */
 typedef struct lnf_map_list_s {

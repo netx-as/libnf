@@ -215,7 +215,15 @@ if test "$ac_cv_struct_semun" = "yes"; then
 fi
 
 
-AC_OUTPUT(Makefile include/Makefile src/Makefile examples/Makefile)
+AC_OUTPUT(Makefile include/Makefile src/Makefile bin/Makefile examples/Makefile)
+
+if test "${enable_threads}" = "yes" ; then
+echo ""
+echo "Thread support enabled."
+else 
+echo ""
+echo "Single thread version."
+fi
 
 echo ""
 echo "The libnf extends the source code of nfdump tool"
@@ -224,3 +232,4 @@ echo "placed in the nfudump directory that is distributed"
 echo "together with libnf package. Thanks for using libnf."
 echo "For more info visit http://libnf.net."
 echo ""
+
