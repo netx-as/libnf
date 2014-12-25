@@ -1,5 +1,11 @@
 Revision history for C and Perl extension of nfdump.
 
+1.07 2015-01-xx
+	- c: nfdumpp utility added
+	- c: lnf_fld_info added 
+	- c: lnf_mem_fastaggr added
+	- c: performance update (15-20%)
+
 1.06 2014-12-06
 	- c: lnf_rec_fget lnf_rec_fset performance update (15%)
 	- c: added src/fields.c,h - code related to fields are now separated 

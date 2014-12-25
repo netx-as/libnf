@@ -281,7 +281,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	fld.numbits = numbits;
 	fld.numbits6 = numbits6;
 	if (!flags) {
-		lnf_fld_info(field, NULL, NULL, &fld.aggr_flag, &fld.sort_flag);
+		lnf_fld_info(field, LNF_FLD_INFO_AGGR, &fld.aggr_flag);
 	} else {
 		fld.aggr_flag = flags & LNF_AGGR_FLAGS;
 		fld.sort_flag = flags & LNF_SORT_FLAGS;

@@ -281,7 +281,14 @@ void lnf_mem_free(lnf_mem_t *lnf_mem);
 
 /* fields management */
 int lnf_fld_type(int field);
-int lnf_fld_info(int field, char **name, char **descr, int *aggreg, int *sort);
+#define LNF_FLD_INFO_FIELDS	0x01	/* fill array of ints ended with LNF_FLD_TERM_  */
+#define LNF_FLD_INFO_TYPE	0x02	/* type - int */
+#define LNF_FLD_INFO_NAME	0x04	/* name - char* */
+#define LNF_FLD_INFO_DESCR	0x08	/* description - char * */
+#define LNF_FLD_INFO_AGGR	0x0B	/* default aggregation - int */
+#define LNF_FLD_INFO_SORT	0x0E	/* default sort - int */
+/* return LNF_OK or LNF_ERR_UNKFLD or LNF_ERR_OTHER */
+int lnf_fld_info(int field, int info, void *data);
 int lnf_fld_parse(char *str, int *numbits, int *numbits6);
 
 

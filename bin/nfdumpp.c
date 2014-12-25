@@ -17,7 +17,6 @@
 
 /* global variable */
 lnf_mem_t *memp;
-int print = 1;
 int totalrows = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 flist_t *flist;
@@ -63,7 +62,8 @@ int process_file(char *filename) {
 		/* add to memory heap */
 		lnf_mem_write(memp, recp);
 
-		if (print) {
+		/*	
+		{
 			char sbuf[INET6_ADDRSTRLEN];
 			char dbuf[INET6_ADDRSTRLEN];
 
@@ -77,6 +77,7 @@ int process_file(char *filename) {
 					dbuf, brec.dstport,  
 					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
+		*/
 	}
 
 	lnf_close(filep);
@@ -144,7 +145,8 @@ static int parse_aggreg(lnf_mem_t *memp, char *str) {
 		}
 
 		if (fe->numbits > 32 || fe->numbits6 > 128) {
-			fprintf(stderr, "Invalid bit size %s in -A \n", token);
+			fprintf(stderr, "Invalid bit size (%d/%d) for %s in -A \n", 
+			fe->numbits, fe->numbits6, token);
 			exit(1);
 		}	
 
@@ -178,15 +180,11 @@ int main(int argc, char **argv) {
 	/* initalise one instance of memory heap (share by all threads) */
 	memp = NULL;
 
-	while ((c = getopt (argc, argv, "A:r:R:pPt:")) != -1) {
+	while ((c = getopt (argc, argv, "A:r:R:t:")) != -1) {
 		switch (c) {
 			case 'r':
 			case 'R':
 				flist_lookup_dir(&flist, optarg);
-				break;
-			case 'p':
-			case 'P':
-				print = 0;
 				break;
 			case 'A':
 				if (memp == NULL) {
@@ -201,7 +199,7 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case '?':
-				printf("Usage: %s [ -P ] [ -A ] [ <file1> <file2> ... ] \n", argv[0]);
+				printf("Usage: %s [ -A ] [ <file1> <file2> ... ] \n", argv[0]);
 				printf(" -r : \n");
 				printf(" -R : Input file or directory  \n");
 				printf(" -A : do not aggregated records to stdout\n");

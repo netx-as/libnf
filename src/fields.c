@@ -1433,9 +1433,24 @@ lnf_field_def_t lnf_fields_def[] = {
 
 /* return info information for fiels 
 */
-int lnf_fld_info(int field, char **name, char **descr, int *aggreg, int *sort) {
+int lnf_fld_info(int field, int info, void *data) {
 
 	lnf_field_def_t *fe;
+	int i;
+
+	if (info == LNF_FLD_INFO_FIELDS) {
+		int *fld  = data;
+		/* find ID for field */
+		for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
+			if (lnf_fields_def[i].name != NULL) {
+				*fld = i;
+				fld++;
+			}
+		}
+		*fld = LNF_FLD_TERM_;
+
+		return LNF_OK;
+	}
 
 	if (field < LNF_FLD_ZERO_ || field > LNF_FLD_TERM_) {
 		return LNF_ERR_UNKFLD;
@@ -1443,24 +1458,24 @@ int lnf_fld_info(int field, char **name, char **descr, int *aggreg, int *sort) {
 
 	fe = &lnf_fields_def[field];
 
-	if (fe->type != LNF_NONE) {
-		return LNF_ERR_UNKFLD;
-	}
-
-	if (name != NULL) {
-		*name = fe->name;
-	}
-
-	if (descr != NULL) {
-		*descr = fe->fld_descr;
-	}
-		
-	if (aggreg != NULL) {
-		*aggreg = fe->default_aggr;
-	}
-
-	if (sort != NULL) {
-		*aggreg = fe->default_sort;
+	switch (info) {
+		case LNF_FLD_INFO_TYPE:
+			*((int *)data) = fe->type;
+			break;
+		case LNF_FLD_INFO_NAME:
+			strcpy(data, fe->name);
+			break;
+		case LNF_FLD_INFO_DESCR:
+			strcpy(data, fe->fld_descr);
+			break;
+		case LNF_FLD_INFO_AGGR:
+			*((int *)data) = fe->default_aggr;
+			break;
+		case LNF_FLD_INFO_SORT:
+			*((int *)data) = fe->default_sort;
+			break;
+		default:
+			return LNF_ERR_OTHER;
 	}
 
 	return LNF_OK;
@@ -1473,6 +1488,7 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 
 	char *name, *strbits;
 	int field = LNF_FLD_ZERO_;
+	char lastch;
 	int i;
 
 
@@ -1483,28 +1499,54 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 		return LNF_ERR_OTHER;
 	}
 
+	lastch = name[strlen(name) - 1];
+
+	/* symbol 4 or 6 on last position */
+	if (lastch == '4' || lastch == '6') {
+		name[strlen(name) - 1] = '\0';
+	}
+
 	/* find ID for field */
 	for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
-		if (lnf_fields_def[i].name != NULL && strcmp(name, lnf_fields_def[i].name) == 0) {
-			field = i;
+		if (lnf_fields_def[i].name != NULL) {
+			if (strcmp(name, lnf_fields_def[i].name) == 0) {
+				field = i;
+				break;
+			}
 		}
+		
 	}
 
 	if (field == LNF_FLD_ZERO_) {
 		return LNF_FLD_ZERO_;
 	}
 
+	if (lnf_fld_type(field) != LNF_ADDR) {
+		return LNF_OK;
+	}
+		
+	*numbits = 32;
+	*numbits6 = 128;
+
 	/* numbits */
 	if (str != NULL) {
 		strbits = strsep(&str, "/");
 		if (strbits != NULL && numbits != NULL) {
-			*numbits = strtol(strbits, NULL, 10);
+			if (lastch == '6') {
+				*numbits6 = strtol(strbits, NULL, 10);
+			} else {
+				*numbits = strtol(strbits, NULL, 10);
+			}
 		}
 	}
 	
 	/* numbits6 */
 	if (str != NULL && numbits6 != NULL) {
-		*numbits6 = strtol(str, NULL, 10);
+		if (lastch == '6') {
+			*numbits = strtol(strbits, NULL, 10);
+		} else {
+			*numbits6 = strtol(str, NULL, 10);
+		}
 	}
 
 	return field;
