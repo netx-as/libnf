@@ -55,7 +55,9 @@ typedef struct lnf_brec1_s {
 #define LNF_GET_FIELD(x) 	x
 
 /* top two bytes of field identifies data type LNF_UINT8, ... */
-
+/* 01 - 9F - ordinary fields */
+/* A0 - DF - extra fields - computed etc. */
+/* EF - FF - reserved */
 #define LNF_FLD_ZERO_			0x00
 #define LNF_FLD_FIRST			0x01 
 #define LNF_FLD_LAST			0x02 
@@ -122,9 +124,14 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_SERVER_NW_DELAY_USEC	0x3f 
 #define LNF_FLD_APPL_LATENCY_USEC		0x40 
 
-#define LNF_FLD_BREC1			 0x41 				/* special field for lnf_brec1_t */
+/* compudted and extra fields */
+#define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */
+#define LNF_FLD_CALC_BPS		 0xA1 			/* computed : Bytes per second  */
+#define LNF_FLD_CALC_PPS		 0xA2 			/* computed : packets per second  */
+#define LNF_FLD_CALC_BPP		 0xA3 			/* computed : bytes per packet */
+#define LNF_FLD_BREC1			 0xB0 			/* special field for lnf_brec1_t */
 
-#define LNF_FLD_TERM_			 0xFF  						/* ID of last record */
+#define LNF_FLD_TERM_			 0xFF  			/* ID of last record */
 
 /* text description of fields */
 typedef struct lnf_field_s {

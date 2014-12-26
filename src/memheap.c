@@ -440,7 +440,7 @@ void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 void lnf_mem_fastaggr_callback(char *key, char *hval, char *uval, void *lnf_mem) {
 
 	lnf_fastaggr_t *h = (lnf_fastaggr_t *)hval;
-	lnf_fastaggr_t *u = (lnf_fastaggr_t *)hval;
+	lnf_fastaggr_t *u = (lnf_fastaggr_t *)uval;
 
 	if (u->first < h->first) h->first = u->first;
 	if (u->last > h->last) h->last = u->last;

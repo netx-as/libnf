@@ -958,6 +958,36 @@ static int inline lnf_field_fset_APPL_LATENCY_USEC(master_record_t *m, void *p, 
 	return LNF_OK;
 }
 
+/* ----------------------- */
+static int inline lnf_field_fset_EMPTY_(master_record_t *m, void *p, bit_array_t *e) { 
+	return LNF_OK;
+}
+
+#define LNF_DURATION (m->last * 1000LL + m->msec_last - m->first * 1000LL + m->msec_first)
+
+/* ----------------------- */
+static int inline lnf_field_fget_CALC_DURATION(master_record_t *m, void *p, bit_array_t *e) { 
+	*((uint64_t *)p) = LNF_DURATION;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_CALC_BPS(master_record_t *m, void *p, bit_array_t *e) { 
+	*((uint64_t *)p) = m->dOctets / LNF_DURATION * 1000;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_CALC_PPS(master_record_t *m, void *p, bit_array_t *e) { 
+	*((uint64_t *)p) = m->dPkts/ LNF_DURATION * 1000;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_CALC_BPP(master_record_t *m, void *p, bit_array_t *e) { 
+	*((uint64_t *)p) = m->dOctets / m->dPkts;
+	return LNF_OK;
+}
 
 /* ----------------------- */
 static int inline lnf_field_fget_BREC1(master_record_t *m, void *p, bit_array_t *e) { 
@@ -1413,6 +1443,33 @@ lnf_field_def_t lnf_fields_def[] = {
 		"al",	"nprobe latency appl_latency_usec",
 		lnf_field_fget_APPL_LATENCY_USEC,
 		lnf_field_fset_APPL_LATENCY_USEC},
+
+// pod:
+// pod:  Calculated items
+// pod:  =====================
+	[LNF_FLD_CALC_DURATION] = {
+		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		"duration",	"Flow duration",
+		lnf_field_fget_CALC_DURATION,
+		lnf_field_fset_EMPTY_},
+
+	[LNF_FLD_CALC_BPS] = {
+		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		"bps",	"Bytes per second",
+		lnf_field_fget_CALC_BPS,
+		lnf_field_fset_EMPTY_},
+
+	[LNF_FLD_CALC_PPS] = {
+		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		"pps",	"Packets per second",
+		lnf_field_fget_CALC_BPS,
+		lnf_field_fset_EMPTY_},
+
+	[LNF_FLD_CALC_BPP] = {
+		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		"bpp",	"Bytes per packet",
+		lnf_field_fget_CALC_BPS,
+		lnf_field_fset_EMPTY_},
 
 // pod:
 // pod:  Structure lnf_brec1_t - basic record 

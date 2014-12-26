@@ -2,7 +2,9 @@ Revision history for C and Perl extension of nfdump.
 
 1.07 2015-01-xx
 	- c: nfdumpp utility added
+	- c: added calculated items diration, bps, pps, bpp
 	- c: lnf_fld_info added 
+	- c: lnf_fld_parse added 
 	- c: lnf_mem_fastaggr added
 	- c: performance update (15-20%)
 

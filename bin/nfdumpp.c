@@ -22,6 +22,7 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 flist_t *flist;
 int fileidx = 0;
 
+/*
 typedef struct fields_s {
 	int field;
 	int type;
@@ -31,7 +32,7 @@ typedef struct fields_s {
 
 fields_t fields[LNF_FLD_TERM_] = { };
 int numfields = 0;
-
+*/
 
 
 /* process one file */
@@ -125,40 +126,6 @@ DONE:
 	return NULL;
 }
 
-/* parse aggregation option and set  lnf_mem_add */
-
-static int parse_aggreg(lnf_mem_t *memp, char *str) {
-
-	char *token = str;
-	fields_t *fe; /* field entry */
-
-	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
-
-	while ( (token = strsep(&str, ",")) != NULL ) {
-		/* parse field */
-		fe = &fields[numfields];
-		fe->field = lnf_fld_parse(token, &fe->numbits, &fe->numbits6);
-
-		if (fe->field == LNF_FLD_ZERO_) {
-			fprintf(stderr, "Cannot parse %s in -A \n", token);
-			exit(1);
-		}
-
-		if (fe->numbits > 32 || fe->numbits6 > 128) {
-			fprintf(stderr, "Invalid bit size (%d/%d) for %s in -A \n", 
-			fe->numbits, fe->numbits6, token);
-			exit(1);
-		}	
-
-		lnf_mem_fadd(memp, fe->field, LNF_AGGR_KEY, fe->numbits, fe->numbits6);
-
-		numfields++;
-		token = NULL;
-	}
-
-	return 1;
-}
-
 
 int main(int argc, char **argv) {
 
@@ -231,9 +198,13 @@ int main(int argc, char **argv) {
 	/* print the records out */
 	i = 0;
 	lnf_rec_init(&recp);
+	print_header(recp);
 	while (lnf_mem_read(memp, recp) != LNF_EOF) {
 
 		i++;
+
+		print_row(recp);
+/*
 
 		if (printa) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -249,7 +220,10 @@ int main(int argc, char **argv) {
 					dbuf, brec.dstport,  
 					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
+*/
+
 	}
+
 
 	printf("Total aggregated records: %d\n", i);
 
