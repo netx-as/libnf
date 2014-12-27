@@ -40,6 +40,7 @@ typedef struct lnf_brec1_s {
 #define LNF_UINT16			0x16
 #define LNF_UINT32			0x32
 #define LNF_UINT64			0x64
+#define LNF_DOUBLE			0x70
 #define LNF_ADDR 			0xA1	/* 128 bit addr (struct in6_addr/network order) */
 #define LNF_MAC				0xA2
 #define LNF_STRING			0xAA	/* null terminated string */

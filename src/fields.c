@@ -963,29 +963,29 @@ static int inline lnf_field_fset_EMPTY_(master_record_t *m, void *p, bit_array_t
 	return LNF_OK;
 }
 
-#define LNF_DURATION (m->last * 1000LL + m->msec_last - m->first * 1000LL + m->msec_first)
+#define LNF_DURATION ((m->last * 1000LL + m->msec_last) - (m->first * 1000LL + m->msec_first))
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_DURATION(master_record_t *m, void *p, bit_array_t *e) { 
-	*((uint64_t *)p) = LNF_DURATION;
+	*((double *)p) = LNF_DURATION;
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_BPS(master_record_t *m, void *p, bit_array_t *e) { 
-	*((uint64_t *)p) = m->dOctets / LNF_DURATION * 1000;
+	*((double *)p) = m->dOctets / LNF_DURATION / 1000 * 8;
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_PPS(master_record_t *m, void *p, bit_array_t *e) { 
-	*((uint64_t *)p) = m->dPkts/ LNF_DURATION * 1000;
+	*((double *)p) = m->dPkts / LNF_DURATION / 1000;
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_BPP(master_record_t *m, void *p, bit_array_t *e) { 
-	*((uint64_t *)p) = m->dOctets / m->dPkts;
+	*((double *)p) = m->dOctets / m->dPkts;
 	return LNF_OK;
 }
 
@@ -1448,27 +1448,27 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  Calculated items
 // pod:  =====================
 	[LNF_FLD_CALC_DURATION] = {
-		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
 		"duration",	"Flow duration",
 		lnf_field_fget_CALC_DURATION,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_BPS] = {
-		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
 		"bps",	"Bytes per second",
 		lnf_field_fget_CALC_BPS,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_PPS] = {
-		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
 		"pps",	"Packets per second",
-		lnf_field_fget_CALC_BPS,
+		lnf_field_fget_CALC_PPS,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_BPP] = {
-		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
 		"bpp",	"Bytes per packet",
-		lnf_field_fget_CALC_BPS,
+		lnf_field_fget_CALC_BPP,
 		lnf_field_fset_EMPTY_},
 
 // pod:
@@ -1571,7 +1571,6 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 				break;
 			}
 		}
-		
 	}
 
 	if (field == LNF_FLD_ZERO_) {
@@ -1579,7 +1578,9 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 	}
 
 	if (lnf_fld_type(field) != LNF_ADDR) {
-		return LNF_OK;
+		if (numbits != NULL) { *numbits = 0; }
+		if (numbits6 != NULL) { *numbits6 = 0; }
+		return field;
 	}
 		
 	*numbits = 32;

@@ -9,8 +9,9 @@
 #include <pthread.h>
 #include <errno.h>
 #include <limits.h>
-#include <cpucores.h>
-#include <flist.h>
+#include "cpucores.h"
+#include "flist.h"
+#include "screen.h"
 
 #define MAX_THREADS 50
 #define LLUI long long unsigned int
@@ -41,7 +42,7 @@ int process_file(char *filename) {
 
 	lnf_file_t *filep;
 	lnf_rec_t *recp;
-	lnf_brec1_t brec;
+//	lnf_brec1_t brec;
 	int i = 0;
 	int tid;
 
@@ -130,13 +131,8 @@ DONE:
 int main(int argc, char **argv) {
 
 	lnf_rec_t *recp;
-	lnf_brec1_t brec;
-
 	pthread_t th[MAX_THREADS];
-
 	int i = 0;
-
-    int printa = 1;
 	int numthreads = 1;
     char c;
 
@@ -159,18 +155,18 @@ int main(int argc, char **argv) {
 				}
 				parse_aggreg(memp, optarg);
 				break;
-			case 't': 
+			case 'T': 
 				numthreads = atoi(optarg);
 				if (numthreads > MAX_THREADS) {
 					numthreads = MAX_THREADS - 1;
 				}
 				break;
 			case '?':
-				printf("Usage: %s [ -A ] [ <file1> <file2> ... ] \n", argv[0]);
+				printf("Usage: %s [ -A ] [ -R -r ] [ <filter> ] \n", argv[0]);
 				printf(" -r : \n");
 				printf(" -R : Input file or directory  \n");
-				printf(" -A : do not aggregated records to stdout\n");
-				printf(" -t : num threads (default: number of CPU cores, %d on this system)\n", numthreads);
+				printf(" -A : aggregation\n");
+				printf(" -T : num threads (default: number of CPU cores, %d on this system)\n", numthreads);
 				exit(1);
 		}
 	}
@@ -193,39 +189,16 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printf("Threads ended, total input records %d \n", totalrows);
-
 	/* print the records out */
 	i = 0;
 	lnf_rec_init(&recp);
-	print_header(recp);
+	print_header();
 	while (lnf_mem_read(memp, recp) != LNF_EOF) {
-
 		i++;
-
 		print_row(recp);
-/*
-
-		if (printa) {
-			char sbuf[INET6_ADDRSTRLEN];
-			char dbuf[INET6_ADDRSTRLEN];
-
-			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
-	
-			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
-			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
-
-			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
-					sbuf, brec.srcport, 
-					dbuf, brec.dstport,  
-					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
-		}
-*/
-
 	}
 
-
-	printf("Total aggregated records: %d\n", i);
+	printf("Total flows %d, aggregated flows: %d\n", totalrows, i);
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);

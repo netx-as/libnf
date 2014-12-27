@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <flist.h>
 #include <time.h>
+#include "screen.h"
 
 #define MAX_STR 100	/* max length of format string */
 
@@ -20,7 +21,7 @@
 #define UNIT_1T (double)(1000.0 * 1000.0 * 1000.0 * 1000.0)
 
 /* format big bumber with units */
-void num_unit(char *buff, uint64_t num) {
+static void num_unit(char *buff, double num) {
 
 	if (num >= UNIT_1T) {
 		sprintf(buff, "%.1f T", num / UNIT_1T);
@@ -37,22 +38,39 @@ void num_unit(char *buff, uint64_t num) {
 typedef void (*format_func_t)(char *buff, char *data);
 
 /* function for print number */
-void format_uint64_unit(char *buff, char *data) {
+static void format_uint64_unit(char *buff, char *data) {
 	num_unit(buff, *((uint64_t *)data));
 }
 
-/* function for print number */
-void format_uint64(char *buff, char *data) {
+/* basic functions for print number */
+static void format_uint64(char *buff, char *data) {
 	sprintf(buff, " %llu", *((uint64_t *)data));
 }
 
+static void format_uint32(char *buff, char *data) {
+	sprintf(buff, " %u", *((uint32_t *)data));
+}
+
+static void format_uint16(char *buff, char *data) {
+	sprintf(buff, " %hu", *((uint16_t *)data));
+}
+
+static void format_uint8(char *buff, char *data) {
+	sprintf(buff, " %hhu", *((uint8_t *)data));
+}
+
+/* function for print float */
+static void format_double(char *buff, char *data) {
+	num_unit(buff, *((double *)data));
+}
+
 /* function for print duration */
-void format_duration(char *buff, char *data) {
-	sprintf(buff, " %1.3f", *((uint64_t *)data) / 1000);
+static void format_duration(char *buff, char *data) {
+	sprintf(buff, " %1.3f", *((double *)data) / 1000);
 }
 
 /* format date/time */
-void format_date(char *buff, char *data) {
+static void format_date(char *buff, char *data) {
 	time_t sec;
 	int msec;
 	struct tm *ts;
@@ -67,8 +85,8 @@ void format_date(char *buff, char *data) {
 }
 
 /* function for IPv4/IPv6 address */
-void format_addr(char *buff, char *data) {
-	lnf_ip_t *addr = data;
+static void format_addr(char *buff, char *data) {
+	lnf_ip_t *addr = (lnf_ip_t *)data;
 
 	inet_ntop(AF_INET6, addr, buff, MAX_STR);
 }
@@ -100,13 +118,18 @@ typedef struct format_ent_s {
 const format_ent_t formats[] = { 
 	{ 0,          0, "%s ", NULL }, 				/* default for all types */
 	{ LNF_UINT64, 0, "%8s ", format_uint64_unit },	/* default for uint64_t */
+	{ LNF_UINT32, 0, "%8s ", format_uint32 },	/* default for uint32_t */
+	{ LNF_UINT16, 0, "%8s ", format_uint16 },	/* default for uint16_t */
+	{ LNF_UINT8, 0, "%8s ", format_uint8 },	/* default for uint8_t */
 	{ LNF_ADDR,   0, "%17s ", format_addr }, 				/* default for all LNF_ADDR */
 	{ LNF_MAC,    0, "%10s ", NULL },  				/* default for all LNF_MAC */
 	{ LNF_UINT64, LNF_FLD_FIRST, "%23s ", format_date }, /* default for all LNF_MAC */
 	{ LNF_UINT64, LNF_FLD_LAST, "%10s ", format_date }, /* default for all LNF_MAC */
-	{ LNF_UINT64, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
+	{ LNF_DOUBLE, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
 	{ LNF_UINT64, LNF_FLD_DPKTS, "%9s ", format_uint64_unit }, 
-	{ LNF_UINT64, LNF_FLD_CALC_BPP, "%6s ", format_uint64_unit }, 
+	{ LNF_DOUBLE, LNF_FLD_CALC_BPS, "%8s ", format_double }, 
+//	{ LNF_DOUBLE, LNF_FLD_CALC_PPS, "%6s ", format_double }, 
+	{ LNF_DOUBLE, LNF_FLD_CALC_BPP, "%7s ", format_double }, 
 	{ LNF_UINT64, LNF_FLD_AGGR_FLOWS, "%5s ", format_uint64 } /* aggr flow withou unit */
 };
 
@@ -130,11 +153,11 @@ void print_row(lnf_rec_t *rec) {
 	for (i = 0; i < numfields; i++) {
 		lnf_rec_fget(rec, fields[i].field, buf);
 		if (fields[i].format_func != NULL) {
-			fields[i].format_func(&str, &buf);
+			fields[i].format_func(str, buf);
 		} else {
-			strcpy(&str, "<?>");
+			strcpy(str, "<?>");
 		}
-		printf(fields[i].format, &str);
+		printf(fields[i].format, str);
 	}
 
 	printf("\n");
@@ -168,6 +191,7 @@ int fields_add(int field) {
 	strncpy(fe->format, fmte.format, MAX_STR);
 	fe->format_func = fmte.format_func;
 	numfields++;
+	return 1;
 }
 
 /* parse argument given by -A */

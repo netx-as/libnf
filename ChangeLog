@@ -10,7 +10,7 @@ Revision history for C and Perl extension of nfdump.
 
 1.06 2014-12-06
 	- c: lnf_rec_fget lnf_rec_fset performance update (15%)
-	- c: added src/fields.c,h - code related to fields are now separated 
+	- c: added src/fields.c,h - code related to fields is now separated 
 	- perl: build system update 
 
 1.05 2014-12-05
