@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
 	/* initalise one instance of memory heap (share by all threads) */
 	memp = NULL;
 
-	while ((c = getopt (argc, argv, "A:r:R:t:")) != -1) {
+	while ((c = getopt (argc, argv, "A:r:R:T:")) != -1) {
 		switch (c) {
 			case 'r':
 			case 'R':
