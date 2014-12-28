@@ -30,6 +30,7 @@ int get_cpu_cores(void) {
 	}
 	return count;
 #else
-	return sysconf(_SC_NPROCESSORS_ONLN);
+	//return sysconf(_SC_NPROCESSORS_ONLN);
+	return sysconf(_SC_NPROCESSORS_CONF);
 #endif
 }
