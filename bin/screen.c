@@ -11,9 +11,11 @@
 #include <limits.h>
 #include <flist.h>
 #include <time.h>
+#include <pthread.h>
 #include "screen.h"
 
 #define MAX_STR 100	/* max length of format string */
+#define MAX_STR_LONG 1000	/* max length of format string */
 
 #define UNIT_1K (double)(1000.0)
 #define UNIT_1M (double)(1000.0 * 1000.0)
@@ -133,6 +135,8 @@ const format_ent_t formats[] = {
 	{ LNF_UINT64, LNF_FLD_AGGR_FLOWS, "%5s ", format_uint64 } /* aggr flow withou unit */
 };
 
+pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void print_header() {
 	int i;
 	char *buf[MAX_STR];
@@ -149,6 +153,10 @@ void print_row(lnf_rec_t *rec) {
 	int i; 
 	char buf[MAX_STR];
 	char str[MAX_STR];
+	char str2[MAX_STR];
+	char row[MAX_STR_LONG];
+
+	row[0] = '\0';
 
 	for (i = 0; i < numfields; i++) {
 		lnf_rec_fget(rec, fields[i].field, buf);
@@ -157,10 +165,16 @@ void print_row(lnf_rec_t *rec) {
 		} else {
 			strcpy(str, "<?>");
 		}
-		printf(fields[i].format, str);
+		sprintf(str2, fields[i].format, str);
+		strcat(row, str2);
 	}
 
-	printf("\n");
+	strcat(row, "\n");
+
+	pthread_mutex_lock(&print_mutex);
+	//printf("%s\n", row);
+	fputs(row, stdout);
+	pthread_mutex_unlock(&print_mutex);
 }
 
 int fields_add(int field) {
@@ -202,8 +216,8 @@ int parse_aggreg(lnf_mem_t *memp, char *str) {
 
 	/* default fields on the begining of the list */
 	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
-	fields_add(LNF_FLD_FIRST);
-	fields_add(LNF_FLD_CALC_DURATION);
+//	fields_add(LNF_FLD_FIRST);
+//	fields_add(LNF_FLD_CALC_DURATION);
 
 	while ( (token = strsep(&str, ",")) != NULL ) {
 		/* parse field */
@@ -227,11 +241,13 @@ int parse_aggreg(lnf_mem_t *memp, char *str) {
 	}
 
 	/* default fields on the ond of the list */
+/*
 	fields_add(LNF_FLD_DPKTS);
 	fields_add(LNF_FLD_DOCTETS);
 	fields_add(LNF_FLD_CALC_BPS);
 	fields_add(LNF_FLD_CALC_BPP);
 	fields_add(LNF_FLD_AGGR_FLOWS);
+*/
 	return 1;
 }
 

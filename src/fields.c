@@ -996,8 +996,12 @@ static int inline lnf_field_fget_CALC_PPS(master_record_t *m, void *p, bit_array
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_BPP(master_record_t *m, void *p, bit_array_t *e) { 
-	*((double *)p) = m->dOctets / m->dPkts;
-	return LNF_OK;
+	if (m->dPkts > 0) {
+		*((double *)p) = m->dOctets / m->dPkts;
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOTSET;
+	}
 }
 
 /* ----------------------- */

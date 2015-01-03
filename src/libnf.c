@@ -708,6 +708,10 @@ int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src) {
 /* free record */
 void lnf_rec_free(lnf_rec_t *rec) {
 
+	if (rec == NULL) {
+		return;
+	}
+
 	bit_array_release(rec->extensions_arr);
 	free(rec->master_record);
 	free(rec->extensions_arr);
@@ -780,7 +784,10 @@ int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
 void lnf_filter_free(lnf_filter_t *filter) {
 
 	/* TODO nfdump do not have code to release filter :-( */
-//	free(filter->engine);
+	if (filter == NULL) {
+		return;
+	}
+
 	free(filter);
 }
 

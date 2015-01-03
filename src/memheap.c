@@ -663,6 +663,10 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
 
+	if (lnf_mem == NULL) {
+		return;
+	}
+
 	hash_table_free(&lnf_mem->hash_table[0]);
 
 	/* clean lists */
