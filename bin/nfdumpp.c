@@ -87,9 +87,10 @@ void *process_thread(void *p) {
 	int rows;
 	int tid;
 	char filename[PATH_MAX];
-	lnf_filter_t *filterp;
+	lnf_filter_t *filterp = NULL;
 
 	tid = (int)pthread_self();
+
 
 	if (filter[0] != '\0') {
 		lnf_filter_init(&filterp, filter);
