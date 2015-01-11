@@ -139,10 +139,10 @@ pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void print_header() {
 	int i;
-	char *buf[MAX_STR];
+	char buf[LNF_INFO_BUFSIZE];
 
 	for (i = 0; i < numfields; i++) {
-		lnf_fld_info(fields[i].field, LNF_FLD_INFO_NAME, &buf);
+		lnf_fld_info(fields[i].field, LNF_FLD_INFO_NAME, &buf, LNF_INFO_BUFSIZE);
 		printf(fields[i].format, &buf);
 	}
 

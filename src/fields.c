@@ -1504,23 +1504,33 @@ lnf_field_def_t lnf_fields_def[] = {
 
 /* return info information for fiels 
 */
-int lnf_fld_info(int field, int info, void *data) {
+int lnf_fld_info(int field, int info, void *data, size_t size) {
 
 	lnf_field_def_t *fe;
 	int i;
+	size_t reqsize; /* requested minimum size */
+	char buf[LNF_INFO_BUFSIZE];
 
 	if (info == LNF_FLD_INFO_FIELDS) {
-		int *fld  = data;
+		int *fld  = buf;
+		int x = 0;
 		/* find ID for field */
 		for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
 			if (lnf_fields_def[i].name != NULL) {
 				*fld = i;
 				fld++;
+				x++;
 			}
 		}
 		*fld = LNF_FLD_TERM_;
+		x++;
 
-		return LNF_OK;
+		if (size < sizeof(int) * x) {
+			return LNF_ERR_NOMEM;
+		} else {
+			memcpy(data, buf, sizeof(int) * x);
+			return LNF_OK;
+		}
 	}
 
 	if (field < LNF_FLD_ZERO_ || field > LNF_FLD_TERM_) {
@@ -1531,25 +1541,35 @@ int lnf_fld_info(int field, int info, void *data) {
 
 	switch (info) {
 		case LNF_FLD_INFO_TYPE:
-			*((int *)data) = fe->type;
+			*((int *)buf) = fe->type;
+			reqsize = sizeof(fe->type);
 			break;
 		case LNF_FLD_INFO_NAME:
-			strcpy(data, fe->name);
+			strcpy(buf, fe->name);
+			reqsize = strlen(fe->name) + 1;
 			break;
 		case LNF_FLD_INFO_DESCR:
-			strcpy(data, fe->fld_descr);
+			strcpy(buf, fe->fld_descr);
+			reqsize = strlen(fe->fld_descr) + 1;
 			break;
 		case LNF_FLD_INFO_AGGR:
-			*((int *)data) = fe->default_aggr;
+			*((int *)buf) = fe->default_aggr;
+			reqsize = sizeof(fe->default_aggr);
 			break;
 		case LNF_FLD_INFO_SORT:
-			*((int *)data) = fe->default_sort;
+			*((int *)buf) = fe->default_sort;
+			reqsize = sizeof(fe->default_sort);
 			break;
 		default:
 			return LNF_ERR_OTHER;
 	}
 
-	return LNF_OK;
+	if (reqsize <= size) {
+		memcpy(data, buf, reqsize);
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOMEM;
+	}
 }
 
 /* parse fields from string 

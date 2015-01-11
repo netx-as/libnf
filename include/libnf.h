@@ -132,7 +132,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_CALC_BPP		 0xA3 			/* computed : bytes per packet */
 #define LNF_FLD_BREC1			 0xB0 			/* special field for lnf_brec1_t */
 
-#define LNF_FLD_TERM_			 0xFF  			/* ID of last record */
+#define LNF_FLD_TERM_			 0xFF  			/* ID of last field */
 
 /* text description of fields */
 typedef struct lnf_field_s {
@@ -142,54 +142,6 @@ typedef struct lnf_field_s {
 	char *name;			/**< field name */
 	char *fld_descr;	/**< short description */
 } lnf_field_t;
-
-/* info structure returned by lnf_info function */
-typedef struct lnf_info_s {
-
-	/* pointer to array of lnf_field structure */
-	/* fields that are supported by the libnf */
-	char*		libnf_version;			
-	char*		nfdump_version;			
-	lnf_field_t*	libnf_fields;			
-
-	/* file info & statistics */	
-	uint64_t	version;		/* file version */
-	uint64_t	blocks;			/* number of blocks */
-	int			compressed;		/* is compressed */
-	int			anonymized;		/* is anonymized */
-	int			catalog;		/* have catalog */
-	char*		ident;			/* file string identificator - NULL if not supported */
-
-	uint64_t	first;			/* timestamp of first stored packet (in miliseconds) */
-	uint64_t	last;			/* timestamp of last stored packet (in miliseconds) */
-	uint64_t	failures;		/* number of sequence failures  */
-
-	uint64_t	flows;			/* stored flow statistics */
-	uint64_t	bytes;
-	uint64_t	packets;
-
-	uint64_t	flows_tcp;		/* per basic protocol statistics  */
-	uint64_t	bytes_tcp;
-	uint64_t	packets_tcp;
-	
-	uint64_t	flows_udp;		
-	uint64_t	bytes_udp;
-	uint64_t	packets_udp;
-
-	uint64_t	flows_icmp;		
-	uint64_t	bytes_icmp;
-	uint64_t	packets_icmp;
-
-	uint64_t	flows_other;		
-	uint64_t	bytes_other;
-	uint64_t	packets_other;
-
-	/* statistics updated during processing file via lnf_read */
-	uint64_t	proc_blocks;	
-	uint64_t	proc_bytes;	
-	uint64_t	proc_records;	
-
-} lnf_info_t;
 
 
 #ifndef _HAVE_LIBNF_STRUCT_H_ 
@@ -230,12 +182,31 @@ typedef void lnf_mem_t;
 #define LNF_COMP	0x4		/* the file is compressed */
 #define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
 
+
+/* constants for lnf_info function */
+#define LNF_INFO_VERSION		0x02	/* string with lbnf version - char* */
+#define LNF_INFO_NFDUMP_VERSION	0x04	/* string with nfdump version that libnf is based on - char**/
+#define LNF_INFO_FILE_VERSION	0x06	/* nfdump file version  - int*/
+#define LNF_INFO_BLOCKS			0x08	/* number of block in file - unit64_t */
+#define LNF_INFO_COMPRESSED		0x0A	/* is file compressed - int */
+#define LNF_INFO_ANONYMIZED		0x0C	/* is file anonymized - int */
+#define LNF_INFO_CATALOG		0x0E	/* file have catalog - int */
+#define LNF_INFO_IDENT			0x10	/* string ident - char* */
+#define LNF_INFO_FIRST			0x12	/* msec of first packet in file - unit64_t */
+#define LNF_INFO_LAST			0x14	/* msec of last packet in file - uint64_t */
+#define LNF_INFO_FAILURES		0x16	/* number of sequence failures - uint64_t */
+#define LNF_INFO_FLOWS			0x18	/* summary of stored flows - uint64_t */
+#define LNF_INFO_BYTES			0x1A	/* summary of stored bytes - uint64_t */
+#define LNF_INFO_PACKETS		0x1C	/* summary of stored packets - uint64_t */
+#define LNF_INFO_PROC_BLOCKS	0x1E	/* number of processed blocks - uint64_t */
+
+
 /* other functions */
 void lnf_error(const char *buf, int buflen);
 
 /* file operations */
 int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, const char *ident);
-void lnf_info(lnf_file_t *lnf_file, lnf_info_t *lnf_info);
+int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size);
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 void lnf_close(lnf_file_t *lnf_file);
@@ -295,8 +266,10 @@ int lnf_fld_type(int field);
 #define LNF_FLD_INFO_DESCR	0x08	/* description - char * */
 #define LNF_FLD_INFO_AGGR	0x0B	/* default aggregation - int */
 #define LNF_FLD_INFO_SORT	0x0E	/* default sort - int */
+
+#define LNF_INFO_BUFSIZE 4096		/* maximum buffer size for data lnf_*_fields */
 /* return LNF_OK or LNF_ERR_UNKFLD or LNF_ERR_OTHER */
-int lnf_fld_info(int field, int info, void *data);
+int lnf_fld_info(int field, int info, void *data, size_t size);
 int lnf_fld_parse(char *str, int *numbits, int *numbits6);
 
 

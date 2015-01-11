@@ -284,63 +284,127 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 }
 
 /* fill info structure */
-void lnf_info(lnf_file_t *lnf_file, lnf_info_t *i) {
+int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 
 	file_header_t *h;
 	stat_record_t *s;
+	size_t reqsize = 0;
+	char buf[LNF_INFO_BUFSIZE];
 
-	memset(i, 0x0, sizeof(lnf_info_t));
+	/* for NULL lnf_mem */
+	switch (info) {
+		case LNF_INFO_VERSION: 
+			strcpy(buf, VERSION);
+			reqsize = strlen(VERSION) + 1;
+			break;
+		case LNF_INFO_NFDUMP_VERSION: 
+			strcpy(buf, NFDUMP_VERSION);
+			reqsize = strlen(NFDUMP_VERSION) + 1;
+			break;
+	}
 
-	i->libnf_version = VERSION;
-	i->nfdump_version = NFDUMP_VERSION;
-	i->libnf_fields = lnf_fields;
+	/* the requested item was one of the above */
+	if ( reqsize != 0 ) {
+		if ( reqsize <= size ) {
+			memcpy(data, buf, reqsize);
+			return LNF_OK;
+		} else {
+			 return LNF_ERR_NOMEM;
+		}
+	} 
 
-
+	/* file specific request */
 	if (lnf_file == NULL || lnf_file->nffile == NULL || lnf_file->nffile->file_header == NULL) {
-		return ;
+		return LNF_ERR_OTHER;	
 	}
 
 	h = lnf_file->nffile->file_header;
 
-	i->version = h->version;
-	i->blocks = h->NumBlocks;
-	i->compressed = h->flags & FLAG_COMPRESSED;
-	i->anonymized = h->flags & FLAG_ANONYMIZED;
-	i->catalog = h->flags & FLAG_CATALOG;
-	i->ident = h->ident;
+	switch (info) {
+		case LNF_INFO_FILE_VERSION:
+			*((uint64_t *)buf) = h->version;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BLOCKS:
+			*((uint64_t *)buf) = h->NumBlocks;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_COMPRESSED:
+			*((int *)buf) = h->flags & FLAG_COMPRESSED;
+			reqsize = sizeof(int);
+			break;
+		case LNF_INFO_ANONYMIZED:
+			*((int *)buf) = h->flags & FLAG_ANONYMIZED;
+			reqsize = sizeof(int);
+			break;
+		case LNF_INFO_CATALOG: 
+			*((int *)buf) = h->flags & FLAG_CATALOG; 
+			reqsize = sizeof(int);
+			break;
+		case LNF_INFO_IDENT: 
+			strcpy(buf, h->ident);
+			reqsize = strlen(h->ident) + 1;
+			break;
+		case LNF_INFO_PROC_BLOCKS: 
+			*((uint64_t *)buf) = 0;
+			reqsize = sizeof(uint64_t);
+			break;
+	}
 
+	/* the requested item was one of the above */
+	if ( reqsize != 0 ) {
+		if ( reqsize <= size ) {
+			memcpy(data, buf, reqsize);
+			return LNF_OK;
+		} else {
+			 return LNF_ERR_NOMEM;
+		}
+	} 
 
+	/* get stat record */
 	if (lnf_file->nffile->stat_record == NULL) {
-		return ;
+		return LNF_ERR_OTHER;	
 	}
 
 	s = lnf_file->nffile->stat_record;
 
-	i->first =  s->first_seen * 1000LL + s->msec_first;
-	i->last = s->last_seen * 1000LL + s->msec_last;
-	i->failures = s->sequence_failure;
+	switch (info) {
+		case LNF_INFO_FIRST:
+			*((uint64_t *)buf) = s->first_seen * 1000LL + s->msec_first;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_LAST:
+			*((uint64_t *)buf) = s->last_seen * 1000LL + s->msec_last;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_FAILURES:
+			*((uint64_t *)buf) = s->sequence_failure;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_FLOWS:
+			*((uint64_t *)buf) = s->numflows;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BYTES:
+			*((uint64_t *)buf) = s->numbytes;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_PACKETS:
+			*((uint64_t *)buf) = s->numpackets;
+			reqsize = sizeof(uint64_t);
+			break;
+	}
 
-	i->flows = s->numflows;
-	i->bytes = s->numbytes;
-	i->packets = s->numpackets;
-
-	i->flows_tcp = s->numflows_tcp;
-	i->bytes_tcp = s->numbytes_tcp;
-	i->packets_tcp = s->numpackets_tcp;
-
-	i->flows_udp = s->numflows_udp;
-	i->bytes_udp = s->numbytes_udp;
-	i->packets_udp = s->numpackets_udp;
-
-	i->flows_icmp = s->numflows_icmp;
-	i->bytes_icmp = s->numbytes_icmp;
-	i->packets_icmp = s->numpackets_icmp;
-
-	i->flows_other = s->numflows_other;
-	i->bytes_other = s->numbytes_other;
-	i->packets_other = s->numpackets_other;
-
-	return ;
+	if ( reqsize != 0 ) {
+		if ( reqsize <= size ) {
+			memcpy(data, buf, reqsize);
+			return LNF_OK;
+		} else {
+			 return LNF_ERR_NOMEM;
+		}
+	} else {
+		return LNF_ERR_OTHER;
+	}
 }
 
 
