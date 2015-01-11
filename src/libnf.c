@@ -267,6 +267,9 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 	}
 
 	lnf_file->blk_record_remains = 0;
+	lnf_file->processed_blocks  = 0;
+	lnf_file->processed_bytes  = 0;
+	lnf_file->skipped_blocks  = 0;
 	lnf_file->extension_map_list = InitExtensionMaps(NEEDS_EXTENSION_LIST);
 
 	lnf_file->lnf_map_list = NULL;
@@ -346,7 +349,7 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			reqsize = strlen(h->ident) + 1;
 			break;
 		case LNF_INFO_PROC_BLOCKS: 
-			*((uint64_t *)buf) = 0;
+			*((uint64_t *)buf) = lnf_file->processed_blocks;
 			reqsize = sizeof(uint64_t);
 			break;
 	}
@@ -460,7 +463,6 @@ begin:
 		if (lnf_file->nffile) {
 			ret = ReadBlock(lnf_file->nffile);
 			lnf_file->processed_blocks++;
-			lnf_file->current_processed_blocks++;
 		} else {	
 			ret = NF_EOF;		/* the firt file in the list */
 		}
@@ -543,10 +545,6 @@ begin:
 		return LNF_ERR_EXTMAPM;
 	} 
 
-	lnf_file->processed_records++;
-
-//	lnf_file->master_record = &(lnf_file->extension_map_list->slot[map_id]->master_record);
-//	lnf_rec->master_record = lnf_file->master_record;
 
 	// changed in 1.6.8 - added exporter info 
 //	ExpandRecord_v2( flow_record, extension_map_list.slot[map_id], master_record);

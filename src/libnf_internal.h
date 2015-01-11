@@ -72,8 +72,6 @@ typedef struct lnf_file_s {
 //	bit_array_t				extensions_arr;			/* structure initialised at the beginging to store bitt array of extensions from last record */
 	uint64_t                processed_blocks;
 	uint64_t                skipped_blocks;
-	uint64_t                processed_records;
-	uint64_t                current_processed_blocks;
 	uint64_t                processed_bytes;
 } lnf_file_t;
 

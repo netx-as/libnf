@@ -6,6 +6,7 @@ Revision history for C and Perl extension of nfdump.
 	- c: lnf_fld_info added 
 	- c: lnf_fld_parse added 
 	- c: lnf_mem_fastaggr added
+	- c: lnf_info extended
 	- c: performance update (15-20%)
 
 1.06 2014-12-06
