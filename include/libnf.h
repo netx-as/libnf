@@ -1,8 +1,12 @@
 /*! \file libnf.h
-	\brief A Documented file.
-    Details.
-*/
+	\brief libnf C interface
+    The libnf.h is complete public application interface for accessing all 
+	libnf functions. The API is divided into several section where each section 
+	represents specific operation for file, record, filter, in memory aggregation.
 
+	For examples how to use library please visit examples directory in the root of 
+	source files. 
+*/
 
 
 #include <stdio.h>
@@ -201,14 +205,62 @@ typedef void lnf_mem_t;
 #define LNF_INFO_PROC_BLOCKS	0x1E	/* number of processed blocks - uint64_t */
 
 
-/* other functions */
+/*! 
+	\defgroup file Basic file operations (red/create/write)
+	\defgroup record  Record operations, fields extraction
+	\defgroup filter  Filter operations
+	\defgroup memheap In memmory aggregation and sorting module
+	\defgroup error Error handling 
+*/
+
+/*! 
+	\ingroup error 
+
+	\brief return error string of last error 
+	\param buffer where the message will be copied 
+	\param available space in buffer 
+*/
 void lnf_error(const char *buf, int buflen);
 
-/* file operations */
+/****************************************************
+* file module                                       *
+*****************************************************/
+
+/*! 
+	\ingroup file 
+
+	This module provides basic operation on file. The file can 
+	be open in either read or write mode. In write mode the 
+	new one is created or if the file exists then is ovewritten. 
+*/
+
+/*! \ingroup file 
+
+\brief initialise lnf_filep structure and opens file for read/write 
+
+The lnf_read/lnf_write operations works with record strcuture (see record operations)
+
+\param **lnf_filep 	pointer to lnf_filep_t structure 
+\param *filename 	path and file to open 
+\param flags 		flags 
+\param *ident 		file ident for newly created files, can be set to NULL
+\return 			LNF_OK, LNF_ERR_NOMEM 
+*/
 int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, const char *ident);
-int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size);
+
+
+/*!	\ingroup file 
+\brief 	Read next record from file 
+
+Read nex record from file. The record is stored in lnf_rec object. 
+
+\param *lnf_file 	pointer to lnf_filep_t structure 
+\param *lnf_rec 	pointer to initialised record structure 
+\return 			LNF_OK, LNF_ERR_NOMEM 
+*/
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
+int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size);
 void lnf_close(lnf_file_t *lnf_file);
 
 
