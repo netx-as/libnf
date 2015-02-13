@@ -90,7 +90,11 @@ static void format_date(char *buff, char *data) {
 static void format_addr(char *buff, char *data) {
 	lnf_ip_t *addr = (lnf_ip_t *)data;
 
-	inet_ntop(AF_INET6, addr, buff, MAX_STR);
+	if (IN6_IS_ADDR_V4COMPAT(addr)) {
+		inet_ntop(AF_INET, (char *)&(addr->data[3]), buff, MAX_STR);
+	} else {
+		inet_ntop(AF_INET6, addr, buff, MAX_STR);
+	}
 }
 
 

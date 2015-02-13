@@ -330,7 +330,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
 			lnf_mem->sort_field = field;
 			lnf_mem->sort_offset = offset;
-			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY;
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY | (flags & LNF_SORT_FLAGS);
 		}
 	} else { /* add to value list */
 		if ( lnf_filedlist_add_or_upd(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
@@ -339,7 +339,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		if ((flags & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
 			lnf_mem->sort_field = field;
 			lnf_mem->sort_offset = offset;
-			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL;
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL | (flags & LNF_SORT_FLAGS);
 		}
 	}
 
@@ -456,8 +456,9 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 	lnf_mem_t *lnf_mem = p;
 	char *i1;
 	char *i2;
+	int ret = 0;
 
-	switch (lnf_mem->sort_flags) {
+	switch (lnf_mem->sort_flags & LNF_SORT_FLD_IN_FLAGS) {
 
 		case LNF_SORT_FLD_IN_KEY:
 			i1 = key1 + lnf_mem->sort_offset;
@@ -475,27 +476,32 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 
 	switch (__lnf_fld_type(lnf_mem->sort_field)) {
 		case LNF_UINT64: 
-			return *(uint64_t *)i1 < *(uint64_t *)i2; 
+			ret = *(uint64_t *)i1 < *(uint64_t *)i2; 
 			break;
 		case LNF_UINT32: 
-			return *(uint32_t *)i1 < *(uint32_t *)i2; 
+			ret = *(uint32_t *)i1 < *(uint32_t *)i2; 
 			break;
 		case LNF_UINT16: 
-			return *(uint16_t *)i1 < *(uint16_t *)i2; 
+			ret = *(uint16_t *)i1 < *(uint16_t *)i2; 
 			break;
 		case LNF_UINT8: 
-			return *(uint8_t *)i1 < *(uint8_t *)i2; 
+			ret = *(uint8_t *)i1 < *(uint8_t *)i2; 
 			break;
 		case LNF_ADDR:
-			return (memcmp(i1, i2, sizeof(lnf_ip_t)) > 0); 
+			ret = (memcmp(i1, i2, sizeof(lnf_ip_t)) > 0); 
 			break;
 		case LNF_MAC: 
-			return (memcmp(i1, i2, sizeof(lnf_mac_t)) > 0 ); 
+			ret = (memcmp(i1, i2, sizeof(lnf_mac_t)) > 0 ); 
 			break;
 		default: 
 			return 0;
 	}
-	
+
+	if ((lnf_mem->sort_flags & LNF_SORT_FLAGS) == LNF_SORT_DESC) {
+		return !ret;
+	} else {
+		return ret;
+	}
 }
 
 /* store record in memory heap */
@@ -563,7 +569,8 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 #ifdef LNF_THREADS
 
 	int *id;
-	int id2, i, finish, merge;
+	int id2 = 0;
+	int i, finish, merge;
 
 	id = pthread_getspecific(lnf_mem->thread_id_key);
 

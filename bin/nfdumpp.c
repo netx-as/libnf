@@ -141,6 +141,9 @@ int main(int argc, char **argv) {
 	pthread_t th[MAX_THREADS];
 	int i = 0;
 	int numthreads = 1;
+	int sortfield = 0;
+	int sortbits4 = 0;
+	int sortbits6 = 0;
     char c;
 	lnf_filter_t *filterp;
 	
@@ -160,7 +163,7 @@ int main(int argc, char **argv) {
 	fields_add(LNF_FLD_CALC_DURATION);
 
 
-	while ((c = getopt (argc, argv, "A:r:R:T:")) != -1) {
+	while ((c = getopt (argc, argv, "A:O:r:R:T:")) != -1) {
 		switch (c) {
 			case 'r':
 			case 'R':
@@ -171,6 +174,9 @@ int main(int argc, char **argv) {
 					lnf_mem_init(&memp);
 				}
 				parse_aggreg(memp, optarg);
+				break;
+			case 'O':
+				sortfield = lnf_fld_parse(optarg, &sortbits4, &sortbits6);
 				break;
 			case 'T': 
 				numthreads = atoi(optarg);
@@ -183,6 +189,7 @@ int main(int argc, char **argv) {
 				printf(" -r : \n");
 				printf(" -R : Input file or directory  \n");
 				printf(" -A : aggregation\n");
+				printf(" -O : sort order");
 				printf(" -T : num threads (default: number of CPU cores, %d on this system)\n", numthreads);
 				exit(1);
 		}
@@ -229,6 +236,16 @@ int main(int argc, char **argv) {
     fields_add(LNF_FLD_CALC_BPS);
     fields_add(LNF_FLD_CALC_BPP);
     fields_add(LNF_FLD_AGGR_FLOWS);
+
+	/* set sort firld */
+	if (sortfield > 0) {
+		int defaultaggr = 0;
+		int defaultsort = 0;
+		lnf_fld_info(sortfield, LNF_FLD_INFO_AGGR, &defaultaggr, sizeof(int));
+		lnf_fld_info(sortfield, LNF_FLD_INFO_SORT, &defaultsort, sizeof(int));
+		lnf_mem_fadd(memp, sortfield, defaultaggr|defaultsort, sortbits4, sortbits6);
+	}
+
 	print_header();
 
 	/*  prepare and run threads */

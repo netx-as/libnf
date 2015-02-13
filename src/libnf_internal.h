@@ -122,6 +122,7 @@ typedef struct lnf_mem_s {
 #define LNF_SORT_FLD_NONE 0x0
 #define LNF_SORT_FLD_IN_KEY 0x1
 #define LNF_SORT_FLD_IN_VAL 0x2
+#define LNF_SORT_FLD_IN_FLAGS 0xF
 #ifdef LNF_THREADS
 	pthread_key_t thread_id_key;	/* key for thread specific id */
 	pthread_mutex_t thread_mutex;

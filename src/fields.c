@@ -1617,8 +1617,8 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 		return field;
 	}
 		
-	*numbits = 32;
-	*numbits6 = 128;
+	if (numbits != NULL) { *numbits = 32; }
+	if (numbits6 != NULL) { *numbits6 = 128; }
 
 	/* numbits */
 	if (str != NULL) {
