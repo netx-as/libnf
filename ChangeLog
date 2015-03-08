@@ -8,6 +8,8 @@ Revision history for C and Perl extension of nfdump.
 	- c: lnf_mem_fastaggr added
 	- c: lnf_info extended
 	- c: performance update (15-20%)
+	- perl: static library removed from build tree (Bug #101544) 
+	- perl: 
 
 1.06 2014-12-06
 	- c: lnf_rec_fget lnf_rec_fset performance update (15%)
