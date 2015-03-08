@@ -1455,3 +1455,26 @@
  
  static int LZO_initialize(void);
  
+--- nfdump-1.6.13/bin/nftree.c	2014-11-17 18:57:28.000000000 +0100
++++ nfdump/bin/nftree.c	2015-03-07 21:42:30.951174475 +0100
+@@ -173,6 +173,7 @@
+ FilterEngine_data_t *CompileFilter(char *FilterSyntax) {
+ FilterEngine_data_t	*engine;
+ int	ret;
++void * scanner;
+ 
+ 	if ( !FilterSyntax ) 
+ 		return NULL;
+@@ -186,8 +187,11 @@
+ 	if ( !InitSymbols() )
+ 		exit(255);
+ 	InitTree();
++
+ 	lex_init(FilterSyntax);
+-	ret = yyparse();
++
++	yylex_init(&scanner);
++	ret = yyparse(scanner);
+ 	if ( ret != 0 ) {
+ 		return NULL;
+ 	}
