@@ -10,7 +10,7 @@ Revision history for C and Perl extension of nfdump.
 	- c: performance update (15-20%)
 	- perl: static library removed from build tree (Bug #101544) 
 	- perl: nf_asn_geo_update and download_asn_db removed
-	- perl: nfasnupd - ASn updater added (replacement for nf_asn_geo_update)
+	- perl: bin/nfasnupd - ASn updater added (replacement for nf_asn_geo_update)
 
 1.06 2014-12-06
 	- c: lnf_rec_fget lnf_rec_fset performance update (15%)
