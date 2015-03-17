@@ -74,7 +74,7 @@ int main (int argc, char **argv) {
 		input = i % 5; /* make input index interface 0 - 5 */
 		output = i % 10; /* make output index interface 0 - 5 */
 
-		if (random) {
+		if (aggip) {
 			brec.bytes = i;
 			brec.srcaddr.data[1] = 1000 + (i % aggip);
 		}
@@ -97,6 +97,8 @@ int main (int argc, char **argv) {
 
 	printf("%d records was written to %s\n", i, filename);
 	printf("You can read it via cmd 'nfdump -r %s -o raw'\n", filename);
+
+	return 0;
 }
 
 

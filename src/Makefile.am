@@ -11,7 +11,7 @@ LDADD = $(DEPS_LIBS)
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
 
-EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h xxhash.h scanner.c grammar.c 
+EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h xxhash.h fields.h scanner.c grammar.c 
 #util.h
 
 CLEANFILES = lex.yy.c 

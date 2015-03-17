@@ -11,6 +11,8 @@
 #define FILTER1 "src port > 80"
 #define FILTER2 "in if 2"
 
+#define LLUI long long unsigned int
+
 int main(int argc, char **argv) {
 
 	lnf_file_t *filep;
@@ -93,7 +95,7 @@ int main(int argc, char **argv) {
 			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					brec.first, brec.bytes, brec.pkts);
+					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
 	}
 
@@ -117,7 +119,7 @@ int main(int argc, char **argv) {
 			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
 					dbuf, brec.dstport,  
-					brec.first, brec.bytes, brec.pkts);
+					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
 	}
 
@@ -126,6 +128,8 @@ int main(int argc, char **argv) {
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);
 	lnf_close(filep);
+
+	return 0;
 }
 
 
