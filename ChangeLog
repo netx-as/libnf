@@ -1,16 +1,18 @@
 Revision history for C and Perl extension of nfdump.
 
-1.07 2015-01-xx
+1.07 2015-03-17
 	- c: nfdumpp utility added
-	- c: added calculated items duration, bps, pps, bpp
+	- c: added calculated items - duration, bps, pps, bpp
 	- c: lnf_fld_info added 
 	- c: lnf_fld_parse added 
 	- c: lnf_mem_fastaggr added
 	- c: lnf_info extended
 	- c: performance update (15-20%)
+	- c: thread support for filter operations (not releaset to public)
 	- perl: static library removed from build tree (Bug #101544) 
 	- perl: nf_asn_geo_update and download_asn_db removed
 	- perl: bin/nfasnupd - ASn updater added (replacement for nf_asn_geo_update)
+	- perl: doc update 
 
 1.06 2014-12-06
 	- c: lnf_rec_fget lnf_rec_fset performance update (15%)
