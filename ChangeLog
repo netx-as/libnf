@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.08 2015-05-xx
+	- perl: nfasnupd accepts -c <file> with additional prefix database 
+
 1.07 2015-03-17
 	- c: nfdumpp utility added
 	- c: added calculated items - duration, bps, pps, bpp

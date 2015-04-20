@@ -161,6 +161,12 @@ typedef void lnf_mem_t;
 #define LNF_OK				0x0001	/* OK status */
 #define LNF_EOF 			0x0000	/* end of file */
 
+#define LNF_READ	0x0
+#define LNF_WRITE	0x1
+#define LNF_ANON	0x2
+#define LNF_COMP	0x4
+#define LNF_WEAKERR	0x8
+
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
 #define LNF_ERR_UNKREC		-0x0002	/* weak error: unknown record type */
 #define LNF_ERR_COMPAT15	-0x0004	/* weak error: old blok type suppoerted by nfdump 1.5 */
@@ -179,12 +185,6 @@ typedef void lnf_mem_t;
 #define LNF_ERR_OTHER		-0x0F00	/* some other error */
 
 
-/* flags for file open */
-#define LNF_READ	0x0		/* open file for reading */
-#define LNF_WRITE	0x1		/* open file for for writing */
-#define LNF_ANON	0x2		/* set anon flag on the file */
-#define LNF_COMP	0x4		/* the file is compressed */
-#define LNF_WEAKERR	0x8		/* return weak erros $(unknow block, record) */
 
 
 /* constants for lnf_info function */
@@ -229,23 +229,31 @@ void lnf_error(const char *buf, int buflen);
 /*! 
 	\ingroup file 
 
-	This module provides basic operation on file. The file can 
+	This module provides basic operations on file. The file can 
 	be open in either read or write mode. In write mode the 
-	new one is created or if the file exists then is ovewritten. 
+	new one is created and if the file exists it is ovewritten. 
 */
 
 /*! \ingroup file 
 
-\brief initialise lnf_filep structure and opens file for read/write 
+\brief initialise lnf_filep structure and opens file in read or write mode
 
-The lnf_read/lnf_write operations works with record strcuture (see record operations)
+After file is open the lnf_read/lnf_write operations can read/write records 
+strcuture (see record operations).
 
 \param **lnf_filep 	pointer to lnf_filep_t structure 
-\param *filename 	path and file to open 
-\param flags 		flags 
+\param *filename 	path and file name to open 
+\param flags 		flags, described above \n
+	LNF_READ - open file for reading  \n
+	LNF_WRITE - open file for for writing  \n
+	LNF_ANON - set anon flag on the file (only for write mode) \n
+	LNF_COMP - set the output file to be compressed \n
+	LNF_WEAKERR - when reading reports also weak errors (unknow block, ...) \n
 \param *ident 		file ident for newly created files, can be set to NULL
-\return 			LNF_OK, LNF_ERR_NOMEM 
+\return 			LNF_OK, LNF_ERR_NOMEM
 */
+
+
 int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, const char *ident);
 
 
