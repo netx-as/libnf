@@ -15,6 +15,7 @@
 /* global variable */
 lnf_mem_t *memp;
 int print = 1;
+int aggregate = 1;
 int totalrows = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 char *filelist[MAX_FILES];
@@ -48,7 +49,9 @@ int process_file(char *filename) {
 		i++;
 
 		/* add to memory heap */
-		lnf_mem_write(memp, recp);
+		if (aggregate) {
+			lnf_mem_write(memp, recp);
+		}
 
 		if (print) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -127,7 +130,7 @@ int main(int argc, char **argv) {
 	int numthreads = 1;
     char c;
 
-	while ((c = getopt (argc, argv, "pPAt:")) != -1) {
+	while ((c = getopt (argc, argv, "npPAt:")) != -1) {
 		switch (c) {
 			case 'p':
 			case 'P':
@@ -135,6 +138,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'A':
 				printa = 0;
+				break;
+			case 'n':
+				aggregate = 0;
 				break;
 			case 't': 
 				numthreads = atoi(optarg);
@@ -145,7 +151,8 @@ int main(int argc, char **argv) {
 			case '?':
 				printf("Usage: %s [ -P ] [ -A ] [ <file1> <file2> ... ] \n", argv[0]);
 				printf(" -P : do not print input records to stdout\n");
-				printf(" -A : do not aggregated records to stdout\n");
+				printf(" -A : do not print aggregated records to stdout\n");
+				printf(" -n : do not aggregate records (just read and throw out)\n");
 				printf(" -t : num threads\n");
 				exit(1);
 		}

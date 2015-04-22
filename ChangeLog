@@ -1,6 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.08 2015-05-xx
+	- c: examples/lnf_ex04_threads option -n added 
 	- perl: nfasnupd accepts -c <file> with additional prefix database 
 
 1.07 2015-03-17
