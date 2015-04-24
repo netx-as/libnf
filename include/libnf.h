@@ -16,22 +16,22 @@
 /* uncommon types used by libnf */
 /* IP address, MAC address, MPLS stack */
 //typedef struct in6_addr lnf_ip_t;
-typedef struct lnf_ip_s { uint32_t data[4]; } lnf_ip_t;
-typedef struct lnf_mac_s { uint8_t data[6]; }  lnf_mac_t;
-typedef struct lnf_mpls_s { uint32_t data[10]; } lnf_mpls_t;
+typedef struct lnf_ip_s { uint32_t data[4]; } lnf_ip_t; /*!< IPv4/IPv6 address */
+typedef struct lnf_mac_s { uint8_t data[6]; }  lnf_mac_t; /*!< MAC address */
+typedef struct lnf_mpls_s { uint32_t data[10]; } lnf_mpls_t; /*!< MPLS tags */
 
 /* basic record type 1 - contains the most commonly used fields */
 typedef struct lnf_brec1_s {
-	uint64_t	first;			/* LNF_FLD_FIRST */
-	uint64_t	last;			/* LNF_FLD_LAST */
-	lnf_ip_t	srcaddr;		/* LNF_FLD_SRCADDR */
-	lnf_ip_t	dstaddr;		/* LNF_FLD_DSTADDR */
-	uint8_t		prot;			/* LNF_FLD_PROT */
-	uint16_t	srcport;		/* LNF_FLD_SRCPORT */
-	uint16_t	dstport;		/* LNF_FLD_DSTPORT */
-	uint64_t	bytes;			/* LNF_FLD_DOCTETS */
-	uint64_t	pkts;			/* LNF_FLD_DPKTS */
-	uint64_t	flows;			/* LNF_FLD_AGGR_FLOWS */
+	uint64_t	first;			/*!< LNF_FLD_FIRST */
+	uint64_t	last;			/*!< LNF_FLD_LAST */
+	lnf_ip_t	srcaddr;		/*!< LNF_FLD_SRCADDR */
+	lnf_ip_t	dstaddr;		/*!< LNF_FLD_DSTADDR */
+	uint8_t		prot;			/*!< LNF_FLD_PROT */
+	uint16_t	srcport;		/*!< LNF_FLD_SRCPORT */
+	uint16_t	dstport;		/*!< LNF_FLD_DSTPORT */
+	uint64_t	bytes;			/*!< LNF_FLD_DOCTETS */
+	uint64_t	pkts;			/*!< LNF_FLD_DPKTS */
+	uint64_t	flows;			/*!< LNF_FLD_AGGR_FLOWS */
 } lnf_brec1_t;
 
 #define LNF_MAX_STRING		512
@@ -161,11 +161,11 @@ typedef void lnf_mem_t;
 #define LNF_OK				0x0001	/* OK status */
 #define LNF_EOF 			0x0000	/* end of file */
 
-#define LNF_READ	0x0
-#define LNF_WRITE	0x1
-#define LNF_ANON	0x2
-#define LNF_COMP	0x4
-#define LNF_WEAKERR	0x8
+#define LNF_READ			0x0
+#define LNF_WRITE			0x1
+#define LNF_ANON			0x2
+#define LNF_COMP			0x4
+#define LNF_WEAKERR			0x8
 
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
 #define LNF_ERR_UNKREC		-0x0002	/* weak error: unknown record type */
@@ -214,11 +214,10 @@ typedef void lnf_mem_t;
 */
 
 /*! 
-	\ingroup error 
+\ingroup error 
 
-	\brief return error string of last error 
-	\param buffer where the message will be copied 
-	\param available space in buffer 
+\param buf	 	buffer where the message will be copied 
+\param buflen	available space in the buffer 
 */
 void lnf_error(const char *buf, int buflen);
 
@@ -241,7 +240,7 @@ void lnf_error(const char *buf, int buflen);
 After file is open the lnf_read/lnf_write operations can read/write records 
 strcuture (see record operations).
 
-\param **lnf_filep 	pointer to lnf_filep_t structure 
+\param **lnf_filep 	double pointer to lnf_filep_t structure 
 \param *filename 	path and file name to open 
 \param flags 		flags, described above \n
 	LNF_READ - open file for reading  \n
@@ -252,8 +251,6 @@ strcuture (see record operations).
 \param *ident 		file ident for newly created files, can be set to NULL
 \return 			LNF_OK, LNF_ERR_NOMEM
 */
-
-
 int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, const char *ident);
 
 
@@ -264,31 +261,155 @@ Read nex record from file. The record is stored in lnf_rec object.
 
 \param *lnf_file 	pointer to lnf_filep_t structure 
 \param *lnf_rec 	pointer to initialised record structure 
-\return 			LNF_OK, LNF_ERR_NOMEM 
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
 */
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
+
+/*!	\ingroup file 
+\brief Write record to file.
+
+Write record to file. The record is stored in lnf_rec object.
+
+\param *lnf_file 	pointer to lnf_filep_t structure 
+\param *lnf_rec 	pointer to initialised record structure 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_WRITE
+*/
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
+
+/*!	\ingroup file 
+\brief Get file info.
+
+Get datiled information and statistics related to the open file. 
+
+\param *lnf_file 	pointer to lnf_filep_t structure 
+\param info 		info required from file - content returned in *data\n
+	LNF_INFO_VERSION - string with lbnf version (char*) \n
+	LNF_INFO_NFDUMP_VERSION - string with nfdump version that libnf is based on (char*) \n
+	LNF_INFO_FILE_VERSION - nfdump file version (int*)
+	LNF_INFO_BLOCKS - number of block in file (unit64_t) \n
+	LNF_INFO_COMPRESSED - is file compressed (int) \n
+	LNF_INFO_ANONYMIZED - is file anonymized (int) \n
+	LNF_INFO_CATALOG - file have catalog (int) \n
+	LNF_INFO_IDENT - string ident (char*) \n
+	LNF_INFO_FIRST - msec of first packet in file (unit64_t) \n
+	LNF_INFO_LAST - msec of last packet in file (uint64_t) \n
+	LNF_INFO_FAILURES - number of sequence failures (uint64_t) \n
+	LNF_INFO_FLOWS - summary of stored flows (uint64_t) \n
+	LNF_INFO_BYTES - summary of stored bytes (uint64_t) \n
+	LNF_INFO_PACKETS - summary of stored packets (uint64_t) \n
+	LNF_INFO_PROC_BLOCKS - number of processed blocks (uint64_t) \n
+\param *data 		pointer initialised and zeroed data structure
+\param size			maximum size allocated for *data structure
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size);
+
+/*!	\ingroup file 
+\brief Close file and release resorces.
+
+Close previously open file, flush buffer and release all relevant resources. 
+
+\param *lnf_file 	pointer to lnf_filep_t structure 
+*/
 void lnf_close(lnf_file_t *lnf_file);
 
 
-/* record operations */
+/*!	\ingroup record
+\brief Initialise empty record object.
+
+Initialise empty record object and allocate all nescessary resources. 
+
+\param **recp	 	double pointer to lnf_rec_t structure 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_rec_init(lnf_rec_t **recp);
+
+/*!	\ingroup record
+\brief Zero all fields in initialised record object.
+
+\param *rec 	pointer to lnf_rec_t structure 
+*/
 void lnf_rec_clear(lnf_rec_t *rec);
+
+/*!	\ingroup record
+\brief Copy content of the record between two record objects
+
+\param *dst 		pointer to destination lnf_rec_t structure 
+\param *src 		pointer to source lnf_rec_t structure 
+\return 			LNF_OK, LNF_ERR_OTHER
+*/
 int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src);
+
+/*!	\ingroup record
+\brief Get the value of specific field (item) from the record object 
+
+\param *rec 		pointer to lnf_rec_t structure 
+\param field 		field ID - see "supported fields" for supported fields 
+\param *data 		pointer to the data buffer 
+\return 			LNF_OK, LNF_ERR_NOTSET, LNF_ERR_UNKFLD
+*/
 int lnf_rec_fset(lnf_rec_t *rec, int field, void *data);
+
+/*!	\ingroup record
+\brief Set the value of specific field (item) from the record object 
+
+\param *rec 		pointer to lnf_rec_t structure 
+\param field 		field ID - see "supported fields" for supported fields 
+\param *data 		pointer to the data buffer (must be initialised before use)
+\return 			LNF_OK, LNF_ERR_UNKFLD
+*/
 int lnf_rec_fget(lnf_rec_t *rec, int field, void *data);
+
+/*!	\ingroup record
+\brief Close file and release resorces.
+
+Close previously record object and release all relevant resources. 
+
+\param *rec 	pointer to lnf_rec_t structure 
+*/
 void lnf_rec_free(lnf_rec_t *rec);
 
+/*!	\ingroup filter
+\brief Initialise empty filter object.
 
-/* filter operations */
+Compile filter expression, initialise filter object. 
+
+\param **filterp 	double pointer to lnf_filter_t structure 
+\param *expr	 	pointer to string representing filter expression
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_FILTER
+*/
 int	lnf_filter_init(lnf_filter_t **filterp, char *expr);
+
+/*!	\ingroup filter
+\brief Match record object against filter.
+
+Match the record object. If the record object matched the 
+filter syntaxt the return value is 1 else the return value is 0.
+
+\param *filter		double pointer to lnf_filter_t structure 
+\param *rec		 	pointer to record object 
+\return 			0, 1
+*/
 int	lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec);
+
+/*!	\ingroup filter
+\brief Close filter and release resorces.
+
+\param *filter	pointer to lnf_filter_t structure 
+*/
 void lnf_filter_free(lnf_filter_t *filter);
+
 
 #define LNF_MAX_THREADS 128		/* maximum threads */
 
-/* memory heap operations */
+/*!	\ingroup memheap
+\brief Initialise empty memheap object.
+
+Initialise empty memheap object and allocate all nescessary resources. 
+
+\param **lnf_mem 	double pointer to lnf_mem_t structure 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_mem_init(lnf_mem_t **lnf_mem);
 
 /* flags for lnf_mem_addf */
@@ -304,17 +425,68 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 #define LNF_SORT_DESC	0x0020	/* sort by item descending */
 #define LNF_SORT_FLAGS	0x00F0
 
+/*!	\ingroup memheap
+\brief Set aggregation and sort option for memheap.
+
+TO BE REDESIGNED 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param field 	xxx 
+\param flags 	xxx 
+\param numbits 	xxx 
+\param numbits6 	xxx 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);
 
 #define LNF_FAST_AGGR_NONE	0x0000	/* do not set fast aggregation mode */
 #define LNF_FAST_AGGR_BASIC	0x0001	/* perform aggregation on items FIRST,LAST,BYTES,PKTS */
 #define LNF_FAST_AGGR_ALL	0x0002	/* aggregation on all items */
 
+/*!	\ingroup memheap
+\brief Set fast aggregation mode
+
+TO BE REDESIGNED 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param flags 	xxx 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int flags);
 
+/*!	\ingroup memheap
+\brief Write record to memheap object.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *rec 		pointer to initialised record structure 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+
+/*!	\ingroup memheap
+\brief Merge data from multiple threads into one thread.
+
+This functiom merge data from all threads into one structure.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
 int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
+
+/*!	\ingroup memheap
+\brief 	Read next record from memheap
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *rec 		pointer to initialised record structure 
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+
+/*!	\ingroup memheap
+\brief Close memheap and release resorces.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+*/
 void lnf_mem_free(lnf_mem_t *lnf_mem);
 
 
