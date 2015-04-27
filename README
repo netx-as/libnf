@@ -1,3 +1,66 @@
 
 libnf - C interface for processing nfdump files 
 
+
+IMPORTANT LINKS
+===============================================
+
+Official homepage:
+	http://libnf.net
+
+C API interface documentation: 
+	http://libnf.net/doc/api/
+
+Package directory: 
+	http://libnf.net/packages/
+
+Github repository:
+	https://github.com/VUTBR/nf-tools
+
+Libnf interface for perl (Net::NfDump package) available via cpan:
+	http://search.cpan.org/~tpoder/Net-NfDump/lib/Net/NfDump.pm
+
+
+INSTALLATION FROM TARBALL 
+===============================================
+
+1. Download linf tarball from http://libnf.net/packages/
+
+	# wget http://libnf.net/packages/libnf-x.xx.tar.gz
+
+2. Unzip package and enter the package dir 
+
+	# tar xzf libnf-x.xx.tar.gz 
+	# cd libnf-x.xx
+
+3. Run configure script 
+
+	# ./configure 
+
+4. Run make and install files 
+
+	# make && make install 
+   
+5. Look et the examples directory how to use libnf 
+
+
+INSTALLATION FROM GIT REPOSITORY
+===============================================
+
+1. Get nf-tools git repository 
+
+	# git clone https://github.com/VUTBR/nf-tools
+
+2. Go into libnf source direcoty 
+
+	# cd nf-tools/libnf/c
+
+3. Fetch nfdump sources an prepare for using in libnf
+
+	# ./prepare-nfdump.sh
+
+4. Follow instructions 4. and 5. from TARBALL INSTALLATION
+
+
+
+
