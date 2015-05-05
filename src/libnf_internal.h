@@ -159,7 +159,7 @@ void lnf_mem_fastaggr_callback(char *key, char *hval, char *uval, void *lnf_mem)
 void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
 int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *p);
 int lnf_mem_done(lnf_mem_t *lnf_mem);
-
+int lnf_mem_read_next(lnf_mem_t *lnf_mem, char **pkey, char **pval);
 
 /* structure for fast aggregation support */
 typedef struct lnf_fastaggr_s {

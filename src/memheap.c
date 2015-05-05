@@ -504,6 +504,48 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 	}
 }
 
+/* store in raw format in the memory heap */
+int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize) {
+
+	int *id;
+
+	/* compare the size of buffer - have to macht size of key + val fields */
+	if (buffsize != lnf_mem->key_len + lnf_mem->val_len) {
+		return LNF_ERR_OTHER;
+	}
+
+#ifdef LNF_THREADS
+	id = pthread_getspecific(lnf_mem->thread_id_key);
+#else 
+	id = lnf_mem->thread_id_key;
+#endif
+
+	/* no thread specific data */
+	if (id == NULL) {
+		int ret = lnf_mem_thread_init(lnf_mem);
+		if (ret != LNF_OK) {
+			return ret;
+		}
+
+#ifdef LNF_THREADS
+		ad = pthread_getspecific(lnf_mem->thread_id_key);
+#else
+		id = lnf_mem->thread_id_key;
+#endif
+		if (id == NULL) {
+			return LNF_ERR_OTHER;
+		}
+		lnf_mem->thread_status[*id] = LNF_TH_WRITE;
+	}
+
+	/* insert record */
+	if (hash_table_insert(&lnf_mem->hash_table[*id], buff, buff + lnf_mem->key_len) == NULL) {
+		return LNF_ERR_NOMEM;
+	}
+
+	return LNF_OK;
+}
+
 /* store record in memory heap */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
@@ -545,7 +587,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		}
 
 #ifdef LNF_THREADS
-		id = pthread_getspecific(lnf_mem->thread_id_key);
+		ad = pthread_getspecific(lnf_mem->thread_id_key);
 #else
 		id = lnf_mem->thread_id_key;
 #endif
@@ -639,11 +681,9 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 #endif	/* ifdef LNF_THREADS */
 }
 
-/* read netx record from memory heap */
-int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
-
-	char *key; 
-	char *val;
+/* read next record from memory heap - internally used function */
+/* used later by lnf_mem_read and lnf_mem_read_raw */
+int lnf_mem_read_next(lnf_mem_t *lnf_mem, char **pkey, char **pval) {
 
 	if (!lnf_mem->sorted) {
 		hash_table_sort(&lnf_mem->hash_table[0]);
@@ -651,11 +691,27 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		lnf_mem->read_index = 0;
 	}
 
-	if (!hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->read_index, &key, &val)) {
+	if (!hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->read_index, pkey, pval)) {
 		return LNF_EOF;
 	}
 
 	lnf_mem->read_index++;
+
+	return LNF_OK;
+}
+
+/* read next record from memory heap */
+int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
+
+	char *key; 
+	char *val;
+	int ret;
+
+	ret = lnf_mem_read_next(lnf_mem, &key, &val);
+
+	if (ret != LNF_OK) {
+		return ret;
+	}
 
 	lnf_rec_clear(rec);
 
@@ -664,6 +720,34 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	/* fields from values */
 	lnf_mem_fill_rec(lnf_mem->val_list, val, rec);
+
+	return LNF_OK;
+}
+
+/* read next record from memory heap in raw format */
+int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
+
+	char *key; 
+	char *val;
+	int ret;
+
+	ret = lnf_mem_read_next(lnf_mem, &key, &val);
+
+	if (ret != LNF_OK) {
+		return ret;
+	}
+
+	if (len != NULL) {
+		*len = lnf_mem->key_len + lnf_mem->val_len;
+	}
+
+	/* check whether there is enough space in buffer */
+	if (buffsize < lnf_mem->key_len + lnf_mem->val_len) {
+		return LNF_ERR_NOMEM;
+	}
+
+	memcpy(buff, key, lnf_mem->key_len);
+	memcpy(buff + lnf_mem->key_len, val, lnf_mem->val_len);
 
 	return LNF_OK;
 }

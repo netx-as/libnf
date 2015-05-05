@@ -35,6 +35,7 @@ typedef struct lnf_brec1_s {
 } lnf_brec1_t;
 
 #define LNF_MAX_STRING		512
+#define LNF_MAX_RAW_LEN 	1024
 
 /* type of fields */
 /* note: if the fields type allows two kind of data type  */
@@ -464,6 +465,20 @@ int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int flags);
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 
 /*!	\ingroup memheap
+\brief Write raw data obtained from lnf_mem_read_raw to memheap object.
+
+The function stores buffer data directly into lnf_mem structure. The 
+data can be obtained from differend lnf_mem instance by lnf_mem_read_raw
+function. See lnf_mem_read_raw for more information.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *buff 		pointer to the buffer with data
+\param buffsize 	size of data in bufeer - must match internal size of data
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
+*/
+int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize);
+
+/*!	\ingroup memheap
 \brief Merge data from multiple threads into one thread.
 
 This functiom merge data from all threads into one structure.
@@ -481,6 +496,26 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
 */
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
+
+/*!	\ingroup memheap
+\brief 	Read next record from memheap in binary format 
+
+The function reads data from internal lnf_mem structure in binnary format. 
+The data obtained by this function shouldn't be processed 
+in any way except of lnf_mem_write_raw function. 
+
+For the maximum size of buffer the macro LNF_MAX_RAW_LEN can be used. See
+to examples/lnf_ex05_memtrans.c for example of use lnf_mem_readi/write_raw.
+
+The data obrained by lnf_mem_read are platform dependend! 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *buff 		buffer where data will be filled in - there must be enough space for data
+\param *len 		returned data size in Bytes
+\param buffsize 	space available in buff
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize);
 
 /*!	\ingroup memheap
 \brief Close memheap and release resorces.

@@ -1512,7 +1512,7 @@ int lnf_fld_info(int field, int info, void *data, size_t size) {
 	char buf[LNF_INFO_BUFSIZE];
 
 	if (info == LNF_FLD_INFO_FIELDS) {
-		int *fld  = buf;
+		int *fld  = (int *)buf;
 		int x = 0;
 		/* find ID for field */
 		for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {

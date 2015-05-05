@@ -1,7 +1,7 @@
 
 #include <stdint.h>
 
-#define HASH_TABLE_INIT_SIZE 65536
+#define HASH_TABLE_INIT_SIZE  500000
 
 
 /* hash table iflags for every row */
