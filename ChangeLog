@@ -1,6 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
 1.08 2015-05-xx
+	- c: new function lnf_mem_read_reset - set cursor to first record 
+	- c: nfdumpp checks -O option 
+	- c: removed bug - libnf fails after attempt to read emprty lnf_mem 
 	- c: removed memory leak in original nfdump in LZO 
 	- c: initial number of buckets in hash table increased to 500000
 	- c: new functions lnf_mem_read_raw, lnf_mem_write_raw added

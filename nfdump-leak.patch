@@ -4,7 +4,7 @@
  
  /* global vars */
  
-+#ifdef LNF_THREAD
++#ifdef LNF_THREADS
 +static __thread int open_files = 0;
 +#else
 +static int open_files = 0;
@@ -14,22 +14,6 @@
  // required for idet filter in nftree.c
  char 	*CurrentIdent;
  
-@@ -80,6 +87,7 @@
- static void *lzo_buff;
- static int lzo_initialized = 0;
- 
-+
- #define ERR_SIZE 256
- static char	error_string[ERR_SIZE];
- 
-@@ -145,6 +153,7 @@
- 		LogError("malloc() error in %s line %d: %s\n", __FILE__, __LINE__, strerror(errno) );
- 		return 0;
- 	}
-+
- 	lzo_initialized = 1;
- 
- 	return 1;
 @@ -238,6 +247,8 @@
  		}
      }
@@ -64,12 +48,3 @@
  	
  	return nffile;
  
-@@ -541,6 +563,8 @@
- 		}
-     }
- 
-+	open_files++;
-+
- 	return nffile;
- 
- } /* End of AppendFile */

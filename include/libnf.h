@@ -518,6 +518,14 @@ The data obrained by lnf_mem_read are platform dependend!
 int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize);
 
 /*!	\ingroup memheap
+\brief 	Re-set the position of the internall cursor beggining
+
+This function resets internal lnf_mem_read and lnf_mem_read row cursor to first
+positon. 
+*/
+void lnf_mem_read_reset(lnf_mem_t *lnf_mem);
+
+/*!	\ingroup memheap
 \brief Close memheap and release resorces.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 

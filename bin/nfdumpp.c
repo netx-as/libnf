@@ -177,6 +177,10 @@ int main(int argc, char **argv) {
 				break;
 			case 'O':
 				sortfield = lnf_fld_parse(optarg, &sortbits4, &sortbits6);
+				if (sortfield == 0) {
+					fprintf(stderr, "Unknow or unsupported sort field: %s\n", optarg);
+					exit(1);
+				}
 				break;
 			case 'T': 
 				numthreads = atoi(optarg);
@@ -245,6 +249,7 @@ int main(int argc, char **argv) {
 		lnf_fld_info(sortfield, LNF_FLD_INFO_SORT, &defaultsort, sizeof(int));
 		lnf_mem_fadd(memp, sortfield, defaultaggr|defaultsort, sortbits4, sortbits6);
 	}
+
 
 	print_header();
 

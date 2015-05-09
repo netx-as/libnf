@@ -130,6 +130,7 @@ typedef struct lnf_mem_s {
 	int* thread_id_key;				/* id when threads are not supported */
 #endif
 	int thread_status[LNF_MAX_THREADS];		/* status of the current thread */
+#define LNF_TH_EMPTY 0x0			/* empty thread - no records written so far  */
 #define LNF_TH_WRITE 0x1			/* writing record - set after first write */
 #define LNF_TH_MERGE 0x2			/* writing done - ready for merge */
 #define LNF_TH_MERGING 0x3			/* merging thread */

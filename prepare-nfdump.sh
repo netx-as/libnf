@@ -87,6 +87,9 @@ for f in $FILES ; do
 	(cd src && rm -f $f && ln -s ../nfdump/bin/$f && cd ..) || exit 1
 done
 
+rm src/grammar.c
+rm src/scanner.c
+
 echo ""
 echo "##########################################################"
 echo "# STAGE 3: checking definitions of all items in libnf    #"

@@ -65,6 +65,7 @@ static void lnf_mem_aggr_EMPTY (char *a, char *b) { }
 /* initialize memory heap structure */
 int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem_t *lnf_mem;
+	int i;
 
 	lnf_mem = malloc(sizeof(lnf_mem_t));
 
@@ -100,6 +101,12 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 #else 
 	lnf_mem->thread_id_key = NULL;
 #endif
+
+
+	/* set all threads to LNF_TH_EMPTY */
+	for (i = 0; i < LNF_MAX_THREADS; i++) {
+		lnf_mem->thread_status[i] = LNF_TH_EMPTY;
+	}
 
 	*lnf_memp =  lnf_mem;
 
@@ -528,7 +535,7 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize) {
 		}
 
 #ifdef LNF_THREADS
-		ad = pthread_getspecific(lnf_mem->thread_id_key);
+		id = pthread_getspecific(lnf_mem->thread_id_key);
 #else
 		id = lnf_mem->thread_id_key;
 #endif
@@ -587,7 +594,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		}
 
 #ifdef LNF_THREADS
-		ad = pthread_getspecific(lnf_mem->thread_id_key);
+		id = pthread_getspecific(lnf_mem->thread_id_key);
 #else
 		id = lnf_mem->thread_id_key;
 #endif
@@ -685,6 +692,10 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 /* used later by lnf_mem_read and lnf_mem_read_raw */
 int lnf_mem_read_next(lnf_mem_t *lnf_mem, char **pkey, char **pval) {
 
+	if (lnf_mem->thread_status[0] == LNF_TH_EMPTY) {
+		return LNF_EOF;
+	}
+
 	if (!lnf_mem->sorted) {
 		hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;
@@ -752,13 +763,22 @@ int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
 	return LNF_OK;
 }
 
+/* set cursor position to the first rec */
+void lnf_mem_read_reset(lnf_mem_t *lnf_mem) {
+
+	lnf_mem->read_index = 0;
+
+}
+
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
 
 	if (lnf_mem == NULL) {
 		return;
 	}
 
-	hash_table_free(&lnf_mem->hash_table[0]);
+	if (lnf_mem->thread_status[0] != LNF_TH_EMPTY) {
+		hash_table_free(&lnf_mem->hash_table[0]);
+	}
 
 	/* clean lists */
 	lnf_filedlist_free(lnf_mem->key_list);

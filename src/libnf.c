@@ -56,6 +56,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#ifdef LNF_THREADS
+#include <pthread.h>
+#endif
+
 #include "nfdump_inline.c"
 #include "nffile_inline.c"
 
@@ -66,6 +70,8 @@
 /* Global Variables */
 extern extension_descriptor_t extension_descriptor[];
 char error_str[LNF_MAX_STRING];
+pthread_mutex_t lnf_nfdump_filter_mutex;	/* mutex for operations open/close file, filter init */
+
 
 #define FLOW_RECORD_NEXT(x) x = (common_record_t *)((pointer_addr_t)x + x->size)
 
@@ -252,6 +258,7 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 		return LNF_ERR_NOMEM;
 	}
 
+
 	lnf_file->flags = flags;
 	/* open file in either read only or write only mode */
 	if (flags & LNF_WRITE) {
@@ -432,7 +439,7 @@ void lnf_close(lnf_file_t *lnf_file) {
 		CloseFile(lnf_file->nffile);
 	}
 
-	DisposeFile(lnf_file->nffile);
+	DisposeFile(lnf_file->nffile); 
 
 	PackExtensionMapList(lnf_file->extension_map_list);
 	FreeExtensionMaps(lnf_file->extension_map_list);
@@ -823,7 +830,7 @@ int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
 	}	
 
 	filter->engine = CompileFilter(expr);
-	
+
 	if ( !filter->engine ) {
 		free(filter);
 		return LNF_ERR_FILTER;
