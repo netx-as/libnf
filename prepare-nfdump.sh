@@ -34,6 +34,7 @@ rm -rf nfdump/ $NFDUMP
 tar xzf $NFDUMP_SRC || exit 1
 mv $NFDUMP nfdump  || exit 1
 (cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
+(cd nfdump && patch -p1 < ../nfdump-leak.patch && cd .. ) || exit 1
 
 echo ""
 echo "##########################################################"
