@@ -1,6 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.08 2015-05-xx
+	- c: _LIBNF_H macro added in the libnf.h file 
 	- c: new function lnf_mem_read_reset - set cursor to first record 
 	- c: nfdumpp checks -O option 
 	- c: removed bug - libnf fails after attempt to read emprty lnf_mem 
