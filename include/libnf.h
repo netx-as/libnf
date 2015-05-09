@@ -7,7 +7,8 @@
 	For examples how to use library please visit examples directory in the root of 
 	source files. 
 */
-
+#ifndef _LIBNF_H
+#define _LIBNF_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -554,4 +555,4 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6);
    (((uint32_t *) (a))[2] == 0) && (ntohl (((uint32_t *) (a))[3]) > 1))
 #endif
 
-
+#endif /* _LIBNF_H */
