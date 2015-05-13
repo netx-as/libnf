@@ -781,8 +781,12 @@ void lnf_mem_free(lnf_mem_t *lnf_mem) {
 	}
 
 	/* clean lists */
-	lnf_filedlist_free(lnf_mem->key_list);
-	lnf_filedlist_free(lnf_mem->val_list);
+	if (lnf_mem->key_list != NULL) {
+		lnf_filedlist_free(lnf_mem->key_list);
+	}
+	if (lnf_mem->val_list != NULL) {
+		lnf_filedlist_free(lnf_mem->val_list);
+	}
 
 	free(lnf_mem);
 
