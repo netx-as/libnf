@@ -11,6 +11,7 @@ Revision history for C and Perl extension of nfdump.
 	- c: examples/lnf_ex06_readreset added
 	- c: examples/lnf_ex05_memtrans added
 	- c: examples/lnf_ex04_threads option -n added 
+	- c: bug in bpd and pps calculation 
 	- perl: removed memory leak in perl API 
 	- perl: nfasnupd accepts -c <file> with additional prefix database 
 
