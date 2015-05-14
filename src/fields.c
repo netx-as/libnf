@@ -985,7 +985,7 @@ static int inline lnf_field_fget_CALC_BPS(master_record_t *m, void *p, bit_array
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_PPS(master_record_t *m, void *p, bit_array_t *e) { 
 	if (LNF_DURATION > 0) {
-		*((double *)p) = (m->dPkts * 8) / (LNF_DURATION / 1000.0);
+		*((double *)p) = m->dPkts / (LNF_DURATION / 1000.0);
 		return LNF_OK;
 	} else {
 		*((double *)p) = 0;
