@@ -1,7 +1,6 @@
 
 .NOTPARALLEL:
 
-BUILT_SOURCES = grammar.h
 AM_YFLAGS = -d
 
 INCLUDES = $(DEPS_CFLAGS)
@@ -18,16 +17,21 @@ CLEANFILES = lex.yy.c
 #grammar.c grammar.h scanner.c scanner.h
 
 # Target for the libnfdump library
-lib_LTLIBRARIES=libnf.la
-libnf_la_SOURCES=libnf.c bit_array.c heap_sort.c hash_table.c xxhash.c memheap.c fields.c \
-	nffile.c nfx.c nftree.c minilzo.c \
-	nf_common.c grammar.y scanner.l \
-	ipconv.c 
+lib_LTLIBRARIES = libnf.la
+libnf_la_SOURCES = libnf.c bit_array.c heap_sort.c hash_table.c xxhash.c memheap.c fields.c \
+	nffile.c nfx.c nftree.c minilzo.c nf_common.c ipconv.c 
 
-# Simple infor program 
+if LNF_EXPERIMENTAL
+BUILT_SOURCES = lnf_filter_gram.h
+libnf_la_SOURCES += lnf_filter_gram.y lnf_filter_lex.l lnf_filter.c
+else
+BUILT_SOURCES = grammar.h
+libnf_la_SOURCES += grammar.y scanner.l 
+endif 
+
+# Simple info program 
 bin_PROGRAMS = libnf-info
 
 libnf_info_SOURCES = libnf-info.c
 libnf_info_LDADD = -lnf
-
 

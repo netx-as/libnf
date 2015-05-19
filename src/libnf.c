@@ -819,6 +819,8 @@ int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 
 /* initialize filter */
 /* returns LNF_OK or LNF_ERR_FILTER */
+#ifndef LNF_EXPERIMENTAL
+/* there is a new code for lnf_filter, however it is experimental so far */
 int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
 
 	lnf_filter_t *filter;	
@@ -859,6 +861,7 @@ void lnf_filter_free(lnf_filter_t *filter) {
 
 	free(filter);
 }
+#endif /* LNF_EXPERIMENTAL */
 
 /************************************************************/
 /* Fields        */

@@ -39,7 +39,6 @@ fi
 
 AC_ARG_ENABLE(threads,
 [  --enable-threads       enable thread support for libnf_mem - see documentation; default is NO])
-
 if test "${enable_threads}" = "yes" ; then
 	LIBS="$LIBS -lpthread"
 	CFLAGS="$CFLAGS -DLNF_THREADS"
@@ -49,6 +48,16 @@ if test "${enable_threads}" = "yes" ; then
 	AM_CONDITIONAL(LNF_THREADS, true)
 else
 	AM_CONDITIONAL(LNF_THREADS, false)
+fi
+
+
+AC_ARG_ENABLE(experimental,
+[  --enable-experimental    enable experimental part of the code; default is NO])
+if test "${enable_experimental}" = "yes" ; then
+	CFLAGS="$CFLAGS -DLNF_EXPERIMENTAL"
+	AM_CONDITIONAL(LNF_EXPERIMENTAL, true)
+else
+	AM_CONDITIONAL(LNF_EXPERIMENTAL, false)
 fi
 
 
@@ -223,6 +232,10 @@ echo "Thread support enabled."
 else 
 echo ""
 echo "Single thread version."
+fi
+
+if test "${enable_experimental}" = "yes" ; then
+echo "Experimental code enabled."
 fi
 
 echo ""
