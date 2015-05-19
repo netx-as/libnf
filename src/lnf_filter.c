@@ -1,4 +1,10 @@
 
+#include "config.h"
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 #include "libnf_internal.h"
 #include "libnf.h" 
 #include "lnf_filter.h"

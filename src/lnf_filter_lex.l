@@ -40,6 +40,11 @@ not|"!"			{ return NOT; }
 					yylval->string = yytext;
 					return STRING;
 				}
+"src port"		{
+					printf("srcport: %s\n", yytext);
+					yylval->string = yytext;
+					return STRING;
+				}
 {letter}+		{
 					//printf("retezec: %s\n", yytext);
 					yylval->string = yytext;
@@ -75,9 +80,9 @@ int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
     filter = malloc(sizeof(lnf_filter_t));
 
     if (filter == NULL) {
-        return -1;
-        //return LNF_ERR_NOMEM;
+        return LNF_ERR_NOMEM;
     }
+
 
 	yylex_init(&scanner);
 	printf("EXR: %s\n", expr);
@@ -90,7 +95,9 @@ int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
 
 	yylex_destroy(scanner);
 
-    return 1;
+	*filterp = filter;
+
+    return LNF_OK;
 }
 
 /* matches the record agains filter */
@@ -104,7 +111,7 @@ int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
 
 void lnf_filter_free(lnf_filter_t *filter) {
 
-    /* TODO nfdump do not have code to release filter :-( */
+	/* TODO nfdump do not have code to release filter :-( */
     if (filter == NULL) {
         return;
     }
