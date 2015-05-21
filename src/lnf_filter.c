@@ -10,7 +10,7 @@
 #include "lnf_filter.h"
 
 
-lnf_filter_node_t* expr_tree_new_leaf(char *fieldstr, int oper, char *data) {
+lnf_filter_node_t* lnf_filter_new_leaf(char *fieldstr, int oper, char *data) {
 	int field, numbits, numbits6;
 	lnf_filter_node_t *node;
 
