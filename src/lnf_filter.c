@@ -64,10 +64,6 @@ int str_to_uint(char *str, int type, void **res, int *vsize) {
 lnf_filter_node_t* lnf_filter_new_leaf(yyscan_t scanner, char *fieldstr, lnf_oper_t oper, char *valstr) {
 	int field, numbits, numbits6;
 	lnf_filter_node_t *node;
-	uint64_t tmp64;
-	uint32_t tmp32;
-	uint16_t tmp16;
-	uint8_t tmp8;
 
 	printf("Adding node: %s | %d | %s\n", fieldstr, oper, valstr);
 
@@ -147,37 +143,50 @@ int lnf_filter_eval(lnf_filter_node_t *node, lnf_rec_t *rec) {
 	}
 
 	/* go deeper into tree */
-	if (node->left != NULL ) { left = lnf_filter_eval(node->left, rec); }
+	if (node->left != NULL ) { 
+		left = lnf_filter_eval(node->left, rec); 
 
-	/* do not evaluate if the result is ovious */
-	if (node->oper == LNF_OP_NOT)              { return !left; };
-	if (node->oper == LNF_OP_OR  && left == 1) { return 1; };
-	if (node->oper == LNF_OP_AND && left == 0) { return 0; };
-
-	if (node->right != NULL ) { right = lnf_filter_eval(node->right, rec); }
-
-	switch (node->oper) {
-		case LNF_OP_NOT: return !right; break;
-		case LNF_OP_OR:  return left || right; break;
-		case LNF_OP_AND: return left && right; break;
+		/* do not evaluate if the result is obvious */
+		if (node->oper == LNF_OP_NOT)              { printf("XXX NOT %d\n", left); return !left; };
+		if (node->oper == LNF_OP_OR  && left == 1) { return 1; };
+		if (node->oper == LNF_OP_AND && left == 0) { return 0; };
 	}
 
-	/* operations on leaf -> comparsion */
-	lnf_rec_fget(rec, node->field, &buf);
+	if (node->right != NULL ) { 
+		right = lnf_filter_eval(node->right, rec); 
 
-	/* simple comparsion */
-	if (node->oper == LNF_OP_EQ || node->oper == LNF_OP_NE) {
-//		uint16_t *tmp = node->value;
-		res = memcmp(&buf, node->value, node->vsize);
-//		printf("XXX 2 %d right:%d, vsize:%d\n", res, *tmp, node->vsize);
-		if (node->oper == LNF_OP_EQ) {
-			return (res == 0); /* EQ */
-		} else {
-			return (res != 0); /* NE */
+		switch (node->oper) {
+			case LNF_OP_NOT: return !right; break;
+			case LNF_OP_OR:  return left || right; break;
+			case LNF_OP_AND: return left && right; break;
+			default: break;
 		}
 	}
 
-	printf("XXX 10\n");
+	/* operations on leaf -> compare values  */
+	lnf_rec_fget(rec, node->field, &buf);
+
+	switch (node->type) {
+		case LNF_UINT64: res = *(uint64_t *)&buf - *(uint64_t *)node->value; break;
+		case LNF_UINT32: res = *(uint32_t *)&buf - *(uint32_t *)node->value; break;
+		case LNF_UINT16: res = *(uint16_t *)&buf - *(uint16_t *)node->value; break; 
+		case LNF_UINT8:  res = *(uint8_t *)&buf - *(uint8_t *)node->value; break;
+		case LNF_DOUBLE: res = *(double *)&buf - *(double *)node->value; break;
+		case STRING: res = strcmp(&buf, node->value); break;
+		default: res = memcmp(&buf, node->value, node->vsize); break;
+	}
+
+	/* simple comparsion */
+	switch (node->oper) {
+		case LNF_OP_NOT: 
+		case LNF_OP_OR:  
+		case LNF_OP_AND: return -1 ; break; 
+		case LNF_OP_EQ:  return res == 0; break;
+		case LNF_OP_NE:  return res != 0; break;
+		case LNF_OP_GT:  return res > 0; break;
+		case LNF_OP_LT:  return res < 0; break;
+	}
+
 	return -1;
 }
 
