@@ -1,4 +1,7 @@
 
+#ifndef _LIBNF_INTERNAL_H
+#define _LIBNF_INTERNAL_H
+
 
 #define _HAVE_LIBNF_STRUCT_H_ 1
 /* 
@@ -30,6 +33,10 @@
 #define HAVE_HTONLL 1
 #endif
 
+#ifdef LNF_EXPERIMENTAL
+//#include <lnf_filter.h>
+#endif
+
 
 /* list of maps used in file taht we create */
 typedef struct lnf_map_list_s {
@@ -39,9 +46,16 @@ typedef struct lnf_map_list_s {
 } lnf_map_list_t;
 
 
+
 /* structure representing a filter */
 typedef struct lnf_filter_s {
 	FilterEngine_data_t	*engine;
+
+#ifdef LNF_EXPERIMENTAL
+	/* structures for new filter */
+	//lnf_filter_node_t	*root;
+	void				*root;
+#endif
 } lnf_filter_t;
 
 
@@ -170,4 +184,7 @@ typedef struct lnf_fastaggr_s {
 	uint64_t	dpkts;
 	uint64_t	aggr_flows;
 } lnf_fastaggr_t;
+
+
+#endif /* _LIBNF_INTERNAL_H */
 

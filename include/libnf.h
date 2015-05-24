@@ -185,8 +185,7 @@ typedef void lnf_mem_t;
 #define LNF_ERR_FILTER		-0x0400	/* cannot compile filter  */
 #define LNF_ERR_NOMEM		-0x0800	/* cannot allocate memory  */
 #define LNF_ERR_OTHER		-0x0F00	/* some other error */
-
-
+#define LNF_ERR_OTHER_MSG	-0x1000	/* other error and more descriptive information can be get from lnf_error */
 
 
 /* constants for lnf_info function */

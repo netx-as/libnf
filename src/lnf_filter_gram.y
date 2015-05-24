@@ -2,35 +2,30 @@
 %pure-parser
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner }
+%parse-param { lnf_filter_t *filter }
 
 %{
 	#include <stdio.h>
-	#include "libnf.h"
 	#include "lnf_filter.h"
-	typedef void* yyscan_t;	
-	void yyerror(yyscan_t yyscanner, char *);
+	#include "libnf_internal.h"
+	#include "libnf.h"
 
-typedef struct lnf_filter_entry_s {
-	int datatype;	/* rval data type - LNF_STRING, LNF_UINT64, LNF_DOUBLE */
-	char *data;		/* rval data pointer */
-	int oper;		/* operation type EQ LT GT */
-} lnf_filter_entry_t;
+	#define YY_EXTRA_TYPE lnf_filter_t
 
 %}
 
 %union {
 	uint64_t	t_uint;
 	double		t_double;
-	char 		*t_string;
-	lnf_filter_entry_t entry;
+	char 		string[LNF_MAX_STRING];
+	void		*node;
 };
 
 %token AND OR NOT 
 %token EQ LT GT  
 %token LP RP
-%token <t_uint> NUMBER
-%token <t_string> STRING
-%token <entry> cmpval expr program
+%token <string> STRING
+%type <node> expr filter 
 
 %left	OR
 %left	AND
@@ -38,32 +33,21 @@ typedef struct lnf_filter_entry_s {
 
 %%
 
-program:
-	program expr 	 	{ printf("PROGRAM:\n"); }
+filter:
+	filter expr 	 	{ printf("PROGRAM:\n"); filter->root = $2; }
 	|
 	;
 
 expr:
-	NOT expr 			{ printf("EXPR: ! \n"); }
-	| expr AND expr 	{ printf("EXPR: + \n"); }
-	| expr OR expr	 	{ printf("EXPR: - \n"); }
-	| LP expr RP 		{ printf("EXPR: () \n"); }
-	| STRING cmpval		{ printf("comparsion EQ - \n"); }
-	| STRING EQ cmpval	{ printf("comparsion EQ\n"); lnf_filter_new_leaf($1, EQ, $2.type); }
-	| STRING LT cmpval	{ printf("comparsion LT\n"); }
-	| STRING GT cmpval	{ printf("comparsion GT\n"); }
+	NOT expr	 		{ $$ = lnf_filter_new_node(scanner, NULL, LNF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
+	| expr AND expr	 	{ $$ = lnf_filter_new_node(scanner, $1, LNF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
+	| expr OR expr	 	{ $$ = lnf_filter_new_node(scanner, $1, LNF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
+	| LP expr RP 		{ $$ = $2; }
+	| STRING STRING		{ $$ = lnf_filter_new_leaf(scanner, $1, LNF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
+	| STRING EQ STRING	{ $$ = lnf_filter_new_leaf(scanner, $1, LNF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING LT STRING	{ $$ = lnf_filter_new_leaf(scanner, $1, LNF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING GT STRING	{ $$ = lnf_filter_new_leaf(scanner, $1, LNF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
 	;
-
-cmpval:
-	STRING 				{ printf("STRING: %s\n", $1); }
-	| NUMBER	 		{ $$.data = $1; $$.datatype = LNF_UINT64; printf("INTEGER: %d\n", $1); }
-	
 
 %%
 
-//void * filterp;
-/*
-void yyerror(yyscan_t yyscanner, char *s) {
-	fprintf(stderr, "%s\n", s);
-}
-*/
