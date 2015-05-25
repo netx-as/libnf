@@ -22,6 +22,8 @@ int main(int argc, char **argv) {
 	char *filter1 = FILTER1;
 	char *filter2 = FILTER2;
 	uint32_t input, output;
+	char buf[LNF_MAX_STRING];
+	int res;
 
 	int i = 0;
 	int match1 = 0;
@@ -74,13 +76,22 @@ int main(int argc, char **argv) {
 	}
 
 
-	if (lnf_filter_init(&filterp1, filter1) != LNF_OK) {
+	if ((res = lnf_filter_init(&filterp1, filter1)) != LNF_OK) {
 		fprintf(stderr, "Can not init filter1 '%s'\n", filter1);
+		if (res == LNF_ERR_OTHER_MSG) {
+			lnf_error(buf, LNF_MAX_STRING);
+			fprintf(stderr, "%s\n", buf);
+		}
 		exit(1);
 	}
 
-	if (lnf_filter_init(&filterp2, filter2) != LNF_OK) {
+	if ((res = lnf_filter_init(&filterp2, filter2)) != LNF_OK) {
 		fprintf(stderr, "Can not init filter2 '%s'\n", filter2);
+		lnf_error(buf, LNF_MAX_STRING);
+		if (res == LNF_ERR_OTHER_MSG) {
+			lnf_error(buf, LNF_MAX_STRING);
+			fprintf(stderr, "%s\n", buf);
+		}
 		exit(1);
 	}
 

@@ -5,6 +5,9 @@
 #include <stdint.h>
 #endif
 
+#include <arpa/inet.h>
+#include <string.h>
+
 #include "lnf_filter.h"
 #include "libnf_internal.h"
 #include "libnf.h" 
@@ -12,7 +15,7 @@
 
 /* convert string into uint64_t */
 /* FIXME: also converst string with units (64k -> 64000) */
-int str_to_uint(char *str, int type, void **res, int *vsize) {
+int str_to_uint(char *str, int type, char **res, int *vsize) {
 
 	uint64_t tmp64;
 	uint32_t tmp32;
@@ -56,29 +59,53 @@ int str_to_uint(char *str, int type, void **res, int *vsize) {
 	*res = ptr;
 
 	return 1;	
-	
 }
 
+/* convert string into lnf_ip_t */
+/* FIXME: also converst string with units (64k -> 64000) */
+int str_to_addr(char *str, char **res, int *numbits) {
+
+	lnf_ip_t *ptr;
+
+	ptr = malloc(sizeof(lnf_ip_t));
+
+	memset(ptr, 0x0, sizeof(lnf_ip_t));
+
+	if (ptr == NULL) {
+		return 0;
+	}
+	
+	*numbits = 0;
+
+	*res = (char *)ptr;
+
+	if (inet_pton(AF_INET, str, &((*ptr).data[3]))) {
+		return 1;
+	}
+
+	if (inet_pton(AF_INET6, str, ptr)) {
+		return 1;
+	}
+
+	lnf_seterror("Can't convert '%s' into IP address", str);
+
+	return 0;
+}
 
 /* add leaf entry into expr tree */
 lnf_filter_node_t* lnf_filter_new_leaf(yyscan_t scanner, char *fieldstr, lnf_oper_t oper, char *valstr) {
-	int field, numbits, numbits6;
+	int field;
 	lnf_filter_node_t *node;
-
-	printf("Adding node: %s | %d | %s\n", fieldstr, oper, valstr);
 
 	/* fieldstr is set - trie to find field id and relevant _fget function */
 	if ( fieldstr != NULL ) {
-		field = lnf_fld_parse(fieldstr, &numbits, &numbits6); 
+		field = lnf_fld_parse(fieldstr, NULL, NULL); 
 		if (field == LNF_FLD_ZERO_) {
-			yyerror(scanner, NULL, "Unknown field"); 
-			//lnf_seterror("Unknown field %s", fieldstr); 
-			printf("error\n");
+			lnf_seterror("Unknown or unsupported field %d", fieldstr); 
 			return NULL;
 		}
 	}
 
-	printf("OK\n");
 	node = malloc(sizeof(lnf_filter_node_t));
 
 	if (node == NULL) {
@@ -97,9 +124,15 @@ lnf_filter_node_t* lnf_filter_new_leaf(yyscan_t scanner, char *fieldstr, lnf_ope
 		case LNF_UINT16:
 		case LNF_UINT8:
 				if (str_to_uint(valstr, lnf_fld_type(field), &node->value, &node->vsize) == 0) {
-					printf("Can't convert '%s' for filed %s into numeric value\n", valstr, fieldstr);
+					lnf_seterror("Can't convert '%s' into numeric value", valstr);
 					return NULL;
 				}
+				break;
+		case LNF_ADDR:
+				if (str_to_addr(valstr, &node->value, &node->numbits) == 0) {
+					return NULL;
+				}
+				node->vsize = sizeof(lnf_ip_t);
 				break;
 	}
 
@@ -111,10 +144,8 @@ lnf_filter_node_t* lnf_filter_new_leaf(yyscan_t scanner, char *fieldstr, lnf_ope
 
 /* add node entry into expr tree */
 lnf_filter_node_t* lnf_filter_new_node(yyscan_t scanner, lnf_filter_node_t* left, lnf_oper_t oper, lnf_filter_node_t* right) {
-	int field, numbits, numbits6;
-	lnf_filter_node_t *node;
 
-	printf("Adding (join) node: %p %d %p \n", left, oper, right);
+	lnf_filter_node_t *node;
 
 	node = malloc(sizeof(lnf_filter_node_t));
 
@@ -147,7 +178,7 @@ int lnf_filter_eval(lnf_filter_node_t *node, lnf_rec_t *rec) {
 		left = lnf_filter_eval(node->left, rec); 
 
 		/* do not evaluate if the result is obvious */
-		if (node->oper == LNF_OP_NOT)              { printf("XXX NOT %d\n", left); return !left; };
+		if (node->oper == LNF_OP_NOT)              { return !left; };
 		if (node->oper == LNF_OP_OR  && left == 1) { return 1; };
 		if (node->oper == LNF_OP_AND && left == 0) { return 0; };
 	}
@@ -172,8 +203,8 @@ int lnf_filter_eval(lnf_filter_node_t *node, lnf_rec_t *rec) {
 		case LNF_UINT16: res = *(uint16_t *)&buf - *(uint16_t *)node->value; break; 
 		case LNF_UINT8:  res = *(uint8_t *)&buf - *(uint8_t *)node->value; break;
 		case LNF_DOUBLE: res = *(double *)&buf - *(double *)node->value; break;
-		case STRING: res = strcmp(&buf, node->value); break;
-		default: res = memcmp(&buf, node->value, node->vsize); break;
+		case STRING: res = strcmp((char *)&buf, node->value); break;
+		default: res = memcmp(buf, node->value, node->vsize); break;
 	}
 
 	/* simple comparsion */

@@ -216,6 +216,10 @@ typedef void lnf_mem_t;
 
 /*! 
 \ingroup error 
+\brief  Get error message of last error. 
+
+Fills error buf with mesage of the last error. The error 
+buffer is only set when a function returns LNF_ERR_OTHER_MSG. 
 
 \param buf	 	buffer where the message will be copied 
 \param buflen	available space in the buffer 

@@ -3,7 +3,7 @@
 %option noyywrap 
 
 digit 	[0-9]
-letter	[A-Za-z]
+letter	[A-Za-z.:]
 ws		[ \t]
 
 
