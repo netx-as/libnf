@@ -24,7 +24,7 @@ Libnf interface for perl (Net::NfDump package) available via cpan:
 INSTALLATION FROM TARBALL 
 ===============================================
 
-1. Download linf tarball from http://libnf.net/packages/
+1. Download libnf tarball from http://libnf.net/packages/
 
 	# wget http://libnf.net/packages/libnf-x.xx.tar.gz
 
@@ -41,7 +41,7 @@ INSTALLATION FROM TARBALL
 
 	# make && make install 
    
-5. Look et the examples directory how to use libnf 
+5. Look at the examples directory how to use libnf 
 
 
 INSTALLATION FROM GIT REPOSITORY
@@ -51,7 +51,7 @@ INSTALLATION FROM GIT REPOSITORY
 
 	# git clone https://github.com/VUTBR/nf-tools
 
-2. Go into libnf source direcoty 
+2. Go into libnf source directory 
 
 	# cd nf-tools/libnf/c
 
