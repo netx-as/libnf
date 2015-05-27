@@ -967,7 +967,7 @@ static int inline lnf_field_fset_EMPTY_(master_record_t *m, void *p, bit_array_t
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_DURATION(master_record_t *m, void *p, bit_array_t *e) { 
-	*((double *)p) = LNF_DURATION;
+	*((uint64_t *)p) = LNF_DURATION;
 	return LNF_OK;
 }
 
@@ -1462,8 +1462,8 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  Calculated items
 // pod:  =====================
 	[LNF_FLD_CALC_DURATION] = {
-		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
-		"duration",	"Flow duration",
+		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		"duration",	"Flow duration (in miliseconds)",
 		lnf_field_fget_CALC_DURATION,
 		lnf_field_fset_EMPTY_},
 

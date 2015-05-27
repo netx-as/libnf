@@ -10,6 +10,12 @@
 * and then is included into basic libnf documentation 
 */
 
+#include "config.h"
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <nffile.h>
@@ -33,11 +39,6 @@
 #define HAVE_HTONLL 1
 #endif
 
-#ifdef LNF_EXPERIMENTAL
-//#include <lnf_filter.h>
-#endif
-
-
 /* list of maps used in file taht we create */
 typedef struct lnf_map_list_s {
 	bit_array_t				 bit_array;
@@ -50,12 +51,12 @@ typedef struct lnf_map_list_s {
 /* structure representing a filter */
 typedef struct lnf_filter_s {
 	FilterEngine_data_t	*engine;
+	int					v2filter; /* is V2 - libnf only fiter */
 
-#ifdef LNF_EXPERIMENTAL
 	/* structures for new filter */
 	//lnf_filter_node_t	*root;
 	void				*root;
-#endif
+
 } lnf_filter_t;
 
 

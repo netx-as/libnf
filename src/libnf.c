@@ -819,9 +819,8 @@ int lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 
 /* initialize filter */
 /* returns LNF_OK or LNF_ERR_FILTER */
-#ifndef LNF_EXPERIMENTAL
 /* there is a new code for lnf_filter, however it is experimental so far */
-int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
+int lnf_filter_init_v1(lnf_filter_t **filterp, char *expr) {
 
 	lnf_filter_t *filter;	
 
@@ -829,7 +828,9 @@ int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
 
 	if (filter == NULL) {
 		return LNF_ERR_NOMEM;
-	}	
+	}
+
+	filter->v2filter = 0;	/* nitialised as V1 - nfdump filter */	
 
 	filter->engine = CompileFilter(expr);
 
@@ -843,25 +844,12 @@ int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
 	return LNF_OK;
 }
 
-/* matches the record agains filter */
-/* returns 1 - record was matched, 0 - record wasn't matched */
-int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
-
-	filter->engine->nfrecord = (uint64_t *)rec->master_record;
-
-	return  (*filter->engine->FilterEngine)(filter->engine);
+/* call the proper version of the filter initialisation */
+/* So far we use V1 - original nfdump filter. In future */
+/* it will be replaced by new code V2 - libnf filter */
+int lnf_filter_init(lnf_filter_t **filterp, char *expr) {
+	return lnf_filter_init_v1(filterp, expr);
 }
-
-void lnf_filter_free(lnf_filter_t *filter) {
-
-	/* TODO nfdump do not have code to release filter :-( */
-	if (filter == NULL) {
-		return;
-	}
-
-	free(filter);
-}
-#endif /* LNF_EXPERIMENTAL */
 
 /************************************************************/
 /* Fields        */
@@ -883,6 +871,13 @@ int lnf_fld_type(int field) {
 /* Errrr handling - needs to be updated for threades        */
 /************************************************************/
 
+/* get error string */
+void lnf_error(const char *buf, int buflen) {
+
+	strncpy((char *)buf, error_str, buflen - 1);
+
+}
+
 /* set error string */
 void lnf_seterror(char *format, ...) {
 va_list args;
@@ -890,6 +885,7 @@ va_list args;
 	va_start(args, format);
 	vsnprintf(error_str, LNF_MAX_STRING - 1, format, args);
 	va_end(args);
+
 }
 
 /* compatibility with nfdump */
@@ -905,9 +901,3 @@ va_list args;
 void LogInfo(char *format, ...) { }
 void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
 
-/* get error string */
-void lnf_error(const char *buf, int buflen) {
-
-	strncpy((char *)buf, error_str, buflen - 1);
-
-}

@@ -51,16 +51,6 @@ else
 fi
 
 
-AC_ARG_ENABLE(experimental,
-[  --enable-experimental    enable experimental part of the code; default is NO])
-if test "${enable_experimental}" = "yes" ; then
-	CFLAGS="$CFLAGS -DLNF_EXPERIMENTAL"
-	AM_CONDITIONAL(LNF_EXPERIMENTAL, true)
-else
-	AM_CONDITIONAL(LNF_EXPERIMENTAL, false)
-fi
-
-
 CFLAGS="$CFLAGS -DNSEL"
 
 AC_PROG_YACC
@@ -232,10 +222,6 @@ echo "Thread support enabled."
 else 
 echo ""
 echo "Single thread version."
-fi
-
-if test "${enable_experimental}" = "yes" ; then
-echo "Experimental code enabled."
 fi
 
 echo ""

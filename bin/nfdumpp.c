@@ -14,7 +14,8 @@
 #include "screen.h"
 #include "progress.h"
 
-#define MAX_THREADS 50
+#define MAX_THREADS 50				/* maximum number of threads */
+#define NUM_THREADS_FACTOR 0.7		/* defalt number of threads = real number of thread * THREADS_FACTOR */
 #define LLUI long long unsigned int
 #define MAX_FILTER_LEN 1024
 
@@ -150,7 +151,7 @@ int main(int argc, char **argv) {
 
 	flist_init(&flist);
 
-	numthreads = get_cpu_cores();
+	numthreads = get_cpu_cores() * NUM_THREADS_FACTOR;
 
 	/* initalise one instance of memory heap (share by all threads) */
 	memp = NULL;

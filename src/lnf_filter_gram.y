@@ -1,14 +1,16 @@
 
+%defines
 %pure-parser
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner }
 %parse-param { lnf_filter_t *filter }
+%name-prefix "v2_"
 
 %{
 	#include <stdio.h>
-	#include "lnf_filter.h"
 	#include "libnf_internal.h"
 	#include "libnf.h"
+	#include "lnf_filter.h"
 
 	#define YY_EXTRA_TYPE lnf_filter_t
 

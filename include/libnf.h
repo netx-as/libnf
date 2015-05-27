@@ -379,11 +379,69 @@ void lnf_rec_free(lnf_rec_t *rec);
 
 Compile filter expression, initialise filter object. 
 
+Currently libnf supports 2 version of filter code. The original one 
+that is embeden in the nfdump source and the new (experimental) one 
+that is independend on the original nfdump. 
+
+The reason for create a new filter code is that the original code 
+contains a lot of memory leaks (which are not problem for 
+nfdump command line, bud big issue in non-stop running 
+applications) and is alsmos impossible to use it in the mutithread 
+enviroment. Another disadvantage is that the filter have hardcoded 
+fileds directly into filters grammar. The advantage of this filter 
+that behaviour is just the same as the nfdump's filter. 
+
+The new filter code is designed from the scratch does propper 
+memmory clean ups and designed to be used in the multithread 
+enviroment. The news code is also desiggned to be more flexibille 
+what measn that adding new items (fileds) into libnf code do not 
+require updating of filter code. The disadvantage of this code 
+is that do not support all functionality of the old (nfdump) 
+filter so far. 
+
+The old (nfdump) filter code is used when lnf_filter_t object is 
+initialised with lnf_filter_init_v1 and the new (libf) filter code 
+is used when the lnf_filter_t object is initialised with 
+lnf_filter_init_v2 fnction. Remaining function (lnf_filter_match and 
+lnf_filter_free) are same for both version of the filter. 
+
+The function lnf_filter_init actually call the old (nfdump) 
+filter initialisation function (lnf_filter_init_v1). In 
+future when the new filter code will have all features 
+implemented the lnf_filter_init will call lnf_filter_init_v2. 
+
+Examples: 
+   examples/lnf_ex02_reader.c - basic filter operations
+   examples/lnf_ex07_filter.c - using both types of filter in one program
+
+
 \param **filterp 	double pointer to lnf_filter_t structure 
 \param *expr	 	pointer to string representing filter expression
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_FILTER
 */
 int	lnf_filter_init(lnf_filter_t **filterp, char *expr);
+
+/*!	\ingroup filter
+\brief Initialise empty filter object - legacy filter using nfdump code
+
+See comment in lnf_filter_init function for more information.
+
+\param **filterp 	double pointer to lnf_filter_t structure 
+\param *expr	 	pointer to string representing filter expression
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_FILTER
+*/
+int	lnf_filter_init_v1(lnf_filter_t **filterp, char *expr);
+
+/*!	\ingroup filter
+\brief Initialise empty filter object - new filter using libnf code
+
+See comment in lnf_filter_init function for more information.
+
+\param **filterp 	double pointer to lnf_filter_t structure 
+\param *expr	 	pointer to string representing filter expression
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_FILTER, LNF_ERR_OTHER_MSG
+*/
+int	lnf_filter_init_v2(lnf_filter_t **filterp, char *expr);
 
 /*!	\ingroup filter
 \brief Match record object against filter.
@@ -411,6 +469,17 @@ void lnf_filter_free(lnf_filter_t *filter);
 \brief Initialise empty memheap object.
 
 Initialise empty memheap object and allocate all nescessary resources. 
+Memheap is the set of functions that allows to aggregate and sort 
+netflow data. The uses of the lnf_mem is usually done in five steps: 
+
+1. Initialise lnf_mem_t structure 
+2. Set key, aggregation and sort key via lnf_mem_fadd function 
+3. Fill internal structures with input records via lnf_mem_write
+4. Read aggregated and sorted result via lnf_mem_read 
+5. Release lnf_mem_t structure and all relevan resources. 
+
+Examples:
+	examples/lnf_ex03_aggreg.c - simple aggregation example 
 
 \param **lnf_mem 	double pointer to lnf_mem_t structure 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
@@ -433,13 +502,20 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 /*!	\ingroup memheap
 \brief Set aggregation and sort option for memheap.
 
-TO BE REDESIGNED 
+Set fields for lnf_mem_t to be used in aggregation process. 
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
-\param field 	xxx 
-\param flags 	xxx 
-\param numbits 	xxx 
-\param numbits6 	xxx 
+\param field 		the id if the field that the options are set on 
+\param flags 		aggregation and sort flags for field 
+	LNF_AGGR_KEY	use the field as the aggregation key
+	LNF_AGGR_MIN	use the minimum value (usefull for LNF_FLD_FIRST)
+	LNF_AGGR_MAX	use tha max value (usefull for LNF_FLD_LAST)
+	LNF_AGGR_SUM	make summary of all aggregated values
+	LNF_AGGR_OR		make OR operation of all values  (usefull for LNF_TCP_FLAGS)
+	LNF_SORT_ASC	sort the result by tis in ascending order
+	LNF_SORT_DESC	sort the result by tis in descending order
+\param numbits		in case the field type is LNF_ADDR use only firt numbits as the aggregation key 
+\param numbits6 	same as numbits but the number of bits applied on IPv6 address 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
 */
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6);

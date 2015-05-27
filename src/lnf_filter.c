@@ -1,12 +1,43 @@
 
 #include "config.h"
 
+#include <stdio.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <errno.h>
+#include <time.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/resource.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
-#include <arpa/inet.h>
-#include <string.h>
+#include "nffile.h"
+#include "nfx.h"
+#include "nfnet.h"
+#include "bookkeeper.h"
+#include "nfxstat.h"
+#include "nf_common.h"
+#include "rbtree.h"
+#include "nftree.h"
+#include "nfprof.h"
+#include "nfdump.h"
+#include "nflowcache.h"
+#include "nfstat.h"
+#include "nfexport.h"
+#include "ipconv.h"
+#include "flist.h"
+#include "util.h"
 
 #include "lnf_filter.h"
 #include "libnf_internal.h"
@@ -101,7 +132,7 @@ lnf_filter_node_t* lnf_filter_new_leaf(yyscan_t scanner, char *fieldstr, lnf_ope
 	if ( fieldstr != NULL ) {
 		field = lnf_fld_parse(fieldstr, NULL, NULL); 
 		if (field == LNF_FLD_ZERO_) {
-			lnf_seterror("Unknown or unsupported field %d", fieldstr); 
+			lnf_seterror("Unknown or unsupported field %s", fieldstr); 
 			return NULL;
 		}
 	}
@@ -173,6 +204,8 @@ int lnf_filter_eval(lnf_filter_node_t *node, lnf_rec_t *rec) {
 		return -1;
 	}
 
+	left = 0;
+
 	/* go deeper into tree */
 	if (node->left != NULL ) { 
 		left = lnf_filter_eval(node->left, rec); 
@@ -222,12 +255,58 @@ int lnf_filter_eval(lnf_filter_node_t *node, lnf_rec_t *rec) {
 }
 
 
+/* initialise filter */
+int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
+
+    lnf_filter_t *filter;
+	yyscan_t scanner;
+	YY_BUFFER_STATE buf;
+	int parseret;
+
+    filter = malloc(sizeof(lnf_filter_t));
+
+    if (filter == NULL) {
+        return LNF_ERR_NOMEM;
+    }
+
+	filter->v2filter = 1;	/* nitialised as V2 - lnf pure filter */
+
+	filter->root = NULL;
+
+	v2_lex_init(&scanner);
+	printf("EXR: %s\n", expr);
+    buf = v2__scan_string(expr, scanner);
+    parseret = v2_parse(scanner, filter);
+
+    if (buf != NULL) {
+        v2__delete_buffer(buf, scanner);
+    }
+
+	v2_lex_destroy(scanner);
+
+	printf("FILTER R: %d %p\n", parseret, filter->root);
+	/* error in parsing */
+	if (parseret != 0) {
+		free(filter);
+		return LNF_ERR_OTHER_MSG;
+	}
+
+	*filterp = filter;
+
+    return LNF_OK;
+}
+
 /* matches the record agains filter */
 /* returns 1 - record was matched, 0 - record wasn't matched */
 int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
 
-	return lnf_filter_eval(filter->root, rec);
-
+    /* call proper version of match function depends on initialised filter version */
+    if (filter->v2filter) {
+		return lnf_filter_eval(filter->root, rec);
+    } else {
+    	filter->engine->nfrecord = (uint64_t *)rec->master_record;
+        return  (*filter->engine->FilterEngine)(filter->engine);
+    }
 }
 
 /* release all resources allocated by filter */
@@ -236,6 +315,9 @@ void lnf_filter_free(lnf_filter_t *filter) {
 	if (filter == NULL) {
 		return;
 	}
+
+	/* cleanup V2 filter */
+
 
 	free(filter);
 }
