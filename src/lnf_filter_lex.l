@@ -34,22 +34,18 @@ not|"!"			{ return NOT; }
 ")"				{ return RP; }
 
 "src"{ws}+"ip"	{
-					printf("srcip: %s\n", yytext);
 					strncpy(yylval->string, "srcip", LNF_MAX_STRING - 1);
 					return STRING;
 				}
 "src"{ws}+"net"	{
-					printf("srcnet: %s\n", yytext);
 					strncpy(yylval->string, "srcip", LNF_MAX_STRING - 1);
 					return STRING;
 				}
 "src"{ws}+"port" {
-					printf("srcport: %s\n", yytext);
 					strncpy(yylval->string, "srcport", LNF_MAX_STRING - 1);
 					return STRING;
 				}
 ({letter}|{digit})+	{
-					printf("retezec: %s\n", yytext);
 					strncpy(yylval->string, yytext, LNF_MAX_STRING - 1);
 					return STRING;
 				}

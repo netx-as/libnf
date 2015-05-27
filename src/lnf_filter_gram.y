@@ -36,8 +36,8 @@
 %%
 
 filter:
-	filter expr 	 	{ printf("PROGRAM:\n"); filter->root = $2; }
-	|
+	expr 			 	{ filter->root = $1; }
+	|					{ filter->root = NULL; }
 	;
 
 expr:

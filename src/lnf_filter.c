@@ -274,7 +274,6 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 	filter->root = NULL;
 
 	v2_lex_init(&scanner);
-	printf("EXR: %s\n", expr);
     buf = v2__scan_string(expr, scanner);
     parseret = v2_parse(scanner, filter);
 
@@ -284,7 +283,6 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 
 	v2_lex_destroy(scanner);
 
-	printf("FILTER R: %d %p\n", parseret, filter->root);
 	/* error in parsing */
 	if (parseret != 0) {
 		free(filter);
