@@ -2,16 +2,17 @@ Revision history for C and Perl extension of nfdump.
 
 1.08 2015-05-27
 	- c: doc update 
-	- c: EXPERIMENTAL very eraly sateg of new filter code independend of the 
-		 original nfdump filter code. New function lnf_filter_init_v1 or 
-		 lnf_filter_init_v2 to initialise either old (nfdump) or new (libnf) 
-		 filter. By default lnf_filter_init calls the old one filter. 
+	- c: EXPERIMENTAL very early stage of new filter code independent of the 
+	     original nfdump filter code. New function lnf_filter_init_v1 or 
+	     lnf_filter_init_v2 is used to initialize either old (nfdump) or 
+	     new (libnf) filter. By default lnf_filter_init calls the old 
+	     one filter. 
 	- c: new error code LNF_ERR_OTHER_MSG for errors where lnf_error buffer is set 
 	- c: _LIBNF_H macro added in the libnf.h file 
 	- c: new function lnf_mem_read_reset - set cursor to first record 
 	- c: nfdumpp uses by default only 70% of available threads 
 	- c: nfdumpp checks -O option 
-	- c: removed bug - libnf fails after attempt to read emprty lnf_mem 
+	- c: removed bug - libnf fails after attempt to read empty lnf_mem 
 	- c: removed memory leak in original nfdump in LZO 
 	- c: initial number of buckets in hash table increased to 500000
 	- c: new functions lnf_mem_read_raw, lnf_mem_write_raw added

@@ -20,6 +20,7 @@ ws		[ \t]
 //	int yyparse(yyscan_t yyscanner, lnf_filter_t *filter);
 //	int yylex(YYSTYPE *yylval, void *scanner);
 //	int yylineno;
+	void v2_error(yyscan_t yyscanner, lnf_filter_t *filter, char *s);
 %}
 
 %%

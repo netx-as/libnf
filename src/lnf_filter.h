@@ -4,7 +4,6 @@
 
 #include <libnf_internal.h>
 #include <libnf.h>
-#include "lnf_filter_gram.h"
 
 /* supported operations */
 typedef enum {
@@ -46,7 +45,7 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 
 YY_BUFFER_STATE lnf_filter_yy_scan_string(const char *str, yyscan_t yyscanner);
 int lnf_filter_yyparse(yyscan_t yyscanner, lnf_filter_t *filter);
-int lnf_filter_yylex(YYSTYPE *yylval, void *scanner);
+//int lnf_filter_yylex(YYSTYPE *yylval, void *scanner);
 
 
 

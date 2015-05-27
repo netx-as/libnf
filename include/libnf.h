@@ -131,7 +131,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_SERVER_NW_DELAY_USEC	0x3f 
 #define LNF_FLD_APPL_LATENCY_USEC		0x40 
 
-/* compudted and extra fields */
+/* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */
 #define LNF_FLD_CALC_BPS		 0xA1 			/* computed : Bytes per second  */
 #define LNF_FLD_CALC_PPS		 0xA2 			/* computed : packets per second  */
@@ -151,7 +151,7 @@ typedef struct lnf_field_s {
 
 
 #ifndef _HAVE_LIBNF_STRUCT_H_ 
-/* dummy portable handles - the comlete definition is */
+/* dummy portable handles - the complete definition is */
 /* available at libnf_struct.h in lnf sources */
 typedef void lnf_file_t;	
 typedef void lnf_rec_t;		
@@ -171,11 +171,11 @@ typedef void lnf_mem_t;
 
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
 #define LNF_ERR_UNKREC		-0x0002	/* weak error: unknown record type */
-#define LNF_ERR_COMPAT15	-0x0004	/* weak error: old blok type suppoerted by nfdump 1.5 */
+#define LNF_ERR_COMPAT15	-0x0004	/* weak error: old block type supported by nfdump 1.5 */
 #define LNF_ERR_WEAK		-0x000F	/* all weak errors (errors to skip) */
 
 #define LNF_ERR_READ		-0x0010	/* read error (IO) */
-#define LNF_ERR_CORRUPT		-0x0020	/* coruprted file */
+#define LNF_ERR_CORRUPT		-0x0020	/* corrupted file */
 #define LNF_ERR_EXTMAPB		-0x0040	/* too big extension map */
 #define LNF_ERR_EXTMAPM		-0x0080	/* missing extension map */
 #define LNF_ERR_WRITE		-0x00F0	/* write error */
@@ -210,7 +210,7 @@ typedef void lnf_mem_t;
 	\defgroup file Basic file operations (red/create/write)
 	\defgroup record  Record operations, fields extraction
 	\defgroup filter  Filter operations
-	\defgroup memheap In memmory aggregation and sorting module
+	\defgroup memheap In memory aggregation and sorting module
 	\defgroup error Error handling 
 */
 
@@ -218,7 +218,7 @@ typedef void lnf_mem_t;
 \ingroup error 
 \brief  Get error message of last error. 
 
-Fills error buf with mesage of the last error. The error 
+Fills error buf with message of the last error. The error 
 buffer is only set when a function returns LNF_ERR_OTHER_MSG. 
 
 \param buf	 	buffer where the message will be copied 
@@ -235,15 +235,15 @@ void lnf_error(const char *buf, int buflen);
 
 	This module provides basic operations on file. The file can 
 	be open in either read or write mode. In write mode the 
-	new one is created and if the file exists it is ovewritten. 
+	new one is created and if the file exists it is overwritten. 
 */
 
 /*! \ingroup file 
 
-\brief initialise lnf_filep structure and opens file in read or write mode
+\brief initialize lnf_filep structure and opens file in read or write mode
 
 After file is open the lnf_read/lnf_write operations can read/write records 
-strcuture (see record operations).
+structure (see record operations).
 
 \param **lnf_filep 	double pointer to lnf_filep_t structure 
 \param *filename 	path and file name to open 
@@ -252,7 +252,7 @@ strcuture (see record operations).
 	LNF_WRITE - open file for for writing  \n
 	LNF_ANON - set anon flag on the file (only for write mode) \n
 	LNF_COMP - set the output file to be compressed \n
-	LNF_WEAKERR - when reading reports also weak errors (unknow block, ...) \n
+	LNF_WEAKERR - when reading reports also weak errors (unknown block, ...) \n
 \param *ident 		file ident for newly created files, can be set to NULL
 \return 			LNF_OK, LNF_ERR_NOMEM
 */
@@ -262,10 +262,10 @@ int lnf_open(lnf_file_t **lnf_filep, const char *filename, unsigned int flags, c
 /*!	\ingroup file 
 \brief 	Read next record from file 
 
-Read nex record from file. The record is stored in lnf_rec object. 
+Read next record from file. The record is stored in lnf_rec object. 
 
 \param *lnf_file 	pointer to lnf_filep_t structure 
-\param *lnf_rec 	pointer to initialised record structure 
+\param *lnf_rec 	pointer to initialized record structure 
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
 */
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
@@ -276,7 +276,7 @@ int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 Write record to file. The record is stored in lnf_rec object.
 
 \param *lnf_file 	pointer to lnf_filep_t structure 
-\param *lnf_rec 	pointer to initialised record structure 
+\param *lnf_rec 	pointer to initialized record structure 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_WRITE
 */
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
@@ -284,7 +284,7 @@ int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 /*!	\ingroup file 
 \brief Get file info.
 
-Get datiled information and statistics related to the open file. 
+Get detailed information and statistics related to the open file. 
 
 \param *lnf_file 	pointer to lnf_filep_t structure 
 \param info 		info required from file - content returned in *data\n
@@ -303,14 +303,14 @@ Get datiled information and statistics related to the open file.
 	LNF_INFO_BYTES - summary of stored bytes (uint64_t) \n
 	LNF_INFO_PACKETS - summary of stored packets (uint64_t) \n
 	LNF_INFO_PROC_BLOCKS - number of processed blocks (uint64_t) \n
-\param *data 		pointer initialised and zeroed data structure
+\param *data 		pointer initialized and zeroed data structure
 \param size			maximum size allocated for *data structure
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
 */
 int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size);
 
 /*!	\ingroup file 
-\brief Close file and release resorces.
+\brief Close file and release resources.
 
 Close previously open file, flush buffer and release all relevant resources. 
 
@@ -320,9 +320,9 @@ void lnf_close(lnf_file_t *lnf_file);
 
 
 /*!	\ingroup record
-\brief Initialise empty record object.
+\brief Initialize empty record object.
 
-Initialise empty record object and allocate all nescessary resources. 
+Initialize empty record object and allocate all necessary resources. 
 
 \param **recp	 	double pointer to lnf_rec_t structure 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
@@ -330,7 +330,7 @@ Initialise empty record object and allocate all nescessary resources.
 int lnf_rec_init(lnf_rec_t **recp);
 
 /*!	\ingroup record
-\brief Zero all fields in initialised record object.
+\brief Zero all fields in initialized record object.
 
 \param *rec 	pointer to lnf_rec_t structure 
 */
@@ -360,13 +360,13 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void *data);
 
 \param *rec 		pointer to lnf_rec_t structure 
 \param field 		field ID - see "supported fields" for supported fields 
-\param *data 		pointer to the data buffer (must be initialised before use)
+\param *data 		pointer to the data buffer (must be initialized before use)
 \return 			LNF_OK, LNF_ERR_UNKFLD
 */
 int lnf_rec_fget(lnf_rec_t *rec, int field, void *data);
 
 /*!	\ingroup record
-\brief Close file and release resorces.
+\brief Close file and release resources.
 
 Close previously record object and release all relevant resources. 
 
@@ -375,38 +375,38 @@ Close previously record object and release all relevant resources.
 void lnf_rec_free(lnf_rec_t *rec);
 
 /*!	\ingroup filter
-\brief Initialise empty filter object.
+\brief Initialize empty filter object.
 
-Compile filter expression, initialise filter object. 
+Compile filter expression, initialize filter object. 
 
 Currently libnf supports 2 version of filter code. The original one 
-that is embeden in the nfdump source and the new (experimental) one 
-that is independend on the original nfdump. 
+that is embedded in the nfdump source and the new (experimental) one 
+that is independent on the original nfdump. 
 
 The reason for create a new filter code is that the original code 
 contains a lot of memory leaks (which are not problem for 
 nfdump command line, bud big issue in non-stop running 
-applications) and is alsmos impossible to use it in the mutithread 
-enviroment. Another disadvantage is that the filter have hardcoded 
-fileds directly into filters grammar. The advantage of this filter 
-that behaviour is just the same as the nfdump's filter. 
+applications) and is almost impossible to use it in the mutithread 
+environment. Another disadvantage is that the filter have hard-coded 
+fields directly into filters grammar. The advantage of this filter 
+that behavior is just the same as the nfdump's filter. 
 
-The new filter code is designed from the scratch does propper 
-memmory clean ups and designed to be used in the multithread 
-enviroment. The news code is also desiggned to be more flexibille 
-what measn that adding new items (fileds) into libnf code do not 
+The new filter code is designed from the scratch does proper 
+memory clean ups and designed to be used in the mutithread 
+environment. The news code is also designed to be more flexible 
+what means that adding new items (fields) into libnf code do not 
 require updating of filter code. The disadvantage of this code 
 is that do not support all functionality of the old (nfdump) 
 filter so far. 
 
 The old (nfdump) filter code is used when lnf_filter_t object is 
-initialised with lnf_filter_init_v1 and the new (libf) filter code 
-is used when the lnf_filter_t object is initialised with 
-lnf_filter_init_v2 fnction. Remaining function (lnf_filter_match and 
+initialized with lnf_filter_init_v1 and the new (libnf) filter code 
+is used when the lnf_filter_t object is initialized with 
+lnf_filter_init_v2 function. Remaining function (lnf_filter_match and 
 lnf_filter_free) are same for both version of the filter. 
 
 The function lnf_filter_init actually call the old (nfdump) 
-filter initialisation function (lnf_filter_init_v1). In 
+filter initialization function (lnf_filter_init_v1). In 
 future when the new filter code will have all features 
 implemented the lnf_filter_init will call lnf_filter_init_v2. 
 
@@ -422,7 +422,7 @@ Examples:
 int	lnf_filter_init(lnf_filter_t **filterp, char *expr);
 
 /*!	\ingroup filter
-\brief Initialise empty filter object - legacy filter using nfdump code
+\brief Initialize empty filter object - legacy filter using nfdump code
 
 See comment in lnf_filter_init function for more information.
 
@@ -433,7 +433,7 @@ See comment in lnf_filter_init function for more information.
 int	lnf_filter_init_v1(lnf_filter_t **filterp, char *expr);
 
 /*!	\ingroup filter
-\brief Initialise empty filter object - new filter using libnf code
+\brief Initialize empty filter object - new filter using libnf code
 
 See comment in lnf_filter_init function for more information.
 
@@ -447,7 +447,7 @@ int	lnf_filter_init_v2(lnf_filter_t **filterp, char *expr);
 \brief Match record object against filter.
 
 Match the record object. If the record object matched the 
-filter syntaxt the return value is 1 else the return value is 0.
+filter syntax the return value is 1 else the return value is 0.
 
 \param *filter		double pointer to lnf_filter_t structure 
 \param *rec		 	pointer to record object 
@@ -456,7 +456,7 @@ filter syntaxt the return value is 1 else the return value is 0.
 int	lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec);
 
 /*!	\ingroup filter
-\brief Close filter and release resorces.
+\brief Close filter and release resources.
 
 \param *filter	pointer to lnf_filter_t structure 
 */
@@ -466,17 +466,17 @@ void lnf_filter_free(lnf_filter_t *filter);
 #define LNF_MAX_THREADS 128		/* maximum threads */
 
 /*!	\ingroup memheap
-\brief Initialise empty memheap object.
+\brief Initialize empty memheap object.
 
-Initialise empty memheap object and allocate all nescessary resources. 
+Initialize empty memheap object and allocate all necessary resources. 
 Memheap is the set of functions that allows to aggregate and sort 
-netflow data. The uses of the lnf_mem is usually done in five steps: 
+records data. The uses of the lnf_mem is usually done in five steps: 
 
-1. Initialise lnf_mem_t structure 
+1. Initialize lnf_mem_t structure 
 2. Set key, aggregation and sort key via lnf_mem_fadd function 
 3. Fill internal structures with input records via lnf_mem_write
 4. Read aggregated and sorted result via lnf_mem_read 
-5. Release lnf_mem_t structure and all relevan resources. 
+5. Release lnf_mem_t structure and all relevant resources. 
 
 Examples:
 	examples/lnf_ex03_aggreg.c - simple aggregation example 
@@ -508,13 +508,13 @@ Set fields for lnf_mem_t to be used in aggregation process.
 \param field 		the id if the field that the options are set on 
 \param flags 		aggregation and sort flags for field 
 	LNF_AGGR_KEY	use the field as the aggregation key
-	LNF_AGGR_MIN	use the minimum value (usefull for LNF_FLD_FIRST)
-	LNF_AGGR_MAX	use tha max value (usefull for LNF_FLD_LAST)
+	LNF_AGGR_MIN	use the minimum value (useful for LNF_FLD_FIRST)
+	LNF_AGGR_MAX	use the max value (useful for LNF_FLD_LAST)
 	LNF_AGGR_SUM	make summary of all aggregated values
-	LNF_AGGR_OR		make OR operation of all values  (usefull for LNF_TCP_FLAGS)
-	LNF_SORT_ASC	sort the result by tis in ascending order
-	LNF_SORT_DESC	sort the result by tis in descending order
-\param numbits		in case the field type is LNF_ADDR use only firt numbits as the aggregation key 
+	LNF_AGGR_OR		make OR operation of all values  (useful for LNF_TCP_FLAGS)
+	LNF_SORT_ASC	sort the result by the in ascending order
+	LNF_SORT_DESC	sort the result by the in descending order
+\param numbits		in case the field type is LNF_ADDR use only first numbits as the aggregation key 
 \param numbits6 	same as numbits but the number of bits applied on IPv6 address 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
 */
@@ -539,7 +539,7 @@ int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int flags);
 \brief Write record to memheap object.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
-\param *rec 		pointer to initialised record structure 
+\param *rec 		pointer to initialized record structure 
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
 */
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
@@ -548,7 +548,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 \brief Write raw data obtained from lnf_mem_read_raw to memheap object.
 
 The function stores buffer data directly into lnf_mem structure. The 
-data can be obtained from differend lnf_mem instance by lnf_mem_read_raw
+data can be obtained from different lnf_mem instance by lnf_mem_read_raw
 function. See lnf_mem_read_raw for more information.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
@@ -561,7 +561,7 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize);
 /*!	\ingroup memheap
 \brief Merge data from multiple threads into one thread.
 
-This functiom merge data from all threads into one structure.
+This function merge data from all threads into one structure.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
@@ -572,7 +572,7 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 \brief 	Read next record from memheap
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
-\param *rec 		pointer to initialised record structure 
+\param *rec 		pointer to initialized record structure 
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
 */
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
@@ -580,14 +580,14 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 /*!	\ingroup memheap
 \brief 	Read next record from memheap in binary format 
 
-The function reads data from internal lnf_mem structure in binnary format. 
+The function reads data from internal lnf_mem structure in binary format. 
 The data obtained by this function shouldn't be processed 
 in any way except of lnf_mem_write_raw function. 
 
 For the maximum size of buffer the macro LNF_MAX_RAW_LEN can be used. See
 to examples/lnf_ex05_memtrans.c for example of use lnf_mem_readi/write_raw.
 
-The data obrained by lnf_mem_read are platform dependend! 
+The data obtained by lnf_mem_read are platform dependent! 
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 \param *buff 		buffer where data will be filled in - there must be enough space for data
@@ -598,15 +598,15 @@ The data obrained by lnf_mem_read are platform dependend!
 int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize);
 
 /*!	\ingroup memheap
-\brief 	Re-set the position of the internall cursor beggining
+\brief 	Re-set the position of the internal cursor to the beginning
 
 This function resets internal lnf_mem_read and lnf_mem_read row cursor to first
-positon. 
+position. 
 */
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem);
 
 /*!	\ingroup memheap
-\brief Close memheap and release resorces.
+\brief Close memheap and release resources.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 */
