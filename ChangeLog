@@ -1,5 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
+1.09 2015-05-28
+	- perl: removed memory leak (Bug #104294)
+	- perl: improved test 
+
 1.08 2015-05-27
 	- c: doc update 
 	- c: EXPERIMENTAL very early stage of new filter code independent of the 
