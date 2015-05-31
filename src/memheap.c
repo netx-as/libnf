@@ -86,6 +86,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 
 	//lnf_mem->hash_ptr = NULL;
 	lnf_mem->sorted = 0;
+	lnf_mem->statistics_mode = 0;
 	lnf_mem->numthreads = 0;
 	lnf_mem->read_index = 0;
 #ifdef LNF_THREADS
@@ -294,6 +295,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		fld.sort_flag = flags & LNF_SORT_FLAGS;
 	}
 
+
 	/* select aggregation func for item */
 	fld.aggr_func = lnf_mem_aggr_EMPTY;
 	switch (lnf_fld_type(fld.field)) {
@@ -338,6 +340,10 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			lnf_mem->sort_field = field;
 			lnf_mem->sort_offset = offset;
 			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY | (flags & LNF_SORT_FLAGS);
+		}
+		/* ser statistics mode for lnf_mem if there is pair field */
+		if (__lnf_fld_pair(field, 1) != LNF_FLD_ZERO_ && __lnf_fld_pair(field, 2) != LNF_FLD_ZERO_) {
+			lnf_mem->statistics_mode = 1;
 		}
 	} else { /* add to value list */
 		if ( lnf_filedlist_add_or_upd(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
@@ -385,25 +391,34 @@ static void inline lnf_clear_bits_v6(uint64_t *buf, int from) {
 }
 
 /* fill buffer according to the field list */
-int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf) {
+/* pairset 0 - do regular aggregation, 1 - use first pair id, 2 - use seconf pair id */
+int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf, int pairset) {
 
 	int keysize = 0;
+	int field;
 
 	while (fld != NULL) {
 		char *ckb = (char *)buf + fld->offset;
 
+		/* detect whether we process aggregation in pair mode - means have pair fields */
+		if (pairset != 0) {
+			/* get propper field id depend on field set -  1 - first field, 2 - second field */
+			field = __lnf_fld_pair(fld->field, pairset);
+		} else {
+			/* it is not pair field or we are not in pair mode -> choose as ordinary field */
+			field = fld->field;	
+		}
+
 		/* put contenf of the field to the buf + offset */
-		__lnf_rec_fget(rec, fld->field, ckb);
+		__lnf_rec_fget(rec, field, ckb);
 
 		/* clear numbits for IP address field */
 		/* ! address is always stored in network order */
 		if (fld->type == LNF_ADDR) {
 			if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)ckb)) {
 				lnf_clear_bits_v4((uint32_t *)&(((lnf_ip_t *)ckb)->data[3]), fld->numbits);
-				//lnf_clear_bits((char *)&(((lnf_ip_t *)ckb)->data[3]), sizeof(uint32_t), fld->numbits);
 			} else {
 				lnf_clear_bits_v6((uint64_t *)ckb, fld->numbits6);
-				//lnf_clear_bits(ckb, sizeof(lnf_ip_t), fld->numbits6);
 			}
 		}
 		keysize += fld->size;
@@ -557,13 +572,20 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize) {
 int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	int *id;
+	int pairset;
 	char keybuf[LNF_MAX_KEY_LEN]; 
 	char valbuf[LNF_MAX_VAL_LEN];
 	lnf_fastaggr_t *fa = (lnf_fastaggr_t *)valbuf;
 
+	/* test if we are in simpple aggregation or statistics mode (if we use pair item in key or not) */
+	if (lnf_mem->statistics_mode) {
+		pairset = 1;	/* set to first pair set */
+	}  else {
+		pairset = 0;	/* disable pair mode */
+	}
 
 	/* build key */
-	lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf);
+	lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf, pairset);
 
 	/* build values */
 	if (lnf_mem->fastaggr_mode == LNF_FAST_AGGR_BASIC) {
@@ -577,7 +599,7 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	//	lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf + sizeof(lnf_fastaggr_t));
 
 	} else {
-		lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf);
+		lnf_mem_fill_buf(lnf_mem->val_list, rec, valbuf, 0);	/* pair sets have no sence for values */
 	}
 
 #ifdef LNF_THREADS
@@ -608,6 +630,19 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	/* insert record */
 	if (hash_table_insert(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
 		return LNF_ERR_NOMEM;
+	}
+
+	/* insert record for pair set 2 if the statistics mode is enabled */
+	if (pairset != 0) {
+		pairset = 2;
+
+		/* build key for pairset 2 */
+		lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf, pairset);
+
+		/* insert record */
+		if (hash_table_insert(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
+			return LNF_ERR_NOMEM;
+		}
 	}
 
 	return LNF_OK;

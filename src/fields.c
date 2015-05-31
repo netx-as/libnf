@@ -1043,18 +1043,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_FIRST] = {
 		LNF_UINT64,	LNF_AGGR_MIN,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"first",	"Timestamp of the first packet seen (in miliseconds)",
 		lnf_field_fget_FIRST,
 		lnf_field_fset_FIRST },
 
 	[LNF_FLD_LAST] = {
 		LNF_UINT64,	LNF_AGGR_MAX,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"last",		"Timestamp of the last packet seen (in miliseconds)",
 		lnf_field_fget_LAST,
 		lnf_field_fset_LAST },
 
 	[LNF_FLD_RECEIVED] = {
 		LNF_UINT64,	LNF_AGGR_MAX,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"received",	"Timestamp regarding when the packet was received by collector",
 		lnf_field_fget_RECEIVED,
 		lnf_field_fset_RECEIVED },
@@ -1064,30 +1067,35 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_DOCTETS] = {
 		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"bytes",	"The number of bytes",
 		lnf_field_fget_DOCTETS,
 		lnf_field_fset_DOCTETS},
 
 	[LNF_FLD_DPKTS] = {
 		LNF_UINT64,			LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"pkts",		"The number of packets",
 		lnf_field_fget_DPKTS,
 		lnf_field_fset_DPKTS},
 
 	[LNF_FLD_OUT_BYTES] = {
 		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outbytes",	"The number of output bytes",
 		lnf_field_fget_OUT_BYTES,
 		lnf_field_fset_OUT_BYTES},
 
 	[LNF_FLD_OUT_PKTS] = { 
 		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outpkts",	"The number of output packets",
 		lnf_field_fget_OUT_PKTS,
 		lnf_field_fset_OUT_PKTS},
 
 	[LNF_FLD_AGGR_FLOWS] = {
 		LNF_UINT64,	LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"flows",	"The number of flows (aggregated)",
 		lnf_field_fget_AGGR_FLOWS,
 		lnf_field_fset_AGGR_FLOWS},
@@ -1097,18 +1105,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_SRCPORT] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcport",		"Source port",
 		lnf_field_fget_SRCPORT,
 		lnf_field_fset_SRCPORT},
 
 	[LNF_FLD_DSTPORT] = {
 		LNF_UINT16, 		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstport",		"Destination port",
 		lnf_field_fget_DSTPORT,
 		lnf_field_fset_DSTPORT},
 
 	[LNF_FLD_TCP_FLAGS] = {
 		LNF_UINT8,		LNF_AGGR_OR,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"tcpflags",		"TCP flags",
 		lnf_field_fget_TCP_FLAGS,
 		lnf_field_fset_TCP_FLAGS},
@@ -1118,78 +1129,91 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_SRCADDR ] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcip",	"Source IP address",
 		lnf_field_fget_SRCADDR,
 		lnf_field_fset_SRCADDR},
 
 	[LNF_FLD_DSTADDR] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstip",	"Destination IP address",
 		lnf_field_fget_DSTADDR,
 		lnf_field_fset_DSTADDR},
 
 	[LNF_FLD_IP_NEXTHOP] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"nexthop",		"IP next hop",
 		lnf_field_fget_IP_NEXTHOP,
 		lnf_field_fset_IP_NEXTHOP},
 
 	[LNF_FLD_SRC_MASK] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcmask",		"Source mask",
 		lnf_field_fget_SRC_MASK, 
 		lnf_field_fset_SRC_MASK}, 
 
 	[LNF_FLD_DST_MASK] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstmask",		"Destination mask",
 		lnf_field_fget_DST_MASK, 
 		lnf_field_fset_DST_MASK}, 
 
 	[LNF_FLD_TOS] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"tos",		"Source type of service",
 		lnf_field_fget_TOS, 
 		lnf_field_fset_TOS}, 
 
 	[LNF_FLD_DST_TOS] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dsttos",	"Destination type of service",
 		lnf_field_fget_DST_TOS,
 		lnf_field_fset_DST_TOS},
 
 	[LNF_FLD_SRCAS] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcas",	"Source AS number",
 		lnf_field_fget_SRCAS,
 		lnf_field_fset_SRCAS},
 
 	[LNF_FLD_DSTAS] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstas",	"Destination AS number",
 		lnf_field_fget_DSTAS,
 		lnf_field_fset_DSTAS},
 
 	[LNF_FLD_BGPNEXTADJACENTAS] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"nextas",	"BGP Next AS",
 		lnf_field_fget_BGPNEXTADJACENTAS,
 		lnf_field_fset_BGPNEXTADJACENTAS},
 
 	[LNF_FLD_BGPPREVADJACENTAS] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"prevas",	"BGP Previous AS",
 		lnf_field_fget_BGPPREVADJACENTAS,
 		lnf_field_fset_BGPPREVADJACENTAS},
 
 	[LNF_FLD_BGP_NEXTHOP] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"bgpnexthop",	"BGP next hop",
 		lnf_field_fget_BGP_NEXTHOP,
 		lnf_field_fset_BGP_NEXTHOP},
 
 	[LNF_FLD_PROT] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"proto",	"IP protocol",
 		lnf_field_fget_PROT, 
 		lnf_field_fset_PROT}, 
@@ -1199,36 +1223,42 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_SRC_VLAN] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcvlan",		"Source vlan label",
 		lnf_field_fget_SRC_VLAN,
 		lnf_field_fset_SRC_VLAN},
 
 	[LNF_FLD_DST_VLAN] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstvlan",		"Destination vlan label",
 		lnf_field_fget_DST_VLAN, 
 		lnf_field_fset_DST_VLAN}, 
 
 	[LNF_FLD_IN_SRC_MAC] = {
 		LNF_MAC,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_}, 
 		"insrcmac",		"In source MAC address",
 		lnf_field_fget_IN_SRC_MAC,
 		lnf_field_fset_IN_SRC_MAC},
 
 	[LNF_FLD_OUT_SRC_MAC] = {
 		LNF_MAC,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outsrcmac",	"Out destination MAC address",
 		lnf_field_fget_OUT_SRC_MAC,
 		lnf_field_fset_OUT_SRC_MAC},
 
 	[LNF_FLD_IN_DST_MAC] = {
 		LNF_MAC,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"indstmac",	"In destination MAC address",
 		lnf_field_fget_IN_DST_MAC, 
 		lnf_field_fset_IN_DST_MAC}, 
 
 	[LNF_FLD_OUT_DST_MAC] = {
 		LNF_MAC,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outdstmac",	"Out source MAC address",
 		lnf_field_fget_OUT_DST_MAC, 
 		lnf_field_fset_OUT_DST_MAC}, 
@@ -1238,6 +1268,7 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_MPLS_LABEL] = {
 		LNF_MPLS,	LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"mpls",		"MPLS labels",
 		lnf_field_fget_MPLS_LABEL,
 		lnf_field_fset_MPLS_LABEL},
@@ -1247,24 +1278,28 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_INPUT] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"inif",		"SNMP input interface number",
 		lnf_field_fget_INPUT,
 		lnf_field_fset_INPUT},
 
 	[LNF_FLD_OUTPUT] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outif",	"SNMP output interface number",
 		lnf_field_fget_OUTPUT,
 		lnf_field_fset_OUTPUT},
 
 	[LNF_FLD_DIR] = {
 		LNF_UINT8,			LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dir",		"Flow directions ingress/egress",
 		lnf_field_fget_DIR, 
 		lnf_field_fset_DIR}, 
 
 	[LNF_FLD_FWD_STATUS] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"fwd",		"Forwarding status",
 		lnf_field_fget_FWD_STATUS,
 		lnf_field_fset_FWD_STATUS},
@@ -1273,18 +1308,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_IP_ROUTER] = {
 		LNF_ADDR,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"router",	"Exporting router IP",
 		lnf_field_fget_IP_ROUTER, 
 		lnf_field_fset_IP_ROUTER}, 
 
 	[LNF_FLD_ENGINE_TYPE] = {
 		LNF_UINT8,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"systype",	"Type of exporter",
 		lnf_field_fget_ENGINE_TYPE,
 		lnf_field_fset_ENGINE_TYPE},
 
 	[LNF_FLD_ENGINE_ID] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"sysid",	"Internal SysID of exporter",
 		lnf_field_fget_ENGINE_ID,
 		lnf_field_fset_ENGINE_ID},
@@ -1294,54 +1332,63 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_EVENT_TIME] = {
 		LNF_UINT64,		LNF_AGGR_MIN,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"eventtime",	"NSEL The time that the flow was created",
 		lnf_field_fget_EVENT_TIME,
 		lnf_field_fset_EVENT_TIME},
 
 	[LNF_FLD_CONN_ID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"connid",		"NSEL An identifier of a unique flow for the device",
 		lnf_field_fget_CONN_ID,
 		lnf_field_fset_CONN_ID},
 
 	[LNF_FLD_ICMP_CODE] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"icmpcode",		"NSEL ICMP code value",
 		lnf_field_fget_ICMP_CODE,
 		lnf_field_fset_ICMP_CODE},
 
 	[LNF_FLD_ICMP_TYPE] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"icmptype",		"NSEL ICMP type value",
 		lnf_field_fget_ICMP_TYPE,
 		lnf_field_fset_ICMP_TYPE},
 
 	[LNF_FLD_FW_XEVENT] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"xevent",		"NSEL Extended event code",
 		lnf_field_fget_FW_XEVENT,
 		lnf_field_fset_FW_XEVENT},
 
 	[LNF_FLD_XLATE_SRC_IP] = {
 		LNF_ADDR,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"xsrcip",	"NSEL Mapped source IPv4 address",
 		lnf_field_fget_XLATE_SRC_IP,
 		lnf_field_fset_XLATE_SRC_IP},
 
 	[LNF_FLD_XLATE_DST_IP] = {
 		LNF_ADDR,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"xdstip",	"NSEL Mapped destination IPv4 address",
 		lnf_field_fget_XLATE_DST_IP,
 		lnf_field_fset_XLATE_DST_IP},
 
 	[LNF_FLD_XLATE_SRC_PORT] = {
 		LNF_UINT16,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"xsrcport",	"NSEL Mapped source port",
 		lnf_field_fget_XLATE_SRC_PORT,
 		lnf_field_fset_XLATE_SRC_PORT},
 
 	[LNF_FLD_XLATE_DST_PORT] = {
 		LNF_UINT16,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"xdstport",	"NSEL Mapped destination port",
 		lnf_field_fget_XLATE_DST_PORT,
 		lnf_field_fset_XLATE_DST_PORT},
@@ -1349,18 +1396,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod: NSEL The input ACL that permitted or denied the flow
 	[LNF_FLD_INGRESS_ACL_ID] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"iacl",		"Hash value or ID of the ACL name",
 		lnf_field_fget_INGRESS_ACL_ID,
 		lnf_field_fset_INGRESS_ACL_ID},
 
 	[LNF_FLD_INGRESS_ACE_ID] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"iace", 	"Hash value or ID of the ACL name",
 		lnf_field_fget_INGRESS_ACE_ID,
 		lnf_field_fset_INGRESS_ACE_ID},
 
 	[LNF_FLD_INGRESS_XACE_ID] = {
 		LNF_UINT32,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"ixace",	"Hash value or ID of an extended ACE configuration",
 		lnf_field_fget_INGRESS_XACE_ID,
 		lnf_field_fset_INGRESS_XACE_ID},
@@ -1368,24 +1418,28 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod: NSEL The output ACL that permitted or denied a flow  
 	[LNF_FLD_EGRESS_ACL_ID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"eacl",		"Hash value or ID of the ACL name",
 		lnf_field_fget_EGRESS_ACL_ID,
 		lnf_field_fset_EGRESS_ACL_ID},
 
 	[LNF_FLD_EGRESS_ACE_ID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"eace",		"Hash value or ID of the ACL name",
 		lnf_field_fget_EGRESS_ACE_ID,
 		lnf_field_fset_EGRESS_ACE_ID},
 
 	[LNF_FLD_EGRESS_XACE_ID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"exace",	"Hash value or ID of an extended ACE configuration",
 		lnf_field_fget_EGRESS_XACE_ID,
 		lnf_field_fset_EGRESS_XACE_ID},
 
 	[LNF_FLD_USERNAME] = {
 		LNF_STRING,			LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"username",	"NSEL username",
 		lnf_field_fget_USERNAME,
 		lnf_field_fset_USERNAME},
@@ -1395,24 +1449,28 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_INGRESS_VRFID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"ingressvrfid",		"NEL NAT ingress vrf id",
 		lnf_field_fget_INGRESS_VRFID,
 		lnf_field_fset_INGRESS_VRFID},
 
 	[LNF_FLD_EVENT_FLAG] = {
 		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"eventflag",		"NAT event flag (always set to 1 by nfdump)",
 		lnf_field_fget_EVENT_FLAG,
 		lnf_field_fset_EVENT_FLAG},
 
 	[LNF_FLD_EGRESS_VRFID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"egressvrfid",		"NAT egress VRF ID",
 		lnf_field_fget_EGRESS_VRFID,
 		lnf_field_fset_EGRESS_VRFID},
 
 	[LNF_FLD_BLOCK_START] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"blockstart",		"NAT pool block start",
 		lnf_field_fget_BLOCK_START,
 		lnf_field_fset_BLOCK_START},
@@ -1422,18 +1480,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_BLOCK_END] = {
 		LNF_UINT16,			LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"blockend",			"NAT pool block end",
 		lnf_field_fget_BLOCK_END,
 		lnf_field_fset_BLOCK_END},
 
 	[LNF_FLD_BLOCK_STEP] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"blockstep",		"NAT pool block step",
 		lnf_field_fget_BLOCK_STEP,
 		lnf_field_fset_BLOCK_STEP},
 
 	[LNF_FLD_BLOCK_SIZE] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"blocksize",		"NAT pool block size",
 		lnf_field_fget_BLOCK_SIZE,
 		lnf_field_fset_BLOCK_SIZE},
@@ -1442,18 +1503,21 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_CLIENT_NW_DELAY_USEC] = {
 		LNF_UINT64,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"cl",	"nprobe latency client_nw_delay_usec",
 		lnf_field_fget_CLIENT_NW_DELAY_USEC,
 		lnf_field_fset_CLIENT_NW_DELAY_USEC},
 
 	[LNF_FLD_SERVER_NW_DELAY_USEC] = {
 		LNF_UINT64,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"sl",	"nprobe latency server_nw_delay_usec",
 		lnf_field_fget_SERVER_NW_DELAY_USEC,
 		lnf_field_fset_SERVER_NW_DELAY_USEC},
 
 	[LNF_FLD_APPL_LATENCY_USEC] = {
 		LNF_UINT64,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"al",	"nprobe latency appl_latency_usec",
 		lnf_field_fget_APPL_LATENCY_USEC,
 		lnf_field_fset_APPL_LATENCY_USEC},
@@ -1463,24 +1527,28 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_CALC_DURATION] = {
 		LNF_UINT64,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"duration",	"Flow duration (in miliseconds)",
 		lnf_field_fget_CALC_DURATION,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_BPS] = {
 		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"bps",	"Bytes per second",
 		lnf_field_fget_CALC_BPS,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_PPS] = {
 		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"pps",	"Packets per second",
 		lnf_field_fget_CALC_PPS,
 		lnf_field_fset_EMPTY_},
 
 	[LNF_FLD_CALC_BPP] = {
 		LNF_DOUBLE,		LNF_AGGR_SUM,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"bpp",	"Bytes per packet",
 		lnf_field_fget_CALC_BPP,
 		lnf_field_fset_EMPTY_},
@@ -1490,12 +1558,45 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_BREC1] = {
 		LNF_BASIC_RECORD1,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"brec1",	"basic record 1",
 		lnf_field_fget_BREC1,
 		lnf_field_fset_BREC1},
 
+// pod:
+// pod:  Pair items 
+// pod:  =====================
+	[LNF_FLD_PAIR_PORT] = {
+		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_SRCPORT, LNF_FLD_DSTPORT},
+		"port",		"Source or destination port (pair field)",
+		lnf_field_fget_SRCPORT,
+		lnf_field_fset_SRCPORT},
+
+	[LNF_FLD_PAIR_ADDR] = {
+		LNF_ADDR,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_SRCADDR, LNF_FLD_DSTADDR},
+		"ip",		"Source or destination ip address (pair field)",
+		lnf_field_fget_SRCADDR,
+		lnf_field_fset_SRCADDR},
+
+	[LNF_FLD_PAIR_AS] = {
+		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_SRCAS, LNF_FLD_DSTAS},
+		"as",		"Source or destination ASn (pair field)",
+		lnf_field_fget_SRCAS,
+		lnf_field_fset_SRCAS},
+
+	[LNF_FLD_PAIR_IF] = {
+		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_SRCAS, LNF_FLD_DSTAS},
+		"if",		"Input or output interface (pair field)",
+		lnf_field_fget_INPUT,
+		lnf_field_fset_OUTPUT},
+
 	[LNF_FLD_TERM_] = {
 		0,				0,				0,				
+		{0, 0},
 		NULL,	NULL,
 		NULL, 
 		NULL}

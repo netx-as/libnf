@@ -1,5 +1,10 @@
 Revision history for C and Perl extension of nfdump.
 
+1.10 2015-06-xx
+	- c: aggregation unit supports statistics 
+	- c: new pair fields LNF_FLD_PAIR_PORT|ADDR|AS|IF
+	- c: examples/lnf_ex08_statistics added 
+
 1.09 2015-05-28
 	- perl: removed memory leak (Bug #104294)
 	- perl: improved test 

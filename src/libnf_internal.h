@@ -157,6 +157,7 @@ typedef struct lnf_mem_s {
 	unsigned long read_index;		/* index for nex read */
 	int rearranged;					/* is the final hash table rearranged */
 	int sorted;						/* is the table sorted ? */
+	int statistics_mode;			/* is lnf_mem in statistics mode ? (have a pair item in kay) */
 } lnf_mem_t;
 
 
@@ -166,7 +167,7 @@ typedef struct lnf_mem_s {
 int lnf_mem_thread_init(lnf_mem_t *lnf_mem);
 void lnf_filedlist_free(lnf_fieldlist_t *list);
 void lnf_clear_bits(char *buf, int buflen, int from);
-int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf);
+int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf, int pairset);
 void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec);
 
 

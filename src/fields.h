@@ -19,6 +19,7 @@ typedef const struct lnf_field_def {
     int type;
     int default_aggr;
     int default_sort;
+	int pair_field[2];
     char *name;
     char *fld_descr;
     lnf_fld_func_t fget_func;
@@ -40,8 +41,15 @@ static int inline __lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
     return  lnf_fields_def[field].fset_func(rec->master_record, p, rec->extensions_arr);
 }
 
+/* return field type - smae as lnf_fld_type but no checks */
 static int inline __lnf_fld_type(int field) {
 
     return  lnf_fields_def[field].type;
+}
+
+/* return field ID for field set 1 - first field id, 2 - second field id */
+static int inline __lnf_fld_pair(int field, int pairset) {
+
+    return  lnf_fields_def[field].pair_field[pairset - 1];
 }
 

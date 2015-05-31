@@ -8,8 +8,7 @@
 #include <unistd.h>
 
 #define FILENAME "./test-file.tmp"
-#define FILTER1 "src port > 80"
-#define FILTER2 "in if 2"
+#define FILTER "src port 80"
 
 #define LLUI long long unsigned int
 
@@ -60,43 +59,20 @@ int main(int argc, char **argv) {
 	lnf_rec_init(&recp);
 	lnf_mem_init(&memp);
 
-//	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
-
 	/* set rules for aggregation srcip/24,srcport,dstas */
-	lnf_mem_fadd(memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY|LNF_SORT_DESC, 24, 64);
-	lnf_mem_fadd(memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0); 
-	lnf_mem_fadd(memp, LNF_FLD_DSTAS, LNF_AGGR_KEY, 0, 0);
-
+	lnf_mem_fadd(memp, LNF_FLD_PAIR_ADDR, LNF_AGGR_KEY, 24, 64);
+	lnf_mem_fadd(memp, LNF_FLD_PAIR_PORT, LNF_AGGR_KEY, 0, 0); 
 
 	lnf_mem_fadd(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_TCP_FLAGS, LNF_AGGR_OR, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM|LNF_SORT_DESC, 0, 0);
 	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
 
 
 
 	while (lnf_read(filep, recp) != LNF_EOF) {
-
 		i++;
-
 		/* add to memory heap */
 		lnf_mem_write(memp,recp);
-
-		if (print) {
-			char sbuf[INET6_ADDRSTRLEN];
-			char dbuf[INET6_ADDRSTRLEN];
-
-			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
-	
-			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
-			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
-
-			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
-					sbuf, brec.srcport, 
-					dbuf, brec.dstport,  
-					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
-		}
 	}
 
 	printf("Total input records: %d\n", i);
@@ -109,21 +85,18 @@ int main(int argc, char **argv) {
 
 		if (printa) {
 			char sbuf[INET6_ADDRSTRLEN];
-			char dbuf[INET6_ADDRSTRLEN];
 
 			lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);
 	
 			inet_ntop(AF_INET6, &brec.srcaddr, sbuf, INET6_ADDRSTRLEN);
-			inet_ntop(AF_INET6, &brec.dstaddr, dbuf, INET6_ADDRSTRLEN);
 
-			printf(" %s :%d -> %s :%d %llu %llu %llu\n", 
+			printf(" %s :%d - %llu %llu %llu\n", 
 					sbuf, brec.srcport, 
-					dbuf, brec.dstport,  
 					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
 	}
 
-	printf("Total aggregated records: %d\n", i);
+	printf("Total statistic records: %d\n", i);
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);

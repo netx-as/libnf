@@ -136,7 +136,16 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_CALC_BPS		 0xA1 			/* computed : Bytes per second  */
 #define LNF_FLD_CALC_PPS		 0xA2 			/* computed : packets per second  */
 #define LNF_FLD_CALC_BPP		 0xA3 			/* computed : bytes per packet */
+
+/* special fields */
 #define LNF_FLD_BREC1			 0xB0 			/* special field for lnf_brec1_t */
+
+/* pair fields - special use */
+#define LNF_FLD_PAIR_PORT		 0xC0			/* src port + dst port */
+#define LNF_FLD_PAIR_ADDR		 0xC1			/* src ip + dst ip */
+#define LNF_FLD_PAIR_AS			 0xC2			/* src as + dst as */
+#define LNF_FLD_PAIR_IF			 0xC3			/* in if + out if */
+
 
 #define LNF_FLD_TERM_			 0xFF  			/* ID of last field */
 
