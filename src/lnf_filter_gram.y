@@ -4,7 +4,7 @@
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner }
 %parse-param { lnf_filter_t *filter }
-%name-prefix "v2_"
+%name-prefix = "v2_"
 
 %{
 	#include <stdio.h>

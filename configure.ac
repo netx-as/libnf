@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 1.09, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.10, tpoder@cis.vutbr.cz)
 
 AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.13, phaag@users.sourceforge.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
@@ -38,16 +38,16 @@ _ACEOF
 fi
 
 AC_ARG_ENABLE(threads,
-[  --enable-threads       enable thread support for libnf_mem - see documentation; default is NO])
-if test "${enable_threads}" = "yes" ; then
+[  --enable-threads       enable thread support for libnf_mem - see documentation; default is YES])
+if test "${enable_threads}" = "no" ; then
+	AM_CONDITIONAL(LNF_THREADS, false)
+else 
 	LIBS="$LIBS -lpthread"
 	CFLAGS="$CFLAGS -DLNF_THREADS"
 	AC_CHECK_HEADERS(pthread.h)
 	AC_CHECK_FUNCS(pthread_mutex_init pthread_key_create pthread_mutex_lock pthread_mutex_unlock)
 	AC_CHECK_FUNCS(pthread_setspecific pthread_getspecific) 
 	AM_CONDITIONAL(LNF_THREADS, true)
-else
-	AM_CONDITIONAL(LNF_THREADS, false)
 fi
 
 
@@ -216,12 +216,12 @@ fi
 
 AC_OUTPUT(Makefile include/Makefile src/Makefile bin/Makefile examples/Makefile)
 
-if test "${enable_threads}" = "yes" ; then
-echo ""
-echo "Thread support enabled."
-else 
+if test "${enable_threads}" = "no" ; then
 echo ""
 echo "Single thread version."
+else 
+echo ""
+echo "Thread support enabled."
 fi
 
 echo ""

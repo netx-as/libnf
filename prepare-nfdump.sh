@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-LIBNF_VERSION="1.08"
+LIBNF_VERSION="1.10"
 
 NFDUMP="nfdump-1.6.13"
 NFDUMP_MD5="f5e916049aec1b531c63303b92270d42"
@@ -35,6 +35,7 @@ tar xzf $NFDUMP_SRC || exit 1
 mv $NFDUMP nfdump  || exit 1
 (cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-leak.patch && cd .. ) || exit 1
+(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
 
 echo ""
 echo "##########################################################"
