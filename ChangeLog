@@ -1,9 +1,16 @@
 Revision history for C and Perl extension of nfdump.
 
-1.10 2015-06-xx
+1.10 2015-07-xx
+	- Project entered into close cooperation with 
+	  CESNET - Czech Nationl Research Network
+	- c: thread support enabled by default (--enable-threads)
 	- c: aggregation unit supports statistics 
 	- c: new pair fields LNF_FLD_PAIR_PORT|ADDR|AS|IF
 	- c: examples/lnf_ex08_statistics added 
+	- perl: Net::NfDump->info returns propper data 
+	- perl: invalid handling of LNF_UINT16 (Bug #105472)
+TOTO:
+	- perl: nfasnupd do not require Geo::IP module
 
 1.09 2015-05-28
 	- perl: removed memory leak (Bug #104294)
