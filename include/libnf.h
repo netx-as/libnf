@@ -145,6 +145,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_PAIR_ADDR		 0xC1			/* src ip + dst ip */
 #define LNF_FLD_PAIR_AS			 0xC2			/* src as + dst as */
 #define LNF_FLD_PAIR_IF			 0xC3			/* in if + out if */
+#define LNF_FLD_PAIR_VLAN		 0xC4			/* src vlan + dst vlan */
 
 
 #define LNF_FLD_TERM_			 0xFF  			/* ID of last field */

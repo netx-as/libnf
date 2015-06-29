@@ -1594,6 +1594,14 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_INPUT,
 		lnf_field_fset_OUTPUT},
 
+	[LNF_FLD_PAIR_VLAN] = {
+		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
+		{LNF_FLD_SRC_VLAN, LNF_FLD_DST_VLAN},
+		"vlan",		"Source or destination vlan (pair field)",
+		lnf_field_fget_SRC_VLAN,
+		lnf_field_fset_SRC_VLAN},
+
+
 	[LNF_FLD_TERM_] = {
 		0,				0,				0,				
 		{0, 0},
