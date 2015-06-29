@@ -830,9 +830,17 @@ int lnf_filter_init_v1(lnf_filter_t **filterp, char *expr) {
 		return LNF_ERR_NOMEM;
 	}
 
+#ifdef LNF_THREADS
+    pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+#endif
+
 	filter->v2filter = 0;	/* nitialised as V1 - nfdump filter */	
 
 	filter->engine = CompileFilter(expr);
+
+#ifdef LNF_THREADS
+    pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+#endif
 
 	if ( !filter->engine ) {
 		free(filter);

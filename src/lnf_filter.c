@@ -44,6 +44,8 @@
 #include "libnf.h" 
 #include "lnf_filter_gram.h"
 
+pthread_mutex_t lnf_nfdump_filter_match_mutex;    /* mutex for operations match filter  */
+
 /* convert string into uint64_t */
 /* FIXME: also converst string with units (64k -> 64000) */
 int str_to_uint(char *str, int type, char **res, int *vsize) {
@@ -302,8 +304,16 @@ int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
     if (filter->v2filter) {
 		return lnf_filter_eval(filter->root, rec);
     } else {
+		int res;
+#ifdef LNF_THREADS
+		 pthread_mutex_lock(&lnf_nfdump_filter_match_mutex);
+#endif
     	filter->engine->nfrecord = (uint64_t *)rec->master_record;
-        return  (*filter->engine->FilterEngine)(filter->engine);
+        res =  (*filter->engine->FilterEngine)(filter->engine);
+#ifdef LNF_THREADS
+		pthread_mutex_unlock(&lnf_nfdump_filter_match_mutex);
+#endif
+		return res;
     }
 }
 
