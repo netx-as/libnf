@@ -1592,7 +1592,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		{LNF_FLD_SRCAS, LNF_FLD_DSTAS},
 		"if",		"Input or output interface (pair field)",
 		lnf_field_fget_INPUT,
-		lnf_field_fset_OUTPUT},
+		lnf_field_fset_INPUT},
 
 	[LNF_FLD_PAIR_VLAN] = {
 		LNF_UINT16,		LNF_AGGR_KEY,	LNF_SORT_NONE,	
