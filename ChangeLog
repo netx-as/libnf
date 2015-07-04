@@ -1,7 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
-1.11 2015-07-xx
-	- perl: removed issues with thread support in perl 
+1.11 2015-07-04
+	- nfdumpp: added basic comparsion test for threads
+	- perl: removed some issues with thread support in perl 
 
 1.10 2015-06-30
 	- Project entered into close cooperation with 
