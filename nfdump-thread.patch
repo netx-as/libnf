@@ -1,17 +1,161 @@
+--- nfdump-1.6.13/bin/nffile.h	2014-11-16 11:42:51.000000000 +0100
++++ nfdump/bin/nffile.h	2015-07-04 20:14:03.124933410 +0200
+@@ -231,6 +231,9 @@
+ 	file_header_t		*file_header;	// file header
+ 	data_block_header_t	*block_header;	// buffer
+ 	void				*buff_ptr;		// pointer into buffer for read/write blocks/records
++	/* added by libnf patch  */
++	void *lzo_buff;
++	int lzo_initialized;
+ 	stat_record_t 		*stat_record;	// flow stat record
+ 	catalog_t			*catalog;		// file catalog
+ 	int					_compress;		// data compressed flag
 --- nfdump-1.6.13/bin/nffile.c	2014-03-12 10:45:49.000000000 +0100
-+++ nfdump/bin/nffile.c	2015-03-08 08:23:26.446789688 +0100
-@@ -77,11 +77,11 @@
++++ nfdump/bin/nffile.c	2015-07-04 20:06:04.610600987 +0200
+@@ -77,13 +77,16 @@
      lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
  
  static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
 -static void *lzo_buff;
 -static int lzo_initialized = 0;
-+static __thread void *lzo_buff;
-+static __thread int lzo_initialized = 0;
++
++/* commented by libnf patch */
++//static void *lzo_buff;
++//static int lzo_initialized = 0;
  
  #define ERR_SIZE 256
--static char	error_string[ERR_SIZE];
-+static __thread char	error_string[ERR_SIZE];
+ static char	error_string[ERR_SIZE];
  
- static int LZO_initialize(void);
+-static int LZO_initialize(void);
++/* modified by libnf patch */
++static int LZO_initialize(nffile_t *nffile);
  
+ static int OpenRaw(char *filename, stat_record_t *stat_record, int *compressed);
+ 
+@@ -132,7 +135,8 @@
+ } // End of SumStatRecords
+ 
+ 
+-static int LZO_initialize(void) {
++/* modified by libnf patch */
++static int LZO_initialize(nffile_t *nffile) {
+ 
+ 	if (lzo_init() != LZO_E_OK) {
+ 			// this usually indicates a compiler bug - try recompiling 
+@@ -140,12 +144,13 @@
+ 			LogError("Compression lzo_init() failed.\n");
+ 			return 0;
+ 	} 
+-	lzo_buff = malloc(BUFFSIZE+ sizeof(data_block_header_t));
+-	if ( !lzo_buff ) {
++	/* modified by libnf patch */
++	nffile->lzo_buff = malloc(BUFFSIZE+ sizeof(data_block_header_t));
++	if ( !nffile->lzo_buff ) {
+ 		LogError("malloc() error in %s line %d: %s\n", __FILE__, __LINE__, strerror(errno) );
+ 		return 0;
+ 	}
+-	lzo_initialized = 1;
++	nffile->lzo_initialized = 1;
+ 
+ 	return 1;
+ 
+@@ -231,7 +236,7 @@
+ 
+ 	CurrentIdent		= nffile->file_header->ident;
+ 
+-	if ( FILE_IS_COMPRESSED(nffile) && !lzo_initialized && !LZO_initialize() ) {
++	if ( FILE_IS_COMPRESSED(nffile) && !nffile->lzo_initialized && !LZO_initialize(nffile) ) {
+ 		if ( allocated ) {
+ 			DisposeFile(nffile);
+ 			return NULL;
+@@ -359,6 +364,10 @@
+ 	nffile->fd	 	= 0;
+ 	nffile->catalog = NULL;
+ 
++	/* added by libnf patch */
++	nffile->lzo_buff = NULL;
++	nffile->lzo_initialized = 0;
++
+ 	// Init file header
+ 	nffile->file_header = calloc(1, sizeof(file_header_t));
+ 	if ( !nffile->file_header ) {
+@@ -411,6 +420,11 @@
+ 	free(nffile->stat_record);
+ 	if (nffile->block_header) 
+ 		free(nffile->block_header);
++	/* added by libnf patch */
++	if (nffile->lzo_buff) {
++		free(nffile->lzo_buff);
++		nffile->lzo_initialized = 0;
++	}
+ 	free(nffile);
+ 	return NULL;
+ } // End of DisposeFile
+@@ -464,7 +478,7 @@
+ 
+ 
+ 	if ( TestFlag(flags, FLAG_COMPRESSED) ) {
+-		if ( !lzo_initialized && !LZO_initialize() ) {
++		if ( !nffile->lzo_initialized && !LZO_initialize(nffile) ) {
+ 			LogError("Failed to initialize compression");
+ 			close(nffile->fd);
+ 			return NULL;
+@@ -533,7 +547,7 @@
+ 
+ 	// initialize output  lzo buffer
+ 	if ( FILE_IS_COMPRESSED(nffile) ) {
+-		if ( !lzo_initialized && !LZO_initialize() ) {
++		if ( !nffile->lzo_initialized && !LZO_initialize(nffile) ) {
+ 			LogError("Failed to initialize compression");
+ 			close(nffile->fd);
+ 			DisposeFile(nffile);
+@@ -765,7 +779,8 @@
+ 		return NF_CORRUPT;
+ 	}
+ 
+-	buff = FILE_IS_COMPRESSED(nffile) ? lzo_buff : nffile->buff_ptr;
++	/* modified by libnf patch */
++	buff = FILE_IS_COMPRESSED(nffile) ? nffile->lzo_buff : nffile->buff_ptr;
+ 
+ 	ret = read(nffile->fd, buff, nffile->block_header->size);
+ 	if ( ret == nffile->block_header->size ) {
+@@ -773,7 +788,8 @@
+ 		// we have the whole record and are done for now
+ 		if ( FILE_IS_COMPRESSED(nffile) ) {
+ 			int r;
+-   			r = lzo1x_decompress(lzo_buff,nffile->block_header->size,nffile->buff_ptr,&new_len,NULL);
++			/* modified by libnf patch */
++   			r = lzo1x_decompress(nffile->lzo_buff,nffile->block_header->size,nffile->buff_ptr,&new_len,NULL);
+    			if (r != LZO_E_OK ) {
+        			/* this should NEVER happen */
+ 				LogError("ReadBlock() error decompression failed in %s line %d: LZO error: %d\n", __FILE__, __LINE__, r);
+@@ -830,7 +846,8 @@
+ 	if ( FILE_IS_COMPRESSED(nffile) ) {
+ 		int r;
+ 		lzo_uint new_len;
+-   		r = lzo1x_decompress(lzo_buff, nffile->block_header->size, nffile->buff_ptr, &new_len, NULL);
++		/* modified by libnf patch */
++   		r = lzo1x_decompress(nffile->lzo_buff, nffile->block_header->size, nffile->buff_ptr, &new_len, NULL);
+    		if (r != LZO_E_OK ) {
+        		/* this should NEVER happen */
+ 			LogError("ReadBlock() error decompression failed in %s line %d: LZO error: %d\n", __FILE__, __LINE__, r);
+@@ -871,7 +888,8 @@
+ 		return ret;
+ 	} 
+ 
+-	out_block_header = (data_block_header_t *)lzo_buff;
++	/* modified by libnf patch */
++	out_block_header = (data_block_header_t *)nffile->lzo_buff;
+ 	*out_block_header = *(nffile->block_header);
+ 
+ 	in  = (unsigned char __LZO_MMODEL *)((pointer_addr_t)nffile->block_header     + sizeof(data_block_header_t));	
+@@ -914,7 +932,8 @@
+ 		return ret;
+ 	} 
+ 
+-	out_block_header = (data_block_header_t *)lzo_buff;
++	/* modified by libnf patch */
++	out_block_header = (data_block_header_t *)nffile->lzo_buff;
+ 	*out_block_header = *(block_header);
+ 
+ 	in  = (unsigned char __LZO_MMODEL *)((pointer_addr_t)block_header     + sizeof(data_block_header_t));	
