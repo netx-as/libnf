@@ -159,3 +159,33 @@
  	*out_block_header = *(block_header);
  
  	in  = (unsigned char __LZO_MMODEL *)((pointer_addr_t)block_header     + sizeof(data_block_header_t));	
+--- nfdump-1.6.13/bin/nfx.c	2014-11-11 21:34:27.000000000 +0100
++++ nfdump/bin/nfx.c	2015-07-05 22:05:13.437449516 +0200
+@@ -137,7 +137,7 @@
+ 	{ 0,	0,	0, 0,	NULL }
+ };
+ 
+-uint32_t Max_num_extensions;
++uint32_t Max_num_extensions = 0;
+ 
+ void FixExtensionMap(extension_map_t *map);
+ 
+@@ -154,10 +154,14 @@
+ 		list->last_map = &list->map_list;
+ 	}
+ 
+-	Max_num_extensions = 0;
+-	i = 1;
+-	while ( extension_descriptor[i++].id ) {
+-		Max_num_extensions++;
++	/* modifie by libnf patch */
++	/* Max_num_extensions can be set onluy once */
++//	Max_num_extensions = 0;
++	if (Max_num_extensions == 0) {
++		i = 1;
++		while ( extension_descriptor[i++].id ) {
++			Max_num_extensions++;
++		}
+ 	}
+ #ifdef DEVEL
+ 	i = 1;

@@ -262,10 +262,22 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 	lnf_file->flags = flags;
 	/* open file in either read only or write only mode */
 	if (flags & LNF_WRITE) {
+#ifdef LNF_THREADS
+    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+#endif
 		lnf_file->nffile = OpenNewFile((char *)filename, NULL, flags & LNF_COMP, 
 								flags & LNF_ANON, (char *)ident);
+#ifdef LNF_THREADS
+    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+#endif
 	} else {
+#ifdef LNF_THREADS
+    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+#endif
 		lnf_file->nffile = OpenFile((char *)filename, NULL);
+#ifdef LNF_THREADS
+    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+#endif
 	}
 
 	if (lnf_file->nffile == NULL) {
@@ -277,16 +289,21 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 	lnf_file->processed_blocks  = 0;
 	lnf_file->processed_bytes  = 0;
 	lnf_file->skipped_blocks  = 0;
+#ifdef LNF_THREADS
+    pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+#endif
 	lnf_file->extension_map_list = InitExtensionMaps(NEEDS_EXTENSION_LIST);
 
 	lnf_file->lnf_map_list = NULL;
-
 
 	i = 1;
 	lnf_file->max_num_extensions = 0;
 	while ( extension_descriptor[i++].id )
 		lnf_file->max_num_extensions++;
 
+#ifdef LNF_THREADS
+    pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+#endif
 
 	*lnf_filep = lnf_file;
 
