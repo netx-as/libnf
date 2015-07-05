@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.12 2015-07-0x
+1.12 2015-07-04
 	- c: removed __thread directive from source codes 
 	- c: redesign of thread patch support nfdump-thread.patch and
 	  nfdump-leak.patch patch merged into one file
