@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.13 2015-07-xx
+1.13 2015-07-08
 	- perl: module requires use of threads 
 	- perl: tests that depends on threads are executed only on 
 	  systems where thread support is enabled
