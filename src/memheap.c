@@ -769,7 +769,7 @@ int lnf_mem_read_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, lnf_rec_t *rec)
 	char *key; 
 	char *val;
 
-	hash_table_fetch(&lnf_mem->hash_table[0], cursor, &key, &val);
+	hash_table_fetch(&lnf_mem->hash_table[0], (void *)cursor, &key, &val);
 
 	lnf_rec_clear(rec);
 
@@ -788,17 +788,16 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	int ret;
 
 	if (lnf_mem->read_cursor == NULL) {
-		lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+		ret = lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+	} else {
+		ret = lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
 	}
 	
-	ret =  lnf_mem_read_c(lnf_mem, lnf_mem->read_cursor, rec);
-
 	if (ret != LNF_OK) {
-
 		return ret;
 	}
-	
-	return lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
+
+	return  lnf_mem_read_c(lnf_mem, lnf_mem->read_cursor, rec);
 
 }
 
@@ -807,7 +806,6 @@ int lnf_mem_read_raw_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, char *buff,
 
 	char *key; 
 	char *val;
-	int ret;
 
 	if (len != NULL) {
 		*len = lnf_mem->key_len + lnf_mem->val_len;
@@ -818,7 +816,7 @@ int lnf_mem_read_raw_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, char *buff,
 		return LNF_ERR_NOMEM;
 	}
 
-	hash_table_fetch(&lnf_mem->hash_table[0], cursor, &key, &val);
+	hash_table_fetch(&lnf_mem->hash_table[0], (void *)cursor, &key, &val);
 
 	memcpy(buff, key, lnf_mem->key_len);
 	memcpy(buff + lnf_mem->key_len, val, lnf_mem->val_len);
@@ -832,24 +830,22 @@ int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
 	int ret;
 	
 	if (lnf_mem->read_cursor == NULL) {
-		lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+		ret = lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+	} else {
+		ret =  lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
 	}
-
-	ret =  lnf_mem_read_raw_c(lnf_mem, lnf_mem->read_cursor, buff, len, buffsize);
 
 	if (ret != LNF_OK) {
-
 		return ret;
 	}
-	
-	return lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
 
+	return  lnf_mem_read_raw_c(lnf_mem, lnf_mem->read_cursor, buff, len, buffsize);
 }
 
 /* set cursor position to the first rec */
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem) {
 
-	lnf_mem_first_c(&lnf_mem->hash_table[0], &lnf_mem->read_cursor);
+	lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
 
 }
 
