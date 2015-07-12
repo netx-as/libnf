@@ -25,7 +25,7 @@ hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
 	t->sort_array = NULL;
-//	t->entrypoint = NULL;	/* entry point */
+	t->entrypoint = NULL;	/* entry point */
 	t->numentries = 0;
 	
 //	t->rows_used = 0;
@@ -110,6 +110,32 @@ int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
 
 }
 
+/* convert hash elements into linked list */
+/* t->entrypoint */
+void hash_table_link(hash_table_t *t) {
+
+	unsigned long index;
+	char *prow_tmp;
+	hash_table_row_hdr_t *phdr;
+
+	for (index = 0; index < t->numbuckets; index++) {
+		
+		if (t->buckets[index] != NULL) {
+			
+			prow_tmp = t->buckets[index];
+
+			/* find the last element */
+			while (prow_tmp != NULL) {
+				phdr = (hash_table_row_hdr_t *)prow_tmp;
+				prow_tmp = phdr->next;
+			}
+
+			phdr->next = t->entrypoint;
+			t->entrypoint = t->buckets[index];
+		} 
+	}	
+}
+
 /* convert hash table into simple array */
 int hash_table_sort(hash_table_t *t) {
 
@@ -145,27 +171,51 @@ int hash_table_sort(hash_table_t *t) {
 	free(t->buckets);
 	t->buckets = NULL;
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
+
+	/* after sorting make linked list of elements */
+	t->entrypoint = t->sort_array[0];
+
+	for (index = 1; index < t->numentries; index++) {
+		
+		phdr = (hash_table_row_hdr_t *)t->sort_array[index-1];
+		phdr->next = t->sort_array[index];
+	}
+
 	return 1;
 	
 }
 
-/* fetch data on "index"; if the index is out of range then return 0 */
-int hash_table_fetch(hash_table_t *t, unsigned long index, char **pkey, char **pval) {
+/* return pointer to first record in list */
+char * hash_table_first(hash_table_t *t) {
 
-	hash_table_row_hdr_t *phdr;
-	char * prow;
+	return t->entrypoint;
 
-	if (index >= t->numentries) {
-		return 0;
+}
+
+/* return pointer to next record in list or NULL if there is no mere entries */
+char * hash_table_next(hash_table_t *t, char *prow) {
+
+	if (prow == NULL) {
+
+		return NULL;
+
 	}
 
-	prow = t->sort_array[index];
+	hash_table_row_hdr_t *phdr = (hash_table_row_hdr_t *)prow;
+
+	return phdr->next;
+
+}
+
+/* fetch data on prow pointer; no extra chexks for ranges! */
+void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
+
+	hash_table_row_hdr_t *phdr;
 
 	phdr = (hash_table_row_hdr_t *)prow;	
 	*pkey = (prow + sizeof(hash_table_row_hdr_t));
 	*pval = (prow + sizeof(hash_table_row_hdr_t) + t->keylen);
 
-	return 1;
 }
 
 

@@ -167,6 +167,7 @@ typedef void lnf_file_t;
 typedef void lnf_rec_t;		
 typedef void lnf_filter_t;
 typedef void lnf_mem_t;
+typedef void lnf_mem_cursor_t;
 #endif
 
  
@@ -222,6 +223,7 @@ typedef void lnf_mem_t;
 	\defgroup filter  Filter operations
 	\defgroup memheap In memory aggregation and sorting module
 	\defgroup error Error handling 
+	\defgroup deprecated Deprecated functions 
 */
 
 /*! 
@@ -588,6 +590,36 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem);
 int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec);
 
 /*!	\ingroup memheap
+\brief Set the cursor position to the first record
+
+This function set memheap cursor to the first record in the memheap.
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param **cursor 	double pointer to lnf_mem_cursor_t structure
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_first_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor); 
+
+/*!	\ingroup memheap
+\brief Set the cursor position to the next record
+
+This function set memheap cursor to the next record in the memheap.
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param **cursor 	double pointer to lnf_mem_cursor_t structure
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_next_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor); 
+
+/*!	\ingroup memheap
+\brief 	Read next record on the position given by cursor
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *cursor 		pointer to valid lnf_mem_cursor_t structure
+\param *rec 		pointer to initialized record structure 
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_read_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, lnf_rec_t *rec);
+
+/*!	\ingroup memheap
 \brief 	Read next record from memheap in binary format 
 
 The function reads data from internal lnf_mem structure in binary format. 
@@ -605,13 +637,29 @@ The data obtained by lnf_mem_read are platform dependent!
 \param buffsize 	space available in buff
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
 */
+int lnf_mem_read_raw_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, char *buff, int *len, int buffsize);
+
+/*!	\ingroup deprecated
+\brief 	DEPRECATED Read next record from memheap in binary format 
+
+This function is deprecated and might be removed in the future version. 
+Use lnf_mem_read_raw_c instead. 
+
+The data obtained by lnf_mem_read are platform dependent! 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *buff 		buffer where data will be filled in - there must be enough space for data
+\param *len 		returned data size in Bytes
+\param buffsize 	space available in buff
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
 int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize);
 
-/*!	\ingroup memheap
-\brief 	Re-set the position of the internal cursor to the beginning
+/*!	\ingroup deprecated
+\brief 	DEPRECATED Re-set the position of the internal cursor to the beginning
 
-This function resets internal lnf_mem_read and lnf_mem_read row cursor to first
-position. 
+This function is deprecated and might be removed in the future version. 
+Use lnf_mem_first_c instead. 
 */
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem);
 

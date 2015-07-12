@@ -88,7 +88,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sorted = 0;
 	lnf_mem->statistics_mode = 0;
 	lnf_mem->numthreads = 0;
-	lnf_mem->read_index = 0;
+	lnf_mem->read_cursor = NULL;
 #ifdef LNF_THREADS
 	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
 		free(lnf_mem);
@@ -723,41 +723,53 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 #endif	/* ifdef LNF_THREADS */
 }
 
-/* read next record from memory heap - internally used function */
+/* set cursot to first record from memory heap */
 /* used later by lnf_mem_read and lnf_mem_read_raw */
-int lnf_mem_read_next(lnf_mem_t *lnf_mem, char **pkey, char **pval) {
+int lnf_mem_first_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
 
 	if (lnf_mem->thread_status[0] == LNF_TH_EMPTY) {
+		*cursor = NULL;
 		return LNF_EOF;
 	}
 
 	if (!lnf_mem->sorted) {
 		hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;
-		lnf_mem->read_index = 0;
 	}
 
-	if (!hash_table_fetch(&lnf_mem->hash_table[0], lnf_mem->read_index, pkey, pval)) {
+	*cursor = (lnf_mem_cursor_t *)hash_table_first(&lnf_mem->hash_table[0]);
+
+	if (*cursor == NULL) {
 		return LNF_EOF;
 	}
 
-	lnf_mem->read_index++;
+	return LNF_OK;
+}
+
+/* set cursot to next record from memory heap */
+/* used later by lnf_mem_read and lnf_mem_read_raw */
+int lnf_mem_next_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
+
+	if (lnf_mem->thread_status[0] == LNF_TH_EMPTY) {
+		return LNF_EOF;
+	}
+
+	*cursor = (lnf_mem_cursor_t *)hash_table_next(&lnf_mem->hash_table[0], (void *)*cursor);
+
+	if (*cursor == NULL) {
+		return LNF_EOF;
+	}
 
 	return LNF_OK;
 }
 
 /* read next record from memory heap */
-int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
+int lnf_mem_read_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, lnf_rec_t *rec) {
 
 	char *key; 
 	char *val;
-	int ret;
 
-	ret = lnf_mem_read_next(lnf_mem, &key, &val);
-
-	if (ret != LNF_OK) {
-		return ret;
-	}
+	hash_table_fetch(&lnf_mem->hash_table[0], cursor, &key, &val);
 
 	lnf_rec_clear(rec);
 
@@ -770,18 +782,32 @@ int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	return LNF_OK;
 }
 
+/* deprecated version of read */
+int lnf_mem_read(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
+
+	int ret;
+
+	if (lnf_mem->read_cursor == NULL) {
+		lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+	}
+	
+	ret =  lnf_mem_read_c(lnf_mem, lnf_mem->read_cursor, rec);
+
+	if (ret != LNF_OK) {
+
+		return ret;
+	}
+	
+	return lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
+
+}
+
 /* read next record from memory heap in raw format */
-int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
+int lnf_mem_read_raw_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, char *buff, int *len, int buffsize) {
 
 	char *key; 
 	char *val;
 	int ret;
-
-	ret = lnf_mem_read_next(lnf_mem, &key, &val);
-
-	if (ret != LNF_OK) {
-		return ret;
-	}
 
 	if (len != NULL) {
 		*len = lnf_mem->key_len + lnf_mem->val_len;
@@ -792,16 +818,38 @@ int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
 		return LNF_ERR_NOMEM;
 	}
 
+	hash_table_fetch(&lnf_mem->hash_table[0], cursor, &key, &val);
+
 	memcpy(buff, key, lnf_mem->key_len);
 	memcpy(buff + lnf_mem->key_len, val, lnf_mem->val_len);
 
 	return LNF_OK;
 }
 
+/* deprecated version of read */
+int lnf_mem_read_raw(lnf_mem_t *lnf_mem, char *buff, int *len, int buffsize) {
+
+	int ret;
+	
+	if (lnf_mem->read_cursor == NULL) {
+		lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
+	}
+
+	ret =  lnf_mem_read_raw_c(lnf_mem, lnf_mem->read_cursor, buff, len, buffsize);
+
+	if (ret != LNF_OK) {
+
+		return ret;
+	}
+	
+	return lnf_mem_next_c(lnf_mem, &lnf_mem->read_cursor);
+
+}
+
 /* set cursor position to the first rec */
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem) {
 
-	lnf_mem->read_index = 0;
+	lnf_mem_first_c(&lnf_mem->hash_table[0], &lnf_mem->read_cursor);
 
 }
 

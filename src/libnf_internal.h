@@ -122,6 +122,8 @@ typedef struct lnf_fieldlist_s {
 
 #define LNF_MAX_THREADS 128			/* maximum threads */
 
+typedef char* lnf_mem_cursor_t;		/* cursor for reading lnf_mem structure */
+
 /* general memheap structure */
 typedef struct lnf_mem_s {
 	lnf_fieldlist_t *key_list;		/* list of fields with key values */
@@ -154,7 +156,8 @@ typedef struct lnf_mem_s {
 	int numthreads;					/* participating number of threads */
 	hash_table_t hash_table[LNF_MAX_THREADS];	/* thread specific instance */
 //	char * hash_ptr;				/* row pointer for reading */
-	unsigned long read_index;		/* index for nex read */
+//	unsigned long read_index;		/* index for nex read */
+	lnf_mem_cursor_t *read_cursor;	/* read pointer */
 	int rearranged;					/* is the final hash table rearranged */
 	int sorted;						/* is the table sorted ? */
 	int statistics_mode;			/* is lnf_mem in statistics mode ? (have a pair item in kay) */
