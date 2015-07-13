@@ -35,7 +35,9 @@ int process_file(char *filename) {
 
 	tid = (int)pthread_self();
 
-	printf("[#%x] Processing %s\n", tid, filename);
+	if (print) {
+		printf("[#%x] Processing %s\n", tid, filename);
+	}
 
 	if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
 		fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
@@ -71,7 +73,9 @@ int process_file(char *filename) {
 
 	lnf_close(filep);
 
-	printf("[#%x] Total input records in file %s : %d\n", tid, filename, i);
+	if (print) {
+		printf("[#%x] Total input records in file %s : %d\n", tid, filename, i);
+	}
 
 	return i; 
 }
