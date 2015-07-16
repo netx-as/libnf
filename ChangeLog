@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.14 2015-07-xx
+1.14 2015-08-xx
 	- c: new way to work with data in lnf_mem, new functions 
 	  lnf_mem_first_c, lnf_mem_next_c, lnf_mem_read_c,
 	  lnf_mem_read_raw_c
@@ -9,6 +9,8 @@ Revision history for C and Perl extension of nfdump.
 	- c: examples redesigned to use lnf_mem functions 
 	- perl: added new test 52-libnf-examples.t to test examples 
 	- perl: t/08-aggreg-sort.t was missing in distribution package 
+	- perl: Socket6 module is not required starting with perl 5.14.0 
+	  http://search.cpan.org/~jesse/perl-5.14.0/pod/perldelta.pod#Improved_IPv6_support
 
 1.13 2015-07-08
 	- perl: module requires use of threads 
