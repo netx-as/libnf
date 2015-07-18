@@ -222,7 +222,7 @@ void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
 /* merge ts table into td */
 hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 	
-	char *prow, *pkey, *pval;
+	char *prow, *pkey, *pval, *tmp;
 	hash_table_row_hdr_t *phdr;
 	int index;
 
@@ -240,8 +240,9 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 					return NULL;
 				}
 				/* row inserted into new table - we can remove it */
+				tmp = phdr->next;
 				free(prow);
-				prow = phdr->next;
+				prow = tmp;
 			}
 		} 
 	}

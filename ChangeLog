@@ -8,6 +8,7 @@ Revision history for C and Perl extension of nfdump.
 	  lnf_mem_read_reset marked as deprecated
 	- c: examples redesigned to use lnf_mem functions 
 	- c: libnf.h was not installed by default (thanks to Tomas Cejka)
+	- c: removed memory release bug in merge_threads
 	- perl: added new test 52-libnf-examples.t to test examples 
 	- perl: t/08-aggreg-sort.t was missing in distribution package 
 	- perl: Socket6 module is not required starting with perl 5.14.0 
