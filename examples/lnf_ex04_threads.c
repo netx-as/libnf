@@ -125,6 +125,7 @@ int main(int argc, char **argv) {
 
 	lnf_rec_t *recp;
 	lnf_brec1_t brec;
+	lnf_mem_cursor_t *cursor;
 
 	pthread_t th[MAX_THREADS];
 
@@ -204,7 +205,10 @@ int main(int argc, char **argv) {
 	/* print the records out */
 	i = 0;
 	lnf_rec_init(&recp);
-	while (lnf_mem_read(memp, recp) != LNF_EOF) {
+	lnf_mem_first_c(memp, &cursor);
+	while (cursor != NULL) {
+
+		lnf_mem_read_c(memp, cursor, recp);
 
 		i++;
 
@@ -222,7 +226,8 @@ int main(int argc, char **argv) {
 					dbuf, brec.dstport,  
 					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
-	}
+		lnf_mem_next_c(memp, &cursor);
+	} 
 
 	printf("Total aggregated records: %d\n", i);
 

@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.14 2015-08-xx
+1.14 2015-07-18
 	- c: new way to work with data in lnf_mem, new functions 
 	  lnf_mem_first_c, lnf_mem_next_c, lnf_mem_read_c,
 	  lnf_mem_read_raw_c

@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
 	lnf_rec_t *recp;
 	lnf_mem_t *memp1;
 	lnf_mem_t *memp2;
+	lnf_mem_cursor_t *cursor;
 
 	lnf_brec1_t brec;
 
@@ -98,17 +99,23 @@ int main(int argc, char **argv) {
 	printf("Total input records: %d\n", i);
 
 	/* transfer data from memp1 to memp2 */
-	while (lnf_mem_read_raw(memp1, buff, &datasize, LNF_MAX_RAW_LEN)) {
+	lnf_mem_first_c(memp1, &cursor);
+	while (cursor != NULL) {
+		lnf_mem_read_raw_c(memp1, cursor, buff, &datasize, LNF_MAX_RAW_LEN);
 		lnf_mem_write_raw(memp2, buff, datasize);
+		lnf_mem_next_c(memp1, &cursor);
 	}
+
 
 	/* all data are now in memp2) */
 
 
 	i = 0;
-	while (lnf_mem_read(memp2, recp) != LNF_EOF) {
+	lnf_mem_first_c(memp2, &cursor);
+	while (cursor != NULL) {
 
 		i++;
+		lnf_mem_read_c(memp2, cursor, recp);
 
 		if (printa) {
 			char sbuf[INET6_ADDRSTRLEN];
@@ -124,6 +131,7 @@ int main(int argc, char **argv) {
 					dbuf, brec.dstport,  
 					(LLUI)brec.first, (LLUI)brec.bytes, (LLUI)brec.pkts);
 		}
+		lnf_mem_next_c(memp2, &cursor);
 	}
 
 	printf("Total aggregated records: %d\n", i);
