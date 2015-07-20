@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 	lnf_rec_init(&recp2);
 
 	/* set key field in record */
-	port = 1123;
+	port = 1124;
 	lnf_rec_fset(recp2, LNF_FLD_SRCPORT, &port);
 	
 	if (lnf_mem_lookup_c(memp, recp2, &cursor) == LNF_OK) {
