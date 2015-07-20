@@ -610,6 +610,20 @@ This function set memheap cursor to the next record in the memheap.
 int lnf_mem_next_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor); 
 
 /*!	\ingroup memheap
+\brief Set the cursor position to the record identified by key fields
+
+This function set memheap cursor  to the position given by the key fields (added by 
+lnf_mem_fadd(..,..,LNF_AGGR_KEY) if the record. If the propper record is found returns 
+LNF_OK else LNF_EOF.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *rec 		pointer to initialized record structure 
+\param **cursor 	double pointer to lnf_mem_cursor_t structure
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_lookup_c(lnf_mem_t *lnf_mem, lnf_rec_t *rec, lnf_mem_cursor_t **cursor);
+
+/*!	\ingroup memheap
 \brief 	Read next record on the position given by cursor
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 

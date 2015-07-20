@@ -763,6 +763,30 @@ int lnf_mem_next_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
 	return LNF_OK;
 }
 
+/* set cursot to record identified by key */
+int lnf_mem_lookup_c(lnf_mem_t *lnf_mem, lnf_rec_t *rec, lnf_mem_cursor_t **cursor) {
+
+	char *pval;
+	unsigned long hash;
+	char keybuf[LNF_MAX_KEY_LEN]; 
+
+	if (lnf_mem->thread_status[0] == LNF_TH_EMPTY) {
+		*cursor = NULL;
+		return LNF_EOF;
+	}
+
+	/* build key */
+	lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf, 0);
+
+	*cursor = (lnf_mem_cursor_t *)hash_table_lookup(&lnf_mem->hash_table[0], keybuf, &pval, &hash);
+
+	if (*cursor == NULL) {
+		return LNF_EOF;
+	}
+
+	return LNF_OK;
+}
+
 /* read next record from memory heap */
 int lnf_mem_read_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, lnf_rec_t *rec) {
 

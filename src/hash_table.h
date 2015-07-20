@@ -61,6 +61,7 @@ char * hash_table_next(hash_table_t *t, char *prow);
 void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval);
 void hash_table_entry_len(hash_table_t *t, int keylen, int vallen);
 char * hash_table_insert(hash_table_t *t, char *key, char *val);
+char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *hash);
 int hash_table_sort_callback(char *prow1, char *prow2, void *p);
 void hash_table_link(hash_table_t *t);
 int hash_table_sort(hash_table_t *t);

@@ -41,18 +41,18 @@ void hash_table_entry_len(hash_table_t *t, int keylen, int vallen) {
 
 }
 
-/* insert element into hash table */
-char * hash_table_insert(hash_table_t *t, char *key, char *val) {
+/* lookup key in hash table */
+char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *hash) {
 
-	unsigned long hash, index;
+	unsigned long index;
 	char *prow;
 	hash_table_row_hdr_t *phdr;
 	char *pkey;
 	char *pval;
 
-	hash = XXH64(key, t->keylen, 0);	
+	*hash = XXH64(key, t->keylen, 0);	
 
-	index = hash % t->numbuckets;
+	index = *hash % t->numbuckets;
 
 	prow = t->buckets[index];
 
@@ -63,13 +63,32 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 		pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
 
 		if (memcmp(pkey, key, t->keylen) == 0) {
-			/* same key - aggregate value */
-			t->aggr_callback(pkey, pval, val, t->callback_data);
+			/* found key  */
+			*val = pval;
 			return prow;
 		} else {
 			/* keys do not match - try next item in list */
 			prow = phdr->hnext;
 		}
+	}
+
+	return NULL;
+
+}
+
+/* insert element into hash table */
+char * hash_table_insert(hash_table_t *t, char *key, char *val) {
+
+	unsigned long hash, index;
+	char *prow;
+	hash_table_row_hdr_t *phdr;
+	char *pkey;
+	char *pval;
+
+	/* element is already in hash table */
+	if ((prow = hash_table_lookup(t, key, &pval, &hash)) != NULL) {
+		t->aggr_callback(key, pval, val, t->callback_data);
+		return prow;
 	}
 
 	/* new entry */
@@ -86,6 +105,9 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 
 	memcpy(pkey, key, t->keylen);
 	memcpy(pval, val, t->vallen);
+
+	index = hash % t->numbuckets;
+
 	phdr->hash = hash;
 	phdr->hnext = t->buckets[index];
 	phdr->snext = phdr->hnext;
@@ -168,8 +190,6 @@ int hash_table_sort(hash_table_t *t) {
 		} 
 	}	
 
-	free(t->buckets);
-	t->buckets = NULL;
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
 
 	/* after sorting make linked list of elements */

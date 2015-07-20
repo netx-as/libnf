@@ -2,7 +2,7 @@
 AM_CFLAGS = -I$(top_srcdir)/include 
 
 bin_PROGRAMS = lnf_ex01_writer lnf_ex02_reader lnf_ex03_aggreg lnf_ex05_memtrans lnf_ex06_readreset \
-			lnf_ex07_filter lnf_ex08_statistics
+			lnf_ex07_filter lnf_ex08_statistics lnf_ex09_memlookup
 
 lnf_ex01_writer_SOURCES = lnf_ex01_writer.c
 lnf_ex01_writer_LDADD = ../src/.libs/libnf.a
@@ -32,3 +32,6 @@ lnf_ex07_filter_LDADD = ../src/.libs/libnf.a
 
 lnf_ex08_statistics_SOURCES = lnf_ex08_statistics.c
 lnf_ex08_statistics_LDADD = ../src/.libs/libnf.a
+
+lnf_ex09_memlookup_SOURCES = lnf_ex09_memlookup.c
+lnf_ex09_memlookup_LDADD = ../src/.libs/libnf.a
