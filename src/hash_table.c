@@ -68,7 +68,7 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 			return prow;
 		} else {
 			/* keys do not match - try next item in list */
-			prow = phdr->next;
+			prow = phdr->hnext;
 		}
 	}
 
@@ -87,7 +87,8 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 	memcpy(pkey, key, t->keylen);
 	memcpy(pval, val, t->vallen);
 	phdr->hash = hash;
-	phdr->next = t->buckets[index];
+	phdr->hnext = t->buckets[index];
+	phdr->snext = phdr->hnext;
 
 	t->buckets[index] = prow;
 
@@ -127,10 +128,10 @@ void hash_table_link(hash_table_t *t) {
 			/* find the last element */
 			while (prow_tmp != NULL) {
 				phdr = (hash_table_row_hdr_t *)prow_tmp;
-				prow_tmp = phdr->next;
+				prow_tmp = phdr->hnext;
 			}
 
-			phdr->next = t->entrypoint;
+			phdr->snext = t->entrypoint;
 			t->entrypoint = t->buckets[index];
 		} 
 	}	
@@ -150,6 +151,8 @@ int hash_table_sort(hash_table_t *t) {
 		return 0;
 	}
 
+	/* should be redesigned to some linked list sort algorithm */
+
 	for (index = 0; index < t->numbuckets; index++) {
 		
 		if (t->buckets[index] != NULL) {
@@ -159,11 +162,8 @@ int hash_table_sort(hash_table_t *t) {
 			while (prow_tmp != NULL) {
 				t->sort_array[index_array++] = prow_tmp;
 				phdr = (hash_table_row_hdr_t *)prow_tmp;
-				prow_tmp = phdr->next;
+				prow_tmp = phdr->hnext;
 			}
-
-//			phdr->next = t->entrypoint;
-//			t->entrypoint = t->buckets[index];
 
 		} 
 	}	
@@ -178,7 +178,7 @@ int hash_table_sort(hash_table_t *t) {
 	for (index = 1; index < t->numentries; index++) {
 		
 		phdr = (hash_table_row_hdr_t *)t->sort_array[index-1];
-		phdr->next = t->sort_array[index];
+		phdr->snext = t->sort_array[index];
 	}
 
 	return 1;
@@ -203,7 +203,7 @@ char * hash_table_next(hash_table_t *t, char *prow) {
 
 	hash_table_row_hdr_t *phdr = (hash_table_row_hdr_t *)prow;
 
-	return phdr->next;
+	return phdr->snext;
 
 }
 
@@ -240,7 +240,7 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 					return NULL;
 				}
 				/* row inserted into new table - we can remove it */
-				tmp = phdr->next;
+				tmp = phdr->hnext;
 				free(prow);
 				prow = tmp;
 			}

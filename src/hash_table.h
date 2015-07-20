@@ -4,10 +4,15 @@
 #define HASH_TABLE_INIT_SIZE  500000
 
 
-/* hash table iflags for every row */
+/* hash table header */
+/* items are organizes into linked hash table via hnext */
+/* and linked list via snext */
+/* during insertion hnext and snext are identical */
+/* after sorting or calling lnf_mem_first snext is rearranged into simple linked list */
 typedef struct hash_table_row_hdr_s {
 	unsigned long hash;
-	char *next;
+	char *hnext;		/* next item for hash table */
+	char *snext;		/* linked list for sorted items */
 } hash_table_row_hdr_t;
 
 
