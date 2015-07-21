@@ -80,7 +80,7 @@ char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *
 char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 
 	unsigned long hash, index;
-	char *prow;
+	char *prow, *tmp;
 	hash_table_row_hdr_t *phdr;
 	char *pkey;
 	char *pval;
@@ -110,9 +110,12 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 
 	phdr->hash = hash;
 	phdr->hnext = t->buckets[index];
-	phdr->snext = phdr->hnext;
-
 	t->buckets[index] = prow;
+
+	/* add entry at the begginging of linked list */
+	tmp = t->entrypoint;
+	t->entrypoint = prow;
+	phdr->snext = tmp;
 
 	return prow;
 }
@@ -133,32 +136,6 @@ int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
 
 }
 
-/* convert hash elements into linked list */
-/* t->entrypoint */
-void hash_table_link(hash_table_t *t) {
-
-	unsigned long index;
-	char *prow_tmp;
-	hash_table_row_hdr_t *phdr;
-
-	for (index = 0; index < t->numbuckets; index++) {
-		
-		if (t->buckets[index] != NULL) {
-			
-			prow_tmp = t->buckets[index];
-
-			/* find the last element */
-			while (prow_tmp != NULL) {
-				phdr = (hash_table_row_hdr_t *)prow_tmp;
-				prow_tmp = phdr->hnext;
-			}
-
-			phdr->snext = t->entrypoint;
-			t->entrypoint = t->buckets[index];
-		} 
-	}	
-}
-
 /* convert hash table into simple array */
 int hash_table_sort(hash_table_t *t) {
 
@@ -174,21 +151,13 @@ int hash_table_sort(hash_table_t *t) {
 	}
 
 	/* should be redesigned to some linked list sort algorithm */
+	prow_tmp = t->entrypoint;
 
-	for (index = 0; index < t->numbuckets; index++) {
-		
-		if (t->buckets[index] != NULL) {
-			
-			prow_tmp = t->buckets[index];
-
-			while (prow_tmp != NULL) {
-				t->sort_array[index_array++] = prow_tmp;
-				phdr = (hash_table_row_hdr_t *)prow_tmp;
-				prow_tmp = phdr->hnext;
-			}
-
-		} 
-	}	
+	while (prow_tmp != NULL) {
+		t->sort_array[index_array++] = prow_tmp;
+		phdr = (hash_table_row_hdr_t *)prow_tmp;
+		prow_tmp = phdr->snext;
+	}
 
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
 
@@ -201,6 +170,10 @@ int hash_table_sort(hash_table_t *t) {
 		phdr->snext = t->sort_array[index];
 	}
 
+	if (index > 1) {
+		phdr = (hash_table_row_hdr_t *)t->sort_array[index - 1];
+		phdr->snext = NULL;
+	}
 	return 1;
 	
 }

@@ -1,8 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
 1.15 2015-08-xx
-	- c: new function lnf_mem_lookup_c 
-	- C: new example examples/lnf_ex09_memlookup.c 
+	- c: improved merge_threads (removed deadlock)
+	- c: new function lnf_mem_lookup_c and lnf_mem_lookup_raw_c
+	- c: new example examples/lnf_ex09_memlookup.c 
 
 1.14 2015-07-18
 	- c: new way to work with data in lnf_mem, new functions 

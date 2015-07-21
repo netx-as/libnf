@@ -781,6 +781,31 @@ int lnf_mem_lookup_c(lnf_mem_t *lnf_mem, lnf_rec_t *rec, lnf_mem_cursor_t **curs
 	return LNF_OK;
 }
 
+/* store in raw format in the memory heap */
+int lnf_mem_lookup_raw_c(lnf_mem_t *lnf_mem, char *buff, int buffsize, lnf_mem_cursor_t **cursor) {
+
+	char *pval;
+	unsigned long hash;
+
+	/* compare the size of buffer - have to macht size of key + val fields */
+	if (buffsize != lnf_mem->key_len + lnf_mem->val_len) {
+		return LNF_ERR_OTHER;
+	}
+
+	if (lnf_mem->thread_status[0] == LNF_TH_EMPTY) {
+		*cursor = NULL;
+		return LNF_EOF;
+	}
+
+	*cursor = (lnf_mem_cursor_t *)hash_table_lookup(&lnf_mem->hash_table[0], buff, &pval, &hash);
+
+	if (*cursor == NULL) {
+		return LNF_EOF;
+	}
+
+	return LNF_OK;
+}
+
 /* read next record from memory heap */
 int lnf_mem_read_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t *cursor, lnf_rec_t *rec) {
 

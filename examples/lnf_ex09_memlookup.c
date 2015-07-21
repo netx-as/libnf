@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 	lnf_file_t *filep;
 	lnf_rec_t *recp, *recp2;
 	lnf_mem_t *memp;
-	lnf_mem_cursor_t *cursor;
+	lnf_mem_cursor_t *cursor, *cursor2;
 
 	lnf_brec1_t brec;
 	uint16_t port;
@@ -26,8 +26,10 @@ int main(int argc, char **argv) {
 
     int print = 1;
     int printa = 1;
+	int len;
     char *filename = FILENAME;
     char c;
+	char buff[1024];
 
 	while ((c = getopt (argc, argv, "pPAf:")) != -1) {
 		switch (c) {
@@ -98,11 +100,10 @@ int main(int argc, char **argv) {
 	lnf_rec_init(&recp2);
 
 	/* set key field in record */
-	port = 1124;
+	port = 1123;
 	lnf_rec_fset(recp2, LNF_FLD_SRCPORT, &port);
 	
 	if (lnf_mem_lookup_c(memp, recp2, &cursor) == LNF_OK) {
-		printf("xxxx1\n");
 		lnf_mem_read_c(memp, cursor, recp);
 
 		lnf_rec_fget(recp, LNF_FLD_BREC1, &brec);	
@@ -112,6 +113,16 @@ int main(int argc, char **argv) {
 	} else {
 		printf("Record not found\n");
 	}
+
+	/* additional testion of lnf_mem_lookup_raw_c */
+	/* it's just testing - doesn't make any sense */
+	if (cursor != NULL && lnf_mem_read_raw_c(memp, cursor, buff, &len, sizeof(buff)) == LNF_OK) {
+		if (lnf_mem_lookup_raw_c(memp, buff, len, &cursor2) == LNF_OK) {
+			if (cursor == cursor2) {
+				printf("Read through lnf_lookup_raw_c is ok \n");
+			}	
+		} 
+	} 
 	
 
 	lnf_mem_free(memp);

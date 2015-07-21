@@ -624,6 +624,20 @@ LNF_OK else LNF_EOF.
 int lnf_mem_lookup_c(lnf_mem_t *lnf_mem, lnf_rec_t *rec, lnf_mem_cursor_t **cursor);
 
 /*!	\ingroup memheap
+\brief Set the cursor position to the record identified by key in raw record
+
+Same meaning as lnf_mem_lookup_c, but instead lnf_rec_t record works with raw buffer 
+taken from lnf_mem_read_raw function.
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param *buff 		pointer to raw buffer
+\param buffsize		size of data in raw buffer
+\param **cursor 	double pointer to lnf_mem_cursor_t structure
+\return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
+*/
+int lnf_mem_lookup_raw_c(lnf_mem_t *lnf_mem, char *buff, int buffsize, lnf_mem_cursor_t **cursor);
+
+/*!	\ingroup memheap
 \brief 	Read next record on the position given by cursor
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
