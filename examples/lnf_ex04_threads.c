@@ -133,9 +133,10 @@ int main(int argc, char **argv) {
 
     int printa = 1;
 	int numthreads = 1;
+	int listmode = 0;
     char c;
 
-	while ((c = getopt (argc, argv, "npPAt:")) != -1) {
+	while ((c = getopt (argc, argv, "lnpPAt:")) != -1) {
 		switch (c) {
 			case 'p':
 			case 'P':
@@ -146,6 +147,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'n':
 				aggregate = 0;
+				break;
+			case 'l':
+				listmode = 1;
 				break;
 			case 't': 
 				numthreads = atoi(optarg);
@@ -158,6 +162,7 @@ int main(int argc, char **argv) {
 				printf(" -P : do not print input records to stdout\n");
 				printf(" -A : do not print aggregated records to stdout\n");
 				printf(" -n : do not aggregate records (just read and throw out)\n");
+				printf(" -l : switch to list mode (dot not aggregate)\n");
 				printf(" -t : num threads\n");
 				exit(1);
 		}
@@ -165,6 +170,13 @@ int main(int argc, char **argv) {
 
 	/* initalise one instance of memory heap (share by all threads) */
 	lnf_mem_init(&memp);
+
+	if (listmode) {
+		if (lnf_mem_setopt(memp, LNF_OPT_LISTMODE, NULL, 0) != LNF_OK) {
+			printf("Can't switch to list mode\n");
+			exit(1);
+		}
+	}
 
 	/* set rules for aggregation srcip/24,srcport,dstas */
 	lnf_mem_fadd(memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY|LNF_SORT_DESC, 24, 64);

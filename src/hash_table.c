@@ -25,7 +25,8 @@ hash_table_t * hash_table_init(hash_table_t *t, int numbuckets,
 	t->sort_callback = scb;
 	t->callback_data = callback_data;
 	t->sort_array = NULL;
-	t->entrypoint = NULL;	/* entry point */
+	t->sfirst = NULL;	/* entry point */
+	t->slast = NULL;	/* entry point */
 	t->numentries = 0;
 	
 //	t->rows_used = 0;
@@ -77,7 +78,7 @@ char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *
 }
 
 /* insert element into hash table */
-char * hash_table_insert(hash_table_t *t, char *key, char *val) {
+char * hash_table_insert_hash(hash_table_t *t, char *key, char *val) {
 
 	unsigned long hash, index;
 	char *prow, *tmp;
@@ -85,11 +86,55 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 	char *pkey;
 	char *pval;
 
+
 	/* element is already in hash table */
 	if ((prow = hash_table_lookup(t, key, &pval, &hash)) != NULL) {
 		t->aggr_callback(key, pval, val, t->callback_data);
 		return prow;
 	}
+
+	/* new entry */
+	prow = malloc(sizeof(hash_table_row_hdr_t) + t->keylen + t->vallen);
+	t->numentries++;	
+
+	if (prow == NULL) {
+		return NULL;
+	}
+
+
+	phdr = (hash_table_row_hdr_t *)prow;
+	pkey = prow + sizeof(hash_table_row_hdr_t);
+	pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
+
+	memcpy(pkey, key, t->keylen);
+	memcpy(pval, val, t->vallen);
+
+	index = hash % t->numbuckets;
+
+	phdr->hash = hash;
+	phdr->hnext = t->buckets[index];
+	t->buckets[index] = prow;
+
+	/* add entry at the begginging of linked list */
+	tmp = t->sfirst;
+	t->sfirst = prow;
+	phdr->snext = tmp;
+
+	/* frst element in linked list is the last one */
+	if (tmp == NULL) {
+		t->slast = prow;
+	}
+
+	return prow;
+}
+
+/* insert element into linked list  */
+char * hash_table_insert_list(hash_table_t *t, char *key, char *val) {
+
+	char *prow, *tmp;
+	hash_table_row_hdr_t *phdr;
+	char *pkey;
+	char *pval;
 
 	/* new entry */
 	prow = malloc(sizeof(hash_table_row_hdr_t) + t->keylen + t->vallen);
@@ -106,16 +151,15 @@ char * hash_table_insert(hash_table_t *t, char *key, char *val) {
 	memcpy(pkey, key, t->keylen);
 	memcpy(pval, val, t->vallen);
 
-	index = hash % t->numbuckets;
-
-	phdr->hash = hash;
-	phdr->hnext = t->buckets[index];
-	t->buckets[index] = prow;
-
 	/* add entry at the begginging of linked list */
-	tmp = t->entrypoint;
-	t->entrypoint = prow;
+	tmp = t->sfirst;
+	t->sfirst = prow;
 	phdr->snext = tmp;
+
+	/* frst element in linked list is the last one */
+	if (tmp == NULL) {
+		t->slast = prow;
+	}
 
 	return prow;
 }
@@ -151,7 +195,7 @@ int hash_table_sort(hash_table_t *t) {
 	}
 
 	/* should be redesigned to some linked list sort algorithm */
-	prow_tmp = t->entrypoint;
+	prow_tmp = t->sfirst;
 
 	while (prow_tmp != NULL) {
 		t->sort_array[index_array++] = prow_tmp;
@@ -162,7 +206,7 @@ int hash_table_sort(hash_table_t *t) {
 	heap_sort(t->sort_array, t->numentries, &hash_table_sort_callback, t);
 
 	/* after sorting make linked list of elements */
-	t->entrypoint = t->sort_array[0];
+	t->sfirst = t->sort_array[0];
 
 	for (index = 1; index < t->numentries; index++) {
 		
@@ -181,7 +225,7 @@ int hash_table_sort(hash_table_t *t) {
 /* return pointer to first record in list */
 char * hash_table_first(hash_table_t *t) {
 
-	return t->entrypoint;
+	return t->sfirst;
 
 }
 
@@ -212,6 +256,28 @@ void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
 }
 
 
+/* join linked list in hash table ts with table ts */
+hash_table_t * hash_table_join(hash_table_t *td, hash_table_t *ts) {
+
+	hash_table_row_hdr_t *tmp;
+
+	/* at least one element */
+	if (td->slast != NULL) {
+		tmp = (hash_table_row_hdr_t *)td->slast;
+		tmp->snext = ts->sfirst; 
+	} else {
+		td->sfirst = ts->sfirst;
+	}
+
+	td->numentries += ts->numentries;
+	ts->numentries = 0; 
+	td->slast = ts->slast;
+	ts->sfirst = NULL;
+	ts->slast = NULL;
+	
+	return td;
+}
+
 /* merge ts table into td */
 hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 	
@@ -229,7 +295,7 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 				phdr = (hash_table_row_hdr_t *)prow;	
 				pkey = (prow + sizeof(hash_table_row_hdr_t));
 				pval = (prow + sizeof(hash_table_row_hdr_t) + ts->keylen);
-				if (hash_table_insert(td, pkey, pval) == NULL) {
+				if (hash_table_insert_hash(td, pkey, pval) == NULL) {
 					return NULL;
 				}
 				/* row inserted into new table - we can remove it */

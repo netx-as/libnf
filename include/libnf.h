@@ -498,6 +498,29 @@ Examples:
 */
 int lnf_mem_init(lnf_mem_t **lnf_mem);
 
+/* options for lnf_mem_t */
+#define LNF_OPT_HASHBUCKETS	0x0001	/* number of buckets in hash  */
+#define LNF_OPT_LISTMODE	0x0002	/* switch lnf_mem_t to list mode */
+
+/*!	\ingroup memheap
+\brief Set lnf_mem_t options 
+
+Set some specific lnf_mem_t options 
+
+In ithe list mode lnf_mem_t acts as list of records. There is no aggregation performed
+and for each written record new entry in lis is created. Thos mode is suitable for 
+sorting items without aggregation. 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+\param info 		option to set - value of option is stored in *data\n
+	LNF_OPT_HASHBUCKETS - the number of bucekts in hash table (int) (default 500000)
+	LNF_OPT_LISTMODE - switch lnf_mem into linked list mode (NULL)
+\param *data 		pointer to data structure
+\param size			data size
+\return 			LNF_OK, LNF_ERR_OTHER
+*/
+int lnf_mem_setopt(lnf_mem_t *lnf_mem, int opt, void *data, size_t size);
+
 /* flags for lnf_mem_addf */
 #define LNF_AGGR_KEY	0x0000	/* the key item */
 #define LNF_AGGR_MIN	0x0001	/* min value - for LNF_FLD_FIRST */
@@ -573,7 +596,10 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize);
 /*!	\ingroup memheap
 \brief Merge data from multiple threads into one thread.
 
-This function merge data from all threads into one structure.
+This function merge data from all threads into one structure. If the 
+lnf_mem_t is swithced into linked list mode this function do nit perform 
+merging data but only joins liked lists from all threads into one
+long list. 
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 \return 			LNF_OK, LNF_EOF, LNF_ERR_NOMEM 
@@ -627,7 +653,9 @@ int lnf_mem_lookup_c(lnf_mem_t *lnf_mem, lnf_rec_t *rec, lnf_mem_cursor_t **curs
 \brief Set the cursor position to the record identified by key in raw record
 
 Same meaning as lnf_mem_lookup_c, but instead lnf_rec_t record works with raw buffer 
-taken from lnf_mem_read_raw function.
+taken from lnf_mem_read_raw function. 
+
+Lookup function works only if the lnf_mem_t was NOT switched into link list mode.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 \param *buff 		pointer to raw buffer

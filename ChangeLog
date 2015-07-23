@@ -1,9 +1,15 @@
 Revision history for C and Perl extension of nfdump.
 
 1.15 2015-08-xx
+	- c: new function lnf_mem_setopt for configuring some lnf_mem oprtions 
+	- c: lnf_mem_t can be switched into list mode via 
+	     lnf_mem_setopt(LNF_OPT_LISTMODE, ...); In this mode tehre is no 
+		 aggregation of items; mode can be used for sorting records 
 	- c: improved merge_threads (removed deadlock)
 	- c: new function lnf_mem_lookup_c and lnf_mem_lookup_raw_c
 	- c: new example examples/lnf_ex09_memlookup.c 
+	- c: new example examples/lnf_ex10_listmode.c
+	- c: new option -l in examples/lnf_ex04_threads.c
 
 1.14 2015-07-18
 	- c: new way to work with data in lnf_mem, new functions 

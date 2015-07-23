@@ -2,8 +2,8 @@
 
 #set -x
 
-FILES=500			# num files 
-RECS=10000000		# records per file 
+FILES=100			# num files 
+RECS=10000		# records per file 
 DIR=testdir			# test dir 
 
 rm -rf ${DIR}

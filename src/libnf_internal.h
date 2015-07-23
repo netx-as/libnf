@@ -161,6 +161,8 @@ typedef struct lnf_mem_s {
 	int rearranged;					/* is the final hash table rearranged */
 	int sorted;						/* is the table sorted ? */
 	int statistics_mode;			/* is lnf_mem in statistics mode ? (have a pair item in kay) */
+	int list_mode;					/* is lnf_mem in linked list mode */
+	int hash_table_buckets;			/* initial number of buckets in hash table */
 } lnf_mem_t;
 
 

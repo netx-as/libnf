@@ -87,8 +87,10 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	//lnf_mem->hash_ptr = NULL;
 	lnf_mem->sorted = 0;
 	lnf_mem->statistics_mode = 0;
+	lnf_mem->list_mode = 0;
 	lnf_mem->numthreads = 0;
 	lnf_mem->read_cursor = NULL;
+	lnf_mem->hash_table_buckets = HASH_TABLE_INIT_SIZE;
 #ifdef LNF_THREADS
 	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
 		free(lnf_mem);
@@ -151,7 +153,7 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 		aggr_callback = &lnf_mem_aggr_callback;
 	}
 
-	if (hash_table_init(&lnf_mem->hash_table[*id], HASH_TABLE_INIT_SIZE,
+	if (hash_table_init(&lnf_mem->hash_table[*id], lnf_mem->hash_table_buckets, 
 			aggr_callback, &lnf_mem_sort_callback, lnf_mem) == NULL) {
 
 		return LNF_ERR_NOMEM;
@@ -159,6 +161,30 @@ int lnf_mem_thread_init(lnf_mem_t *lnf_mem) {
 	}
 	
 	hash_table_entry_len(&lnf_mem->hash_table[*id], lnf_mem->key_len, lnf_mem->val_len);
+
+	return LNF_OK;
+}
+
+/* set options for lnf_mem_t */
+int lnf_mem_setopt(lnf_mem_t *lnf_mem, int opt, void *data, size_t size) {
+
+	switch (opt) {
+		case LNF_OPT_HASHBUCKETS: 
+			if (size != sizeof(int)) {
+				return LNF_ERR_OTHER;
+			}
+			
+			lnf_mem->hash_table_buckets = *((int *)data);
+			break;	
+
+		case LNF_OPT_LISTMODE:
+			lnf_mem->list_mode = 1;
+			break;
+
+		default: 
+			return LNF_ERR_OTHER;
+			break;
+	}
 
 	return LNF_OK;
 }
@@ -560,8 +586,16 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize) {
 		lnf_mem->thread_status[*id] = LNF_TH_WRITE;
 	}
 
+	if (lnf_mem->list_mode) {
+		if (hash_table_insert_list(&lnf_mem->hash_table[*id], buff, buff + lnf_mem->key_len) == NULL) {
+			return LNF_ERR_NOMEM;
+		} else {
+			return LNF_OK;
+		}
+	}
+
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table[*id], buff, buff + lnf_mem->key_len) == NULL) {
+	if (hash_table_insert_hash(&lnf_mem->hash_table[*id], buff, buff + lnf_mem->key_len) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
@@ -627,8 +661,16 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 	}
 
 
+	if (lnf_mem->list_mode) {
+		if (hash_table_insert_list(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
+			return LNF_ERR_NOMEM;
+		} else {
+			return LNF_OK;
+		}
+	}
+
 	/* insert record */
-	if (hash_table_insert(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
+	if (hash_table_insert_hash(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
 		return LNF_ERR_NOMEM;
 	}
 
@@ -640,9 +682,9 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf, pairset);
 
 		/* insert record */
-		if (hash_table_insert(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
+		if (hash_table_insert_hash(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
 			return LNF_ERR_NOMEM;
-		}
+		} 
 	}
 
 	return LNF_OK;
@@ -695,10 +737,18 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 
 		if (merge) {
 //			printf("MERGE %d <- %d [%d] \n", id2, *id, lnf_mem->numthreads);
-
-			if (hash_table_merge(&lnf_mem->hash_table[id2], &lnf_mem->hash_table[*id]) == NULL) {
-//				printf("MERGE FAIL: %d\n", *id);
-				return LNF_ERR_NOMEM;
+		
+			/* we either merge hash tables or join them */
+			if (lnf_mem->list_mode) {
+				if (hash_table_join(&lnf_mem->hash_table[id2], &lnf_mem->hash_table[*id]) == NULL) {
+//					printf("JOIN FAIL: %d\n", *id);
+					return LNF_ERR_NOMEM;
+				}
+			} else {
+				if (hash_table_merge(&lnf_mem->hash_table[id2], &lnf_mem->hash_table[*id]) == NULL) {
+//					printf("MERGE FAIL: %d\n", *id);
+					return LNF_ERR_NOMEM;
+				}
 			}
 //			printf("MERGE %d <- %d [%d] DONE \n", id2, *id, lnf_mem->numthreads);
 			hash_table_free(&lnf_mem->hash_table[*id]);

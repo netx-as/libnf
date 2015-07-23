@@ -34,7 +34,8 @@ typedef struct hash_table_s {
 	void * callback_data;		/* data tructure handled when called callback */
 	int numbuckets;				/* number of allocated buckets */
 	char ** buckets;
-	char * entrypoint;			/* entry point into linked list of elements */
+	char * sfirst;			/* entry point into linked list of elements */
+	char * slast;			/* last element in linked list */
 	unsigned long numentries; 
 //	unsigned long read_index; 
 	
@@ -60,11 +61,13 @@ char * hash_table_first(hash_table_t *t);
 char * hash_table_next(hash_table_t *t, char *prow);
 void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval);
 void hash_table_entry_len(hash_table_t *t, int keylen, int vallen);
-char * hash_table_insert(hash_table_t *t, char *key, char *val);
+char * hash_table_insert_hash(hash_table_t *t, char *key, char *val);
+char * hash_table_insert_list(hash_table_t *t, char *key, char *val);
 char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *hash);
 int hash_table_sort_callback(char *prow1, char *prow2, void *p);
 void hash_table_link(hash_table_t *t);
 int hash_table_sort(hash_table_t *t);
+hash_table_t * hash_table_join(hash_table_t *td, hash_table_t *ts);
 hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts);
 void hash_table_free(hash_table_t *t);
 
