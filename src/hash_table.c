@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "hash_table.h"
 #include "heap_sort.h"
+#include "list_sort.h"
 #include "xxhash.h"
 
 /* initialise hash table */ 
@@ -180,8 +181,8 @@ int hash_table_sort_callback(char *prow1, char *prow2, void *p) {
 
 }
 
-/* convert hash table into simple array */
-int hash_table_sort(hash_table_t *t) {
+/* convert hash table into simple array and sort using heap sort */
+int hash_table_sort_heap(hash_table_t *t) {
 
 	unsigned long index;
 	char *prow_tmp;
@@ -220,6 +221,15 @@ int hash_table_sort(hash_table_t *t) {
 	}
 	return 1;
 	
+}
+
+/* sort as list using merge sort  */
+int hash_table_sort(hash_table_t *t) {
+
+	t->sfirst = list_sort(t->sfirst, &hash_table_sort_callback, t);
+
+	return 1;
+
 }
 
 /* return pointer to first record in list */
