@@ -1,15 +1,16 @@
 Revision history for C and Perl extension of nfdump.
 
-1.15 2015-08-xx
-	- c: new function lnf_mem_setopt for configuring some lnf_mem oprtions 
+1.15 2015-08-26
+	- c: new function lnf_mem_setopt for configuring some lnf_mem options 
 	- c: lnf_mem_t can be switched into list mode via 
-	     lnf_mem_setopt(LNF_OPT_LISTMODE, ...); In this mode tehre is no 
+	     lnf_mem_setopt(LNF_OPT_LISTMODE, ...); In this mode there is no 
 		 aggregation of items; mode can be used for sorting records 
 	- c: improved merge_threads (removed deadlock)
 	- c: new function lnf_mem_lookup_c and lnf_mem_lookup_raw_c
 	- c: new example examples/lnf_ex09_memlookup.c 
 	- c: new example examples/lnf_ex10_listmode.c
 	- c: new option -l in examples/lnf_ex04_threads.c
+	- nfdumpp: sorting without aggregation 
 
 1.14 2015-07-18
 	- c: new way to work with data in lnf_mem, new functions 
@@ -37,17 +38,17 @@ Revision history for C and Perl extension of nfdump.
 	  nfdump-leak.patch patch merged into one file
 
 1.11 2015-07-04
-	- nfdumpp: added basic comparsion test for threads
+	- nfdumpp: added basic comparison test for threads
 	- perl: removed some issues with thread support in perl 
 
 1.10 2015-06-30
 	- Project entered into close cooperation with 
-	  CESNET - Czech Nationl Research Network
+	  CESNET - Czech National Research Network
 	- c: thread support enabled by default (--enable-threads)
 	- c: aggregation unit supports statistics 
 	- c: new pair fields LNF_FLD_PAIR_PORT|ADDR|AS|IF|VLAN
 	- c: examples/lnf_ex08_statistics added 
-	- perl: Net::NfDump->info returns propper data 
+	- perl: Net::NfDump->info returns proper data 
 	- perl: invalid handling of LNF_UINT16 (Bug #105472)
 	- perl: nfasnupd do not require Geo::IP module
 
@@ -111,32 +112,32 @@ Revision history for C and Perl extension of nfdump.
 	- c: lnf_field_t structure extended with default sort and 
 	  aggregation order 
 	- c: added example lnf_ex04_threads.c 
-	- c: threads support added for paralel processing flow 
+	- c: threads support added for parallel processing flow 
 	  records in aggregation. Code not released for public,
-	  the public version works properly only in sigle 
-	  thread enviroment.
+	  the public version works properly only in single 
+	  thread environment.
 	- c: added example lnf_ex03_aggreg.c 
 	- c: added lnf_mem object with aggregation and sorting capability 
-	- c: lnf_rec_fget, lnf_rec_fset incerased prtformance (30%) 
+	- c: lnf_rec_fget, lnf_rec_fset increased performance (30%) 
 	  Thanks to Vasek Bartos.
 
 1.03 2014-06-23
 	- c: headers includes in the examples
 	- c: code preparation for aggregation and sorting
-	- perl: test for pure read withour record processing (-G)
+	- perl: test for pure read without record processing (-G)
 
 1.02 2014-06-18
 	- c: added structure lnf_brec1_t containing most commonly used records 
 	- c: examples updated to use lnf_brec1_t
-	- c: examples updated to be usable for benchmarking 
+	- c: examples updated to be usable for benchmarks 
 	- perl: updated build system (more resistant)
-	- perl: benchmarking of c code added as the part of perl testing 
+	- perl: benchmarks of c code added as the part of perl testing 
 
 1.01 2014-06-15
-	- source code strcitly separated into autonomous 
+	- source code strictly separated into autonomous 
 	  package (libnf-xxx, universal C API) and perl 
 	  Net::NfDump module that is placed on top of the C API
-	- resedigned build system 
+	- redesigned build system 
 	- prepared for new features (aggregation, sorting, ...) 
 	- changes inspired by Vasek Bartos and his libnfdump code 
 
@@ -145,7 +146,7 @@ Revision history for C and Perl extension of nfdump.
 
 0.13 2014-04-20
 	- adjusted to nfdump 1.6.12
-	- support for new record type introdouced by nfdump 1.6.12
+	- support for new record type introduced by nfdump 1.6.12
 	- transparently reads record types from previous nfdump 
 	- created files are always with the new record type 
 	- !! files created by this version mus be read by nfdump >= 1.6.12
@@ -190,7 +191,7 @@ Revision history for C and Perl extension of nfdump.
 
 0.02_05 2013-02-26
 	- example1.pl added 
-	- documenation updated 
+	- documentation updated 
 
 0.02_04 2013-02-24
 	- a few bugs removed 
@@ -199,7 +200,7 @@ Revision history for C and Perl extension of nfdump.
 
 0.02_01 2013-02-11
 	- hasharray functions added
-	- performance optimalisation (4x faster) 
+	- performance optimization (4x faster) 
 
 0.01_06 2013-01-20
 	- nfdump source codes added into distribution 

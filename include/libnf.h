@@ -507,13 +507,13 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 
 Set some specific lnf_mem_t options 
 
-In ithe list mode lnf_mem_t acts as list of records. There is no aggregation performed
-and for each written record new entry in lis is created. Thos mode is suitable for 
+In in the list mode lnf_mem_t acts as list of records. There is no aggregation performed
+and for each written record new entry in   is created. This mode is suitable for 
 sorting items without aggregation. 
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 \param info 		option to set - value of option is stored in *data\n
-	LNF_OPT_HASHBUCKETS - the number of bucekts in hash table (int) (default 500000)
+	LNF_OPT_HASHBUCKETS - the number of buckets in hash table (int) (default 500000)
 	LNF_OPT_LISTMODE - switch lnf_mem into linked list mode (NULL)
 \param *data 		pointer to data structure
 \param size			data size
@@ -597,7 +597,7 @@ int lnf_mem_write_raw(lnf_mem_t *lnf_mem, char *buff, int buffsize);
 \brief Merge data from multiple threads into one thread.
 
 This function merge data from all threads into one structure. If the 
-lnf_mem_t is swithced into linked list mode this function do nit perform 
+lnf_mem_t is switched into linked list mode this function do nit perform 
 merging data but only joins liked lists from all threads into one
 long list. 
 
@@ -639,7 +639,7 @@ int lnf_mem_next_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor);
 \brief Set the cursor position to the record identified by key fields
 
 This function set memheap cursor  to the position given by the key fields (added by 
-lnf_mem_fadd(..,..,LNF_AGGR_KEY) if the record. If the propper record is found returns 
+lnf_mem_fadd(..,..,LNF_AGGR_KEY) if the record. If the proper record is found returns 
 LNF_OK else LNF_EOF.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 

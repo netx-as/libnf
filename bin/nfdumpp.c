@@ -25,6 +25,7 @@ int totalrows = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 flist_t *flist;
 int fileidx = 0;
+unsigned long outputflows = 0;
 progress_t *progressp;
 char filter[1024];
 
@@ -68,6 +69,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 				lnf_mem_write(memp, recp);
 			} else {
 				print_row(recp);
+				outputflows++;
 			}
 		}
 
@@ -195,7 +197,8 @@ int main(int argc, char **argv) {
 				printf(" -R : Input file or directory  \n");
 				printf(" -A : aggregation\n");
 				printf(" -O : sort order");
-				printf(" -T : num threads (default: number of CPU cores, %d on this system)\n", numthreads);
+				printf(" -T : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
+							NUM_THREADS_FACTOR * 100, numthreads);
 				exit(1);
 		}
 	}
@@ -244,6 +247,11 @@ int main(int argc, char **argv) {
 
 	/* set sort firld */
 	if (sortfield > 0) {
+		if (memp == NULL) {
+			lnf_mem_init(&memp);
+			/* switch memp into list mode */
+			lnf_mem_setopt(memp, LNF_OPT_LISTMODE, NULL, 0);
+		}
 		int defaultaggr = 0;
 		int defaultsort = 0;
 		lnf_fld_info(sortfield, LNF_FLD_INFO_AGGR, &defaultaggr, sizeof(int));
@@ -279,11 +287,12 @@ int main(int argc, char **argv) {
 		while (lnf_mem_read(memp, recp) != LNF_EOF) {
 			i++;
 			print_row(recp);
+			outputflows++;
 		}
 	}
 
 	/* header */
-	printf("Total flows %d, aggregated flows: %d\n", totalrows, i);
+	printf("Total input flows %d, output flows: %lu\n", totalrows, outputflows);
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);
