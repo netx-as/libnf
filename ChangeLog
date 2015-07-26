@@ -1,6 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
-1.15 2015-08-26
+1.16 2015-08-xx
+
+1.15 2015-07-26
 	- c: new function lnf_mem_setopt for configuring some lnf_mem options 
 	- c: lnf_mem_t can be switched into list mode via 
 	     lnf_mem_setopt(LNF_OPT_LISTMODE, ...); In this mode there is no 
