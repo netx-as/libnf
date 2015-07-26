@@ -226,7 +226,7 @@ fi
 
 echo ""
 echo "The libnf extends the source code of nfdump tool"
-echo "developed by Peter Haag. Unmodified nfdump sources are"
+echo "developed by Peter Haag. Modified nfdump sources are"
 echo "placed in the nfudump directory that is distributed"
 echo "together with libnf package. Thanks for using libnf."
 echo "For more info visit http://libnf.net."

@@ -11,6 +11,8 @@ Revision history for C and Perl extension of nfdump.
 	- c: new example examples/lnf_ex10_listmode.c
 	- c: new option -l in examples/lnf_ex04_threads.c
 	- nfdumpp: sorting without aggregation 
+	- c: removed binnary and .o objects from original nfdump 
+	     sources in distribution package (Bug #105944)
 
 1.14 2015-07-18
 	- c: new way to work with data in lnf_mem, new functions 
