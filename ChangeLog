@@ -1,6 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.16 2015-08-xx
+	-c: libnf-info is compiled statically now (Thanks to Lukas Hutak)
 
 1.15 2015-07-26
 	- c: new function lnf_mem_setopt for configuring some lnf_mem options 

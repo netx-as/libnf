@@ -35,5 +35,6 @@ libnf_la_SOURCES += lnf_filter_gram.y lnf_filter_lex.l
 bin_PROGRAMS = libnf-info
 
 libnf_info_SOURCES = libnf-info.c
-libnf_info_LDADD = -lnf
+#libnf_info_LDADD = -lnf
+libnf_info_LDADD = ../src/.libs/libnf.a
 
