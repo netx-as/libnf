@@ -1,6 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.16 2015-08-xx
+	-perl: module allows to sort records without aggregation (list mode)
 	-c: libnf-info is compiled statically now (Thanks to Lukas Hutak)
 
 1.15 2015-07-26

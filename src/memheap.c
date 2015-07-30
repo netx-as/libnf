@@ -777,7 +777,8 @@ int lnf_mem_first_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
 	}
 
 	if (!lnf_mem->sorted) {
-		hash_table_sort(&lnf_mem->hash_table[0]);
+		hash_table_sort_heap(&lnf_mem->hash_table[0]);
+		//hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;
 	}
 
