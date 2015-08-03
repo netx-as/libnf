@@ -114,7 +114,7 @@ hash_table_row_hdr_t * list_sort(hash_table_row_hdr_t  *list, list_sort_callback
 		} else if (qsize == 0 || !q) {
 		    /* q is empty; e must come from p. */
 		    e = p; p = (hash_table_row_hdr_t *)p->snext; psize--;
-		} else if (callback((char *)p, (char *)q, opts) >= 0) {
+		} else if (callback((char *)p, (char *)q, opts) > 0) {
 		    /* First element of p is lower (or same);
 		     * e must come from p. */
 		    e = p; p = (hash_table_row_hdr_t *)p->snext; psize--;
