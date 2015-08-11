@@ -1,0 +1,84 @@
+Name: 		libnf
+Version: 	1.15
+#Release:	1%{?dist}
+Release:	1
+Summary:	Library providing C API for processing nfdump files
+
+Group:		Networking/Tools
+License:	GPL 
+URL:		http://libnf.net
+Source0:	http://libnf.net/packages/%{name}-%{version}.tar.gz
+BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
+
+#BuildRequires:	
+#Requires:	
+
+
+%description
+API for manipulating with nfdump files. 
+See http://libnf.net for more information.
+
+%package devel
+Summary:	Libraries and header files for the libnf.net library
+Group:		Development/Libraries
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+
+%description devel
+This package provides the libraries, include files, and other
+resources needed for developing libnf applications.
+
+
+%package -n nfdumpp
+Summary:	Parallel nfdump 
+Group:		Networking/Tools
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+%description -n nfdumpp
+Nfdumpp is implementation of parallel nfdump based on libnf.net library. 
+
+
+
+%prep
+%setup -q
+
+
+%build
+%configure
+make %{?_smp_mflags}
+
+
+%install
+rm -rf %{buildroot} # redundant except for RHEL 5
+%make_install
+
+
+%clean
+rm -rf %{buildroot}
+
+%post
+/sbin/ldconfig
+
+%postun
+/sbin/ldconfig
+
+%files 
+%{_bindir}/libnf-info
+%{_bindir}/lnf_ex*
+%{_includedir}/libnf.h
+%{_libdir}/libnf.so.*
+
+%files devel
+%{_includedir}/libnf.h
+%{_libdir}/libnf.so*
+%{_libdir}/libnf.a
+%{_libdir}/libnf.la
+
+%files -n nfdumpp
+%{_bindir}/nfdumpp
+
+
+%changelog
+ * Tue Aug 11 2015  Tomas Podermanski <tpoder@cis.vutbr.cz>
+ - Initial version of specfile 
+
