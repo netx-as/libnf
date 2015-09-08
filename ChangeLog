@@ -1,7 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
-1.16 2015-08-xx
+1.16 2015-09-07
 	-c: added license and copyright information 
+	-c: added field event (thanks to Artem Buglak)
 	-perl: module allows to sort records without aggregation (list mode)
 	-c: bug when sorting same values (Thanks to Jan Wrona) 
 	-c: libnf-info is compiled statically now (Thanks to Lukas Hutak)

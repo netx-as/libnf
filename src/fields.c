@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with libnf.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -680,6 +680,20 @@ static int inline lnf_field_fget_FW_XEVENT(master_record_t *m, void *p, bit_arra
 
 static int inline lnf_field_fset_FW_XEVENT(master_record_t *m, void *p, bit_array_t *e) { 
 	m->fw_xevent = *((uint16_t *)p);
+	__bit_array_set(e, EX_NSEL_COMMON, 1);
+	return LNF_OK;
+	/* dummy record for check_items_map.pl m->xlate_flags */
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_FW_EVENT(master_record_t *m, void *p, bit_array_t *e) { 
+	*((uint8_t *)p) = m->event;
+	return __bit_array_get(e, EX_NSEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
+	/* dummy record for check_items_map.pl m->xlate_flags */
+}
+
+static int inline lnf_field_fset_FW_EVENT(master_record_t *m, void *p, bit_array_t *e) { 
+	m->event = *((uint8_t *)p);
 	__bit_array_set(e, EX_NSEL_COMMON, 1);
 	return LNF_OK;
 	/* dummy record for check_items_map.pl m->xlate_flags */
@@ -1383,6 +1397,13 @@ lnf_field_def_t lnf_fields_def[] = {
 		"xevent",		"NSEL Extended event code",
 		lnf_field_fget_FW_XEVENT,
 		lnf_field_fset_FW_XEVENT},
+
+	[LNF_FLD_FW_EVENT] = {
+		LNF_UINT8,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"event",		"NSEL Extended event code",
+		lnf_field_fget_FW_EVENT,
+		lnf_field_fset_FW_EVENT},
 
 	[LNF_FLD_XLATE_SRC_IP] = {
 		LNF_ADDR,		LNF_AGGR_KEY,	LNF_SORT_ASC,	

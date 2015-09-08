@@ -15,7 +15,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ along with libnf.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
@@ -151,6 +151,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_CLIENT_NW_DELAY_USEC	0x3e 
 #define LNF_FLD_SERVER_NW_DELAY_USEC	0x3f 
 #define LNF_FLD_APPL_LATENCY_USEC		0x40 
+#define LNF_FLD_FW_EVENT		0x41
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */
