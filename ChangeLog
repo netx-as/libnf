@@ -1,5 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
+1.17 2015-10-xx
+	-c: new fields LNF_FLD_INGRESS_ACL and LNF_FLD_EGRESS_ACL representing 
+	    all fields *_ACL_ID, *_ACE_ID, *_XACE_ID in one structure lnf_acl_t
+
 1.16 2015-09-07
 	-c: added license and copyright information 
 	-c: added field event (thanks to Artem Buglak)

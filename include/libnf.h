@@ -41,6 +41,12 @@
 typedef struct lnf_ip_s { uint32_t data[4]; } lnf_ip_t; /*!< IPv4/IPv6 address */
 typedef struct lnf_mac_s { uint8_t data[6]; }  lnf_mac_t; /*!< MAC address */
 typedef struct lnf_mpls_s { uint32_t data[10]; } lnf_mpls_t; /*!< MPLS tags */
+typedef struct lnf_acl_s {  /*!< ACL ID (http://www.cisco.com/c/en/us/td/docs/security/asa/asa93/netflow/netflow.html) */
+	uint32_t acl_id;
+	uint32_t ace_id;
+	uint32_t xace_id;
+} lnf_acl_t; 
+
 
 /* basic record type 1 - contains the most commonly used fields */
 typedef struct lnf_brec1_s {
@@ -72,6 +78,7 @@ typedef struct lnf_brec1_s {
 #define LNF_MAC				0xA2
 #define LNF_STRING			0xAA	/* null terminated string */
 #define LNF_MPLS			0xAB	/* mpls labels */
+#define LNF_ACL				0xAC	/* ACL  */
 #define LNF_BASIC_RECORD1	0xB1
 
 
@@ -152,6 +159,8 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_SERVER_NW_DELAY_USEC	0x3f 
 #define LNF_FLD_APPL_LATENCY_USEC		0x40 
 #define LNF_FLD_FW_EVENT		0x41
+#define LNF_FLD_INGRESS_ACL		0x42
+#define LNF_FLD_EGRESS_ACL		0x43
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */

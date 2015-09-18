@@ -808,6 +808,22 @@ static int inline lnf_field_fset_INGRESS_XACE_ID(master_record_t *m, void *p, bi
 }
 
 /* ----------------------- */
+static int inline lnf_field_fget_INGRESS_ACL(master_record_t *m, void *p, bit_array_t *e) { 
+	((lnf_acl_t *)p)->acl_id = m->ingress_acl_id[0];
+	((lnf_acl_t *)p)->ace_id = m->ingress_acl_id[1];
+	((lnf_acl_t *)p)->xace_id = m->ingress_acl_id[2];
+	return __bit_array_get(e, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_INGRESS_ACL(master_record_t *m, void *p, bit_array_t *e) { 
+	m->ingress_acl_id[0] = ((lnf_acl_t *)p)->acl_id;
+	m->ingress_acl_id[1] = ((lnf_acl_t *)p)->ace_id;
+	m->ingress_acl_id[2] = ((lnf_acl_t *)p)->xace_id;
+	__bit_array_set(e, EX_NSEL_ACL, 1);
+	return LNF_OK;
+}
+
+/* ----------------------- */
 static int inline lnf_field_fget_EGRESS_ACL_ID(master_record_t *m, void *p, bit_array_t *e) { 
 	*((uint32_t *)p) = m->egress_acl_id[0];
 	return __bit_array_get(e, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
@@ -839,6 +855,22 @@ static int inline lnf_field_fget_EGRESS_XACE_ID(master_record_t *m, void *p, bit
 
 static int inline lnf_field_fset_EGRESS_XACE_ID(master_record_t *m, void *p, bit_array_t *e) { 
 	m->egress_acl_id[2] = *((uint32_t *)p);
+	__bit_array_set(e, EX_NSEL_ACL, 1);
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_EGRESS_ACL(master_record_t *m, void *p, bit_array_t *e) { 
+	((lnf_acl_t *)p)->acl_id = m->egress_acl_id[0];
+	((lnf_acl_t *)p)->ace_id = m->egress_acl_id[1];
+	((lnf_acl_t *)p)->xace_id = m->egress_acl_id[2];
+	return __bit_array_get(e, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_EGRESS_ACL(master_record_t *m, void *p, bit_array_t *e) { 
+	m->egress_acl_id[0] = ((lnf_acl_t *)p)->acl_id;
+	m->egress_acl_id[1] = ((lnf_acl_t *)p)->ace_id;
+	m->egress_acl_id[2] = ((lnf_acl_t *)p)->xace_id;
 	__bit_array_set(e, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
@@ -1455,6 +1487,13 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_INGRESS_XACE_ID,
 		lnf_field_fset_INGRESS_XACE_ID},
 
+	[LNF_FLD_INGRESS_ACL] = {
+		LNF_ACL,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"ingressacl",		"96 bit value including all items in ACL (iacl, iace, ixace)",
+		lnf_field_fget_INGRESS_ACL,
+		lnf_field_fset_INGRESS_ACL},
+
 // pod: NSEL The output ACL that permitted or denied a flow  
 	[LNF_FLD_EGRESS_ACL_ID] = {
 		LNF_UINT32,		LNF_AGGR_KEY,	LNF_SORT_ASC,	
@@ -1476,6 +1515,13 @@ lnf_field_def_t lnf_fields_def[] = {
 		"exace",	"Hash value or ID of an extended ACE configuration",
 		lnf_field_fget_EGRESS_XACE_ID,
 		lnf_field_fset_EGRESS_XACE_ID},
+
+	[LNF_FLD_EGRESS_ACL] = {
+		LNF_ACL,	LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"egressacl",		"96 bit value including all items in ACL (eacl, eace, exace)",
+		lnf_field_fget_EGRESS_ACL,
+		lnf_field_fset_EGRESS_ACL},
 
 	[LNF_FLD_USERNAME] = {
 		LNF_STRING,			LNF_AGGR_KEY,	LNF_SORT_ASC,	
