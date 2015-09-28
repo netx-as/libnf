@@ -1931,16 +1931,16 @@ int lnf_fld_info(int field, int info, void *data, size_t size) {
 			if (fe->ipfix_name6 == NULL) {
 				return  LNF_ERR_NOTSET;
 			}
-			strcpy(buf, fe->ipfix_name);
-			reqsize = strlen(fe->ipfix_name) + 1;
+			strcpy(buf, fe->ipfix_name6);
+			reqsize = strlen(fe->ipfix_name6) + 1;
 			break;
 		case LNF_FLD_INFO_IPFIX_EID6:
-			*((int *)buf) = fe->ipfix_enterprise;
-			reqsize = sizeof(fe->ipfix_enterprise);
+			*((int *)buf) = fe->ipfix_enterprise6;
+			reqsize = sizeof(fe->ipfix_enterprise6);
 			break;
 		case LNF_FLD_INFO_IPFIX_ID6:
-			*((int *)buf) = fe->ipfix_id;
-			reqsize = sizeof(fe->ipfix_id);
+			*((int *)buf) = fe->ipfix_id6;
+			reqsize = sizeof(fe->ipfix_id6);
 			break;
 		default:
 			return LNF_ERR_OTHER;
