@@ -1986,6 +1986,15 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 				field = i;
 				break;
 			}
+			/* try alternative IPFIX names */
+			if (lnf_fields_def[i].ipfix_name != NULL && strcmp(name, lnf_fields_def[i].ipfix_name) == 0) {
+				field = i;
+				break;
+			}
+			if (lnf_fields_def[i].ipfix_name6 != NULL && strcmp(name, lnf_fields_def[i].ipfix_name6) == 0) {
+				field = i;
+				break;
+			}
 		}
 	}
 
