@@ -19,16 +19,36 @@
 
 */
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "libnf.h"
 
-int main (void) {
+
+
+int main (int argc, char **argv) {
 
 	int fields[LNF_FLD_TERM_];
-	int aggr, sort;
+	int aggr, sort, ipfix_id, ipfix_eid;
 	int idx = 0;
+	int ipfix_info = 0;
 	char name[LNF_INFO_BUFSIZE];
 	char descr[LNF_INFO_BUFSIZE];
 	char buf[LNF_INFO_BUFSIZE];
+	char c;
+	
+
+	while ((c = getopt (argc, argv, "i")) != -1) {
+		switch (c) {
+			case 'i': 	
+				ipfix_info = 1; 
+				break;
+			case '?': 	
+				printf(" -i - print additional IPFIX mapping info\n"); 
+				exit(1);;
+		}
+	}
 
 
 	lnf_info(NULL, LNF_INFO_VERSION, buf, LNF_INFO_BUFSIZE);
@@ -47,6 +67,19 @@ int main (void) {
 		lnf_fld_info(fields[idx], LNF_FLD_INFO_DESCR, &descr, sizeof(descr));
 
 		printf("  0x%08x 0x%02x 0x%02x  %-20s %s\n", fields[idx], aggr, sort, name, descr);
+
+		if (ipfix_info) {
+			if (lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_NAME, &name, sizeof(name)) == LNF_OK) {
+				lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_EID, &ipfix_eid, sizeof(ipfix_eid));
+				lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_ID, &ipfix_id, sizeof(ipfix_id));
+				printf("                        %-30s  %04d %04d\n", name, ipfix_eid, ipfix_id);
+			}
+			if (lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_NAME6, &name, sizeof(name)) == LNF_OK) {
+				lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_EID6, &ipfix_eid, sizeof(ipfix_eid));
+				lnf_fld_info(fields[idx], LNF_FLD_INFO_IPFIX_ID6, &ipfix_id, sizeof(ipfix_id));
+				printf("                        %-30s  %04d %04d\n", name, ipfix_eid, ipfix_id);
+			}
+		}
 		idx++;
 	}
 	

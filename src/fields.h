@@ -41,6 +41,12 @@ typedef const struct lnf_field_def {
 	int pair_field[2];
     char *name;
     char *fld_descr;
+	char *ipfix_name;				/* IPFIX element name - http://www.iana.org/assignments/ipfix/ipfix.xhtml */
+	int ipfix_enterprise;			/* IPFIX enterprise ID */
+	int ipfix_id;					/* IPFIX element ID */
+	char *ipfix_name6;				/* elements for IPv6 items (IP address type */
+	int ipfix_enterprise6;	
+	int ipfix_id6;					
     lnf_fld_func_t fget_func;
 	lnf_fld_func_t fset_func;
 } lnf_field_def_t;

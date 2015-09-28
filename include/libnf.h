@@ -766,6 +766,12 @@ int lnf_fld_type(int field);
 #define LNF_FLD_INFO_DESCR	0x08	/* description - char * */
 #define LNF_FLD_INFO_AGGR	0x0B	/* default aggregation - int */
 #define LNF_FLD_INFO_SORT	0x0E	/* default sort - int */
+#define LNF_FLD_INFO_IPFIX_NAME		0x11	/* ipfix name  - char */
+#define LNF_FLD_INFO_IPFIX_EID		0x12	/* enterprise ID - int */
+#define LNF_FLD_INFO_IPFIX_ID		0x14	/* elemnt ID - int */
+#define LNF_FLD_INFO_IPFIX_NAME6	0x18	/* ipfix name - char */
+#define LNF_FLD_INFO_IPFIX_EID6		0x1B	/* enterprise ID - int */
+#define LNF_FLD_INFO_IPFIX_ID6		0x1E	/* elemnt ID - int */
 
 #define LNF_INFO_BUFSIZE 4096		/* maximum buffer size for data lnf_*_fields */
 /* return LNF_OK or LNF_ERR_UNKFLD or LNF_ERR_OTHER */
