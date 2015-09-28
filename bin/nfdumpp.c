@@ -231,6 +231,18 @@ int main(int argc, char **argv) {
 
 	/* aggregated or not aggregated records */
 	if (memp == NULL) {
+		/* not aggregated, but sorted */
+		if (sortfield > 0) {
+			lnf_mem_init(&memp);
+			/* switch memp into list mode */
+			lnf_mem_setopt(memp, LNF_OPT_LISTMODE, NULL, 0);
+			lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
+			lnf_mem_fadd(memp, LNF_FLD_PROT, LNF_AGGR_KEY, 0, 0);
+			lnf_mem_fadd(memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0);
+			lnf_mem_fadd(memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
+		}
     	fields_add(LNF_FLD_PROT);
     	fields_add(LNF_FLD_SRCADDR);
     	fields_add(LNF_FLD_SRCPORT);
@@ -247,11 +259,6 @@ int main(int argc, char **argv) {
 
 	/* set sort firld */
 	if (sortfield > 0) {
-		if (memp == NULL) {
-			lnf_mem_init(&memp);
-			/* switch memp into list mode */
-			lnf_mem_setopt(memp, LNF_OPT_LISTMODE, NULL, 0);
-		}
 		int defaultaggr = 0;
 		int defaultsort = 0;
 		lnf_fld_info(sortfield, LNF_FLD_INFO_AGGR, &defaultaggr, sizeof(int));
