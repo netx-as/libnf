@@ -279,9 +279,9 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
     buf = v2__scan_string(expr, scanner);
     parseret = v2_parse(scanner, filter);
 
-    if (buf != NULL) {
-        v2__delete_buffer(buf, scanner);
-    }
+//   if (buf != NULL) {
+//        v2__delete_buffer(buf, scanner);
+//    }
 
 	v2_lex_destroy(scanner);
 

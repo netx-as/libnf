@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <limits.h>
+#include <getopt.h>
 #include "cpucores.h"
 #include "flist.h"
 #include "screen.h"
@@ -27,9 +28,20 @@ flist_t *flist;
 int fileidx = 0;
 unsigned long outputflows = 0;
 progress_t *progressp;
+lnf_filter_t *filterp;
 char filter[1024];
 
+#define NFDUMPP_FILTER_DEFAULT 0
+#define NFDUMPP_FILTER_NFDUMP 1
+#define NFDUMPP_FILTER_LIBNF 2
+int filter_type =  NFDUMPP_FILTER_DEFAULT;			/* filter to use */
 
+
+struct option longopts[] = {
+	{ "num-threads",		required_argument,	NULL,	1},
+	{ "filter-type",		required_argument,	NULL,	2 },
+	{ 0, 0, 0, 0 }
+};
 
 
 /* process one file */
@@ -90,12 +102,28 @@ void *process_thread(void *p) {
 	int rows;
 	int tid;
 	char filename[PATH_MAX];
-	lnf_filter_t *filterp = NULL;
+//	lnf_filter_t *filterp = NULL;
 
 	tid = (int)pthread_self();
 
-
+/*
 	if (filter[0] != '\0') {
+		switch (filter_type) {
+			case NFDUMPP_FILTER_DEFAULT: 
+					lnf_filter_init(&filterp, filter); 
+					break;
+			case NFDUMPP_FILTER_NFDUMP: 
+					lnf_filter_init_v1(&filterp, filter); 
+					break;
+			case NFDUMPP_FILTER_LIBNF: 
+					lnf_filter_init_v2(&filterp, filter); 
+					break;
+			default:
+					fprintf(stderr, "This should never hapen line: %d\n", __LINE__);
+					exit(1);
+					break;
+		}
+					
 		lnf_filter_init(&filterp, filter);
 
 		if (filterp == NULL) {
@@ -103,6 +131,7 @@ void *process_thread(void *p) {
 			return 0;
 		}
 	}
+*/
 
 
 	for (;;) {
@@ -133,7 +162,7 @@ DONE:
 		lnf_mem_merge_threads(memp);
 	}
 
-	lnf_filter_free(filterp);
+//	lnf_filter_free(filterp);
 	return NULL;
 }
 
@@ -148,7 +177,7 @@ int main(int argc, char **argv) {
 	int sortbits4 = 0;
 	int sortbits6 = 0;
     char c;
-	lnf_filter_t *filterp;
+//	lnf_filter_t *filterp;
 	
 
 	flist_init(&flist);
@@ -157,6 +186,7 @@ int main(int argc, char **argv) {
 
 	/* initalise one instance of memory heap (share by all threads) */
 	memp = NULL;
+	filterp = NULL;
 	progressp = NULL;
 	recp = NULL;
 	filter[0] = '\0';
@@ -166,8 +196,27 @@ int main(int argc, char **argv) {
 	fields_add(LNF_FLD_CALC_DURATION);
 
 
-	while ((c = getopt (argc, argv, "A:O:r:R:T:")) != -1) {
+	while ((c = getopt_long(argc, argv, "A:O:r:R:T:W;", longopts, NULL)) != -1) {
 		switch (c) {
+			case 1: 
+			case 'T': 	/* T option will be removed in future */
+				numthreads = atoi(optarg);
+				if (numthreads > MAX_THREADS) {
+					fprintf(stderr, "Maximim allowed threads is %d\n", MAX_THREADS);
+					exit(1);
+				//	numthreads = MAX_THREADS - 1;
+				} 
+				break;
+			case 2: 
+				if (strcmp(optarg, "nfdump") == 0) {
+					filter_type = NFDUMPP_FILTER_NFDUMP;			
+				} else if (strcmp(optarg, "libnf") == 0) {
+					filter_type = NFDUMPP_FILTER_LIBNF;			
+				} else {
+					fprintf(stderr, "Invalid filter type \"%s\". Allowed options nfdump or libnf. \n", optarg);
+					exit(1);
+				}
+				break;
 			case 'r':
 			case 'R':
 				flist_lookup_dir(&flist, optarg);
@@ -185,20 +234,16 @@ int main(int argc, char **argv) {
 					exit(1);
 				}
 				break;
-			case 'T': 
-				numthreads = atoi(optarg);
-				if (numthreads > MAX_THREADS) {
-					numthreads = MAX_THREADS - 1;
-				}
-				break;
 			case '?':
 				printf("Usage: %s [ -A ] [ -R -r ] [ <filter> ] \n", argv[0]);
 				printf(" -r : \n");
-				printf(" -R : Input file or directory  \n");
+				printf(" -R : Input file or directory  (multiple -r -R options is allowed)\n");
 				printf(" -A : aggregation\n");
-				printf(" -O : sort order");
-				printf(" -T : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
+				printf(" -O : sort order\n");
+				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
 							NUM_THREADS_FACTOR * 100, numthreads);
+				printf(" --filter-type = nfdump|libnf : use original nfdump filter or new libnf implementation \n");
+				printf("\n");
 				exit(1);
 		}
 	}
@@ -215,12 +260,28 @@ int main(int argc, char **argv) {
 			printf("filter: %s \n", filter);
 		}
 
-		lnf_filter_init(&filterp, filter);
+		filterp = NULL;
+		switch (filter_type) {
+			case NFDUMPP_FILTER_DEFAULT: 
+					lnf_filter_init(&filterp, filter); 
+					break;
+			case NFDUMPP_FILTER_NFDUMP: 
+					lnf_filter_init_v1(&filterp, filter); 
+					break;
+			case NFDUMPP_FILTER_LIBNF: 
+					lnf_filter_init_v2(&filterp, filter); 
+					break;
+			default:
+					fprintf(stderr, "This should never hapen line: %d\n", __LINE__);
+					exit(1);
+					break;
+		}
+					
 		if (filterp == NULL) {
 			fprintf(stderr, "Can not compile filter: %s\n", filter);
 			exit(1);
 		}
-		lnf_filter_free(filterp);
+//		lnf_filter_free(filterp);
 	}
 
 
@@ -303,6 +364,9 @@ int main(int argc, char **argv) {
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);
+	if (filterp != NULL) {
+		lnf_filter_free(filterp);
+	}
 
 
 }
