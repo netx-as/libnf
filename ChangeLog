@@ -1,6 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
 1.17 2015-10-xx
+	-c: removed bug when memheap crashes after mixing par and non pair 
+	    fields (Thanks to Jan Wrona)
 	-c: new fields LNF_FLD_INGRESS_ACL and LNF_FLD_EGRESS_ACL representing 
 	    all fields *_ACL_ID, *_ACE_ID, *_XACE_ID in one structure lnf_acl_t
 

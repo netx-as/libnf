@@ -447,7 +447,8 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf, int pairse
 		char *ckb = (char *)buf + fld->offset;
 
 		/* detect whether we process aggregation in pair mode - means have pair fields */
-		if (pairset != 0) {
+		/* but only for pair items */
+		if (pairset != 0 && __lnf_fld_pair(fld->field, 1) != LNF_FLD_ZERO_ && __lnf_fld_pair(fld->field, 2) != LNF_FLD_ZERO_) {
 			/* get propper field id depend on field set -  1 - first field, 2 - second field */
 			field = __lnf_fld_pair(fld->field, pairset);
 		} else {
