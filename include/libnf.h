@@ -69,17 +69,29 @@ typedef struct lnf_brec1_s {
 /* note: if the fields type allows two kind of data type  */
 /* for example UINT32 and UINT64 libnf always uses the biggest one */
 #define LNF_NONE			0x00
+#define LNF_NONE_T			void
 #define LNF_UINT8			0x08
+#define LNF_UINT8_T			uint8_t
 #define LNF_UINT16			0x16
+#define LNF_UINT16_T		uint16_t
 #define LNF_UINT32			0x32
+#define LNF_UINT32_T		uint32_t
 #define LNF_UINT64			0x64
+#define LNF_UINT64_T		uint64_t
 #define LNF_DOUBLE			0x70
+#define LNF_DOUBLE_T		double
 #define LNF_ADDR 			0xA1	/* 128 bit addr (struct in6_addr/network order) */
+#define LNF_ADDR_T 			lnf_ip_t
 #define LNF_MAC				0xA2
+#define LNF_MAC_T			lnf_mac_t
 #define LNF_STRING			0xAA	/* null terminated string */
+#define LNF_STRING_T		char* 
 #define LNF_MPLS			0xAB	/* mpls labels */
+#define LNF_MPLS_T			lnf_mpls_t
 #define LNF_ACL				0xAC	/* ACL  */
+#define LNF_ACL_T			lnf_acl_t
 #define LNF_BASIC_RECORD1	0xB1
+#define LNF_BASIC_RECORD1_T	lnf_brec1_t
 
 
 #define LNF_MASK_TYPE  		0x0000FF
@@ -205,11 +217,12 @@ typedef void lnf_mem_cursor_t;
 #define LNF_OK				0x0001	/* OK status */
 #define LNF_EOF 			0x0000	/* end of file */
 
-#define LNF_READ			0x0
-#define LNF_WRITE			0x1
-#define LNF_ANON			0x2
-#define LNF_COMP			0x4
-#define LNF_WEAKERR			0x8
+#define LNF_READ			0x00
+#define LNF_WRITE			0x01
+#define LNF_APPEND			0x10
+#define LNF_ANON			0x02
+#define LNF_COMP			0x04
+#define LNF_WEAKERR			0x08
 
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
 #define LNF_ERR_UNKREC		-0x0002	/* weak error: unknown record type */
@@ -292,6 +305,7 @@ structure (see record operations).
 \param *filename 	path and file name to open 
 \param flags 		flags, described above \n
 	LNF_READ - open file for reading  \n
+	LNF_APPEND - open file for reading in append mode \n
 	LNF_WRITE - open file for for writing  \n
 	LNF_ANON - set anon flag on the file (only for write mode) \n
 	LNF_COMP - set the output file to be compressed \n

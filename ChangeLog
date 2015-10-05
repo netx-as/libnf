@@ -1,6 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
 1.17 2015-10-xx
+	-c: new flag LNF_APPEND in lnf_open for open file in append mode
+	-c: added LNF_<type>_T with basic types definitions used by libnf 
 	-c: removed bug when memheap crashes after mixing par and non pair 
 	    fields (Thanks to Jan Wrona)
 	-c: new fields LNF_FLD_INGRESS_ACL and LNF_FLD_EGRESS_ACL representing 

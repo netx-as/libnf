@@ -281,24 +281,29 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 
 	lnf_file->flags = flags;
 	/* open file in either read only or write only mode */
-	if (flags & LNF_WRITE) {
 #ifdef LNF_THREADS
-    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+   	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
 #endif
+	if (flags & LNF_APPEND) {
+
+    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
+		lnf_file->nffile = AppendFile((char *)filename);
+    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+
+	} else if (flags & LNF_WRITE) {
+
 		lnf_file->nffile = OpenNewFile((char *)filename, NULL, flags & LNF_COMP, 
 								flags & LNF_ANON, (char *)ident);
-#ifdef LNF_THREADS
-    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
-#endif
+
 	} else {
-#ifdef LNF_THREADS
+
     	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
-#endif
 		lnf_file->nffile = OpenFile((char *)filename, NULL);
-#ifdef LNF_THREADS
-    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
-#endif
+
 	}
+#ifdef LNF_THREADS
+   	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
+#endif
 
 	if (lnf_file->nffile == NULL) {
 		free(lnf_file);

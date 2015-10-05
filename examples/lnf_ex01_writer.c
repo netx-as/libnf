@@ -40,10 +40,11 @@ int main (int argc, char **argv) {
 	int nrecs = 1;
 	int compress = 1;
 	int aggip = 1;
+	int append = 0;
 	char *filename = FILENAME;
 	char c;
 
-	while ((c = getopt (argc, argv, "n:f:r:?")) != -1) {
+	while ((c = getopt (argc, argv, "acn:f:r:?")) != -1) {
 		switch (c) {
 			case 'n':
 				nrecs = atoi(optarg);
@@ -51,21 +52,26 @@ int main (int argc, char **argv) {
 			case 'f':
 				filename = optarg;
 			break;
-			case 'C':
+			case 'c':
 				compress = 0; 
+			break;
+			case 'a':
+				append = 1; 
 			break;
 			case 'r':
 				aggip = atoi(optarg); 
 			break;
 			case '?': 
-				printf("Usage: %s [ -r <step > ] [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
-				printf(" -r  : rotate src IP addess (for aggregation testing)\n\n");
+				printf("Usage: %s [ -ac ] [ -r <step > ] [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
+				printf(" -r  <n> : rotate src IP addess (for aggregation testing)\n\n");
+				printf(" -a      : open in append mode\n");
+				printf(" -c      : do not compressed file\n");
 				exit(1);
 		}
 	}
 
 	/* open lnf file desriptor */
-	if (lnf_open(&filep, filename, LNF_WRITE | ( compress ? LNF_COMP : 0 ), "myfile") != LNF_OK) {
+	if (lnf_open(&filep, filename, LNF_WRITE | ( compress ? LNF_COMP : 0 ) | (append ? LNF_APPEND : 0), "myfile") != LNF_OK) {
 		fprintf(stderr, "Can not open file.\n");
 		exit(1);
 	}
