@@ -1,7 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
 1.17 2015-10-xx
-	-c: new flag LNF_APPEND in lnf_open for open file in append mode
+	-c: LNF_CALC_*PS items returns LNF_ERR_NAN when division by 0 is detected 
+	-c: new flag LNF_APPEND in lnf_open for open file in append mode (not supported by nfdump format)
 	-c: added LNF_<type>_T with basic types definitions used by libnf 
 	-c: removed bug when memheap crashes after mixing par and non pair 
 	    fields (Thanks to Jan Wrona)

@@ -1043,7 +1043,7 @@ static int inline lnf_field_fget_CALC_BPS(master_record_t *m, void *p, bit_array
 		return LNF_OK;
 	} else {
 		*((double *)p) = 0;
-		return LNF_ERR_NOTSET;
+		return LNF_ERR_NAN;
 	}
 }
 
@@ -1054,7 +1054,7 @@ static int inline lnf_field_fget_CALC_PPS(master_record_t *m, void *p, bit_array
 		return LNF_OK;
 	} else {
 		*((double *)p) = 0;
-		return LNF_ERR_NOTSET;
+		return LNF_ERR_NAN;
 	}
 }
 
@@ -1064,7 +1064,7 @@ static int inline lnf_field_fget_CALC_BPP(master_record_t *m, void *p, bit_array
 		*((double *)p) = m->dOctets / m->dPkts;
 		return LNF_OK;
 	} else {
-		return LNF_ERR_NOTSET;
+		return LNF_ERR_NAN;
 	}
 }
 
