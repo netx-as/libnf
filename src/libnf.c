@@ -754,24 +754,31 @@ int lnf_rec_init(lnf_rec_t **recp) {
 	rec = malloc(sizeof(lnf_rec_t)); 
 
 	if (rec == NULL) {
+		*recp = NULL;
 		return LNF_ERR_NOMEM;
 	}
+
+	rec->extensions_arr = NULL;
+	rec->field_data = NULL;
 
 	rec->master_record = malloc(sizeof(master_record_t));
 
 	if (rec->master_record == NULL) {
-		free(rec);
+		lnf_rec_free(rec);
+		*recp = NULL;
 		return LNF_ERR_NOMEM;
 	}
 
 	rec->extensions_arr = malloc(sizeof(bit_array_t));
 
 	if (rec->extensions_arr == NULL) {
-		free(rec->master_record);
-		free(rec);
+		lnf_rec_free(rec);
+		*recp = NULL;
 		return LNF_ERR_NOMEM;
 	}
 
+
+	/* initialise nfdump extension list */
 	i = 1;
 	numext = 0;
 	while ( extension_descriptor[i++].id ) {
@@ -779,10 +786,30 @@ int lnf_rec_init(lnf_rec_t **recp) {
 	}
 
 	if (!bit_array_init(rec->extensions_arr, numext + 1)) {
-		free(rec->extensions_arr);
-		free(rec->master_record);
-		free(rec);
+		lnf_rec_free(rec);
+		*recp = NULL;
 		return LNF_ERR_NOMEM;
+	}
+
+	/* initialise (non nfdump) field data */
+	rec->field_data = malloc( LNF_FLD_TERM_ * sizeof(void*) );
+	if (rec->field_data == NULL) {
+		lnf_rec_free(rec);
+		*recp = NULL;
+		return LNF_ERR_NOMEM;
+	}
+
+	memset(rec->field_data, 0x0, LNF_FLD_TERM_ * sizeof(void*));
+
+	for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
+		if (lnf_fields_def[i].type !=  LNF_FLD_ZERO_) {
+			rec->field_data[i] = malloc(lnf_fields_def[i].size);
+			if (rec->field_data[i] == NULL) { 
+				lnf_rec_free(rec);
+				*recp = NULL;
+				return LNF_ERR_NOMEM;
+			} 
+		}
 	}
 
 	lnf_rec_clear(rec);
@@ -819,13 +846,28 @@ int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src) {
 /* free record */
 void lnf_rec_free(lnf_rec_t *rec) {
 
+	int i;
+
 	if (rec == NULL) {
 		return;
 	}
 
-	bit_array_release(rec->extensions_arr);
-	free(rec->master_record);
-	free(rec->extensions_arr);
+	if (rec->extensions_arr != NULL) {
+		bit_array_release(rec->extensions_arr);
+		free(rec->extensions_arr);
+	}
+
+	if (rec->master_record != NULL) {
+		free(rec->master_record);
+	}
+
+	if (rec->field_data != NULL) {
+		for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
+			if (rec->field_data[i] != NULL) {
+				free(rec->field_data[i]);
+			}
+		}
+	}
 	free(rec);
 }
 

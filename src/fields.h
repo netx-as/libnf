@@ -32,12 +32,14 @@
 #include <nfx.h>
 
 
-typedef int (*lnf_fld_func_t)(master_record_t *m, void *p, bit_array_t *e);
+typedef int (*lnf_fld_func_t)(lnf_rec_t *rec, void *p);
 
 typedef const struct lnf_field_def {
     int type;
+    int size;
     int default_aggr;
     int default_sort;
+	int calc_dependency[4];		/* list of fields that the item is dependend on */
 	int pair_field[2];
     char *name;
     char *fld_descr;
@@ -58,12 +60,14 @@ extern lnf_field_def_t lnf_fields_def[];
 
 static int inline __lnf_rec_fget(lnf_rec_t *rec, int field, void * p) {
 
-    return  lnf_fields_def[field].fget_func(rec->master_record, p, rec->extensions_arr);
+    return  lnf_fields_def[field].fget_func(rec, p);
+//    return  lnf_fields_def[field].fget_func(rec->master_record, p, rec->extensions_arr);
 }
 
 static int inline __lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 
-    return  lnf_fields_def[field].fset_func(rec->master_record, p, rec->extensions_arr);
+	return  lnf_fields_def[field].fset_func(rec, p);
+//    return  lnf_fields_def[field].fset_func(rec->master_record, p, rec->extensions_arr);
 }
 
 /* return field type - smae as lnf_fld_type but no checks */

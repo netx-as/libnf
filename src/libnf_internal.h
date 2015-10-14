@@ -89,6 +89,9 @@ typedef struct lnf_filter_s {
 typedef struct lnf_rec_s {
 	master_record_t *master_record;		/* reference to master record */
 	bit_array_t *extensions_arr;		/* list of extensions available in the record */
+	void **field_data;					/* list of pointers to data field */
+										/* data field is represented by pointer */
+										/* field_data[field] */
 } lnf_rec_t;
 
 

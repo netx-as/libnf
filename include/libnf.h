@@ -84,8 +84,8 @@ typedef struct lnf_brec1_s {
 #define LNF_ADDR_T 			lnf_ip_t
 #define LNF_MAC				0xA2
 #define LNF_MAC_T			lnf_mac_t
-#define LNF_STRING			0xAA	/* null terminated string */
-#define LNF_STRING_T		char* 
+#define LNF_STRING			0xAA	/* null terminated string, max 255 characters */
+#define LNF_STRING_T		char[256]
 #define LNF_MPLS			0xAB	/* mpls labels */
 #define LNF_MPLS_T			lnf_mpls_t
 #define LNF_ACL				0xAC	/* ACL  */
@@ -777,6 +777,7 @@ void lnf_mem_free(lnf_mem_t *lnf_mem);
 int lnf_fld_type(int field);
 #define LNF_FLD_INFO_FIELDS	0x01	/* fill array of ints ended with LNF_FLD_TERM_  */
 #define LNF_FLD_INFO_TYPE	0x02	/* type - int */
+#define LNF_FLD_INFO_SIZE	0x1F	/* field size in Bytes, 0 - for dinamis size fields */
 #define LNF_FLD_INFO_NAME	0x04	/* name - char* */
 #define LNF_FLD_INFO_DESCR	0x08	/* description - char * */
 #define LNF_FLD_INFO_AGGR	0x0B	/* default aggregation - int */
