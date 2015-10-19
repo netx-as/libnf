@@ -186,6 +186,7 @@ typedef struct lnf_mem_s {
 	int statistics_mode;			/* is lnf_mem in statistics mode ? (have a pair item in kay) */
 	int list_mode;					/* is lnf_mem in linked list mode */
 	int hash_table_buckets;			/* initial number of buckets in hash table */
+	lnf_rec_t	*lnf_rec;			/* temporary lnf_rec entry */
 } lnf_mem_t;
 
 
@@ -197,6 +198,7 @@ void lnf_filedlist_free(lnf_fieldlist_t *list);
 void lnf_clear_bits(char *buf, int buflen, int from);
 int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf, int pairset);
 void lnf_mem_fill_rec(lnf_fieldlist_t *fld, char *buf, lnf_rec_t *rec);
+void lnf_mem_upd_calc_fields(lnf_mem_t *lnf_mem);
 
 
 int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);

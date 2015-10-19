@@ -54,6 +54,7 @@ GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT8, uint8_t);
 GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT16, uint16_t);
 GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT32, uint32_t);
 GEN_AGGR_SUM(lnf_mem_aggr_SUM_UINT64, uint64_t);
+GEN_AGGR_SUM(lnf_mem_aggr_SUM_DOUBLE, double);
 
 
 #define GEN_AGGR_OR(name, type) static void name (char *a, char *b) { \
@@ -63,6 +64,7 @@ GEN_AGGR_OR(lnf_mem_aggr_OR_UINT8, uint8_t);
 GEN_AGGR_OR(lnf_mem_aggr_OR_UINT16, uint16_t);
 GEN_AGGR_OR(lnf_mem_aggr_OR_UINT32, uint32_t);
 GEN_AGGR_OR(lnf_mem_aggr_OR_UINT64, uint64_t);
+//GEN_AGGR_OR(lnf_mem_aggr_OR_DOUBLE, double);
 								
 #define GEN_AGGR_MIN(name, type) static void name (char *a, char *b) {	\
 	if ( *((type *)a) > *((type *)b) ) *((type *)a) = *((type *)b); \
@@ -71,6 +73,7 @@ GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT8, uint8_t);
 GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT16, uint16_t);
 GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT32, uint32_t);
 GEN_AGGR_MIN(lnf_mem_aggr_MIN_UINT64, uint64_t);
+GEN_AGGR_MIN(lnf_mem_aggr_MIN_DOUBLE, double);
 
 #define GEN_AGGR_MAX(name, type) static void name (char *a, char *b) {	\
 	if ( *((type *)a) < *((type *)b) ) *((type *)a) = *((type *)b); \
@@ -79,6 +82,7 @@ GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT8, uint8_t);
 GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT16, uint16_t);
 GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT32, uint32_t);
 GEN_AGGR_MAX(lnf_mem_aggr_MAX_UINT64, uint64_t);
+GEN_AGGR_MAX(lnf_mem_aggr_MAX_DOUBLE, double);
 
 static void lnf_mem_aggr_EMPTY (char *a, char *b) { }
 
@@ -111,6 +115,12 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->numthreads = 0;
 	lnf_mem->read_cursor = NULL;
 	lnf_mem->hash_table_buckets = HASH_TABLE_INIT_SIZE;
+	
+	if (!lnf_rec_init(&lnf_mem->lnf_rec)) {
+		free(lnf_mem);
+		return LNF_ERR_NOMEM;
+	}
+	
 #ifdef LNF_THREADS
 	if (pthread_mutex_init(&lnf_mem->thread_mutex, NULL) != 0) {
 		free(lnf_mem);
@@ -325,6 +335,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		case LNF_UINT16: fld.size = sizeof(uint16_t); break;
 		case LNF_UINT32: fld.size = sizeof(uint32_t); break;
 		case LNF_UINT64: fld.size = sizeof(uint64_t); break;
+		case LNF_DOUBLE: fld.size = sizeof(LNF_DOUBLE_T); break;
 		case LNF_ADDR: fld.size = sizeof(lnf_ip_t); break;
 		case LNF_MAC: fld.size = sizeof(lnf_mac_t); break;
 		default : 
@@ -372,6 +383,13 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_UINT64; break;
 			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_UINT64; break;
 			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_OR_UINT64; break;
+			} break;
+		case LNF_DOUBLE: 
+			switch (fld.aggr_flag) {
+			case LNF_AGGR_SUM: fld.aggr_func = lnf_mem_aggr_SUM_DOUBLE; break;
+			case LNF_AGGR_MIN: fld.aggr_func = lnf_mem_aggr_MIN_DOUBLE; break;
+			case LNF_AGGR_MAX: fld.aggr_func = lnf_mem_aggr_MAX_DOUBLE; break;
+			case LNF_AGGR_OR:  fld.aggr_func = lnf_mem_aggr_EMPTY; break;
 			} break;
 		/* other data types are ignored so far */
 	}
@@ -788,6 +806,25 @@ int lnf_mem_merge_threads(lnf_mem_t *lnf_mem) {
 #endif	/* ifdef LNF_THREADS */
 }
 
+/* walk via all record and recalculate the value of the calculated fields */
+void lnf_mem_upd_calc_fields(lnf_mem_t *lnf_mem) {
+
+	char *key;
+	char *val;
+
+	lnf_mem_cursor_t *cursor;
+	
+	cursor = (lnf_mem_cursor_t *)hash_table_first(&lnf_mem->hash_table[0]);
+
+	while ( (cursor = (lnf_mem_cursor_t *)hash_table_next(&lnf_mem->hash_table[0], (void *)cursor)) != NULL ) { 
+		hash_table_fetch(&lnf_mem->hash_table[0], (void *)cursor, &key, &val);
+
+    	lnf_mem_fill_rec(lnf_mem->val_list, val, lnf_mem->lnf_rec);
+    	lnf_mem_fill_rec(lnf_mem->key_list, key, lnf_mem->lnf_rec);
+		lnf_mem_fill_buf(lnf_mem->key_list, lnf_mem->lnf_rec, val, 0);
+	}
+}
+
 /* set cursot to first record from memory heap */
 /* used later by lnf_mem_read and lnf_mem_read_raw */
 int lnf_mem_first_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
@@ -797,7 +834,13 @@ int lnf_mem_first_c(lnf_mem_t *lnf_mem, lnf_mem_cursor_t **cursor) {
 		return LNF_EOF;
 	}
 
-	if (!lnf_mem->sorted) {
+	if (!lnf_mem->sorted && lnf_mem->sort_field != LNF_FLD_ZERO_) {
+
+		/* if the sorted item is calculated we have to update calculated item first */
+		if (__lnf_fld_calc_dep(lnf_mem->sort_field, 0) != LNF_FLD_ZERO_ ) {
+			lnf_mem_upd_calc_fields(lnf_mem);
+		}
+
 		//hash_table_sort_heap(&lnf_mem->hash_table[0]);
 		hash_table_sort(&lnf_mem->hash_table[0]);
 		lnf_mem->sorted = 1;

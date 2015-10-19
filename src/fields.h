@@ -39,7 +39,8 @@ typedef const struct lnf_field_def {
     int size;
     int default_aggr;
     int default_sort;
-	int calc_dependency[4];		/* list of fields that the item is dependend on */
+#define MAX_CALC_DEPS 4					/* max items for calc dependency */
+	int calc_dependency[MAX_CALC_DEPS];		/* list of fields that the item is dependend on */
 	int pair_field[2];
     char *name;
     char *fld_descr;
@@ -81,4 +82,12 @@ static int inline __lnf_fld_pair(int field, int pairset) {
 
     return  lnf_fields_def[field].pair_field[pairset - 1];
 }
+
+/* return field ID of calc dependency item */
+static int inline __lnf_fld_calc_dep(int field, int calcnum) {
+
+    return  calcnum >= MAX_CALC_DEPS ? 0 : lnf_fields_def[field].calc_dependency[calcnum];
+
+}
+
 
