@@ -109,6 +109,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->fastaggr_mode = LNF_FAST_AGGR_NONE;
 
 	//lnf_mem->hash_ptr = NULL;
+	lnf_mem->sort_field = LNF_FLD_ZERO_; 
 	lnf_mem->sorted = 0;
 	lnf_mem->statistics_mode = 0;
 	lnf_mem->list_mode = 0;
