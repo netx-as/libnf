@@ -286,9 +286,7 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 #endif
 	if (flags & LNF_APPEND) {
 
-    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
 		lnf_file->nffile = AppendFile((char *)filename);
-    	pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
 
 	} else if (flags & LNF_WRITE) {
 
@@ -297,7 +295,6 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 
 	} else {
 
-    	pthread_mutex_lock(&lnf_nfdump_filter_mutex);
 		lnf_file->nffile = OpenFile((char *)filename, NULL);
 
 	}
