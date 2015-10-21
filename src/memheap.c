@@ -135,7 +135,6 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->thread_id_key = NULL;
 #endif
 
-
 	/* set all threads to LNF_TH_EMPTY */
 	for (i = 0; i < LNF_MAX_THREADS; i++) {
 		lnf_mem->thread_status[i] = LNF_TH_EMPTY;
@@ -1024,6 +1023,10 @@ void lnf_mem_free(lnf_mem_t *lnf_mem) {
 	if (lnf_mem->val_list != NULL) {
 		lnf_filedlist_free(lnf_mem->val_list);
 	}
+
+#ifdef LNF_THREADS
+	pthread_key_delete(lnf_mem->thread_id_key);
+#endif
 
 	free(lnf_mem);
 

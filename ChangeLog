@@ -1,11 +1,13 @@
 Revision history for C and Perl extension of nfdump.
 
 1.17 2015-10-xx
+	-perl: added test t/09-instances.t
+	-c: removed bug when thread key was nor released after lnf_mem release
 	-c: LNF_CALC_*PS items returns LNF_ERR_NAN when division by 0 is detected 
 	-c: new flag LNF_APPEND in lnf_open for open file in append mode (not supported by nfdump format)
 	-c: LNF_FLD_INFO_SIZE can be returned by lnf_fld_info
 	-c: added LNF_<type>_T with basic types definitions used by libnf 
-	-c: removed bug when memheap crashes after mixing par and non pair 
+	-c: removed bug when memheap crashes after mixing pair and non pair 
 	    fields (Thanks to Jan Wrona)
 	-c: new fields LNF_FLD_INGRESS_ACL and LNF_FLD_EGRESS_ACL representing 
 	    all fields *_ACL_ID, *_ACE_ID, *_XACE_ID in one structure lnf_acl_t
