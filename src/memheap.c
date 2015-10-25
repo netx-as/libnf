@@ -574,6 +574,9 @@ int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *
 		case LNF_UINT8: 
 			ret = *(uint8_t *)i1 < *(uint8_t *)i2; 
 			break;
+		case LNF_DOUBLE: 
+			ret = *(LNF_DOUBLE_T *)i1 < *(LNF_DOUBLE_T *)i2; 
+			break;
 		case LNF_ADDR:
 			ret = (memcmp(i1, i2, sizeof(lnf_ip_t)) > 0); 
 			break;
@@ -816,12 +819,14 @@ void lnf_mem_upd_calc_fields(lnf_mem_t *lnf_mem) {
 	
 	cursor = (lnf_mem_cursor_t *)hash_table_first(&lnf_mem->hash_table[0]);
 
-	while ( (cursor = (lnf_mem_cursor_t *)hash_table_next(&lnf_mem->hash_table[0], (void *)cursor)) != NULL ) { 
+	while ( (cursor != NULL ) ) { 
 		hash_table_fetch(&lnf_mem->hash_table[0], (void *)cursor, &key, &val);
 
     	lnf_mem_fill_rec(lnf_mem->val_list, val, lnf_mem->lnf_rec);
     	lnf_mem_fill_rec(lnf_mem->key_list, key, lnf_mem->lnf_rec);
-		lnf_mem_fill_buf(lnf_mem->key_list, lnf_mem->lnf_rec, val, 0);
+		lnf_mem_fill_buf(lnf_mem->val_list, lnf_mem->lnf_rec, val, 0);
+
+		cursor = (lnf_mem_cursor_t *)hash_table_next(&lnf_mem->hash_table[0], (void *)cursor);
 	}
 }
 

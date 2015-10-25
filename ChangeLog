@@ -2,6 +2,8 @@ Revision history for C and Perl extension of nfdump.
 
 1.17 2015-10-xx
 	-perl: added test t/09-instances.t
+	-perl: test for calculated items in test t/08-aggreg-sort.t
+	-c: sort support for calculated fields
 	-c: removed bug when thread key was nor released after lnf_mem release
 	-c: LNF_CALC_*PS items returns LNF_ERR_NAN when division by 0 is detected 
 	-c: new flag LNF_APPEND in lnf_open for open file in append mode (not supported by nfdump format)
