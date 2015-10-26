@@ -113,6 +113,7 @@ int lnf_mem_init(lnf_mem_t **lnf_memp) {
 	lnf_mem->sorted = 0;
 	lnf_mem->statistics_mode = 0;
 	lnf_mem->list_mode = 0;
+	lnf_mem->nfdump_comp_statistics = 0;
 	lnf_mem->numthreads = 0;
 	lnf_mem->read_cursor = NULL;
 	lnf_mem->hash_table_buckets = HASH_TABLE_INIT_SIZE;
@@ -211,6 +212,9 @@ int lnf_mem_setopt(lnf_mem_t *lnf_mem, int opt, void *data, size_t size) {
 			lnf_mem->list_mode = 1;
 			break;
 
+		case LNF_OPT_COMP_STATSCMP:
+			lnf_mem->nfdump_comp_statistics = 1;
+			break;
 		default: 
 			return LNF_ERR_OTHER;
 			break;
@@ -755,16 +759,27 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 
 	/* insert record for pair set 2 if the statistics mode is enabled */
 	if (pairset != 0) {
+		char keybuf2[LNF_MAX_KEY_LEN]; 
+
 		pairset = 2;
 
 		/* build key for pairset 2 */
-		lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf, pairset);
+		lnf_mem_fill_buf(lnf_mem->key_list, rec, keybuf2, pairset);
+
+		if (lnf_mem->nfdump_comp_statistics) {
+			if (memcmp(keybuf, keybuf2, lnf_mem->key_len) == 0) {
+				goto END_PAIR;
+			}
+		}
 
 		/* insert record */
-		if (hash_table_insert_hash(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {
+		if (hash_table_insert_hash(&lnf_mem->hash_table[*id], keybuf2, valbuf) == NULL) {
 			return LNF_ERR_NOMEM;
 		} 
 	}
+
+END_PAIR:
+
 
 	return LNF_OK;
 }

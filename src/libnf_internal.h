@@ -185,6 +185,7 @@ typedef struct lnf_mem_s {
 	int sorted;						/* is the table sorted ? */
 	int statistics_mode;			/* is lnf_mem in statistics mode ? (have a pair item in kay) */
 	int list_mode;					/* is lnf_mem in linked list mode */
+	int nfdump_comp_statistics;		/* is lnf_mem nfdump compatible statistics mode */
 	int hash_table_buckets;			/* initial number of buckets in hash table */
 	lnf_rec_t	*lnf_rec;			/* temporary lnf_rec entry */
 } lnf_mem_t;

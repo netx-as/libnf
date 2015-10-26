@@ -3,6 +3,8 @@ Revision history for C and Perl extension of nfdump.
 1.17 2015-10-xx
 	-perl: added test t/09-instances.t
 	-perl: test for calculated items in test t/08-aggreg-sort.t
+	-perl: net option CompatMode
+	-c: new lnf_mem option LNF_OPT_COMP_STATSCMP 
 	-c: sort support for calculated fields
 	-c: removed bug when thread key was nor released after lnf_mem release
 	-c: LNF_CALC_*PS items returns LNF_ERR_NAN when division by 0 is detected 
@@ -32,7 +34,7 @@ Revision history for C and Perl extension of nfdump.
 	- c: new example examples/lnf_ex10_listmode.c
 	- c: new option -l in examples/lnf_ex04_threads.c
 	- nfdumpp: sorting without aggregation 
-	- c: removed binnary and .o objects from original nfdump 
+	- c: removed binary and .o objects from original nfdump 
 	     sources in distribution package (Bug #105944)
 
 1.14 2015-07-18

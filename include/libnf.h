@@ -547,6 +547,7 @@ int lnf_mem_init(lnf_mem_t **lnf_mem);
 /* options for lnf_mem_t */
 #define LNF_OPT_HASHBUCKETS	0x0001	/* number of buckets in hash  */
 #define LNF_OPT_LISTMODE	0x0002	/* switch lnf_mem_t to list mode */
+#define LNF_OPT_COMP_STATSCMP	0x0003	/* switch lnf_mem_t compatible statistics mode */
 
 /*!	\ingroup memheap
 \brief Set lnf_mem_t options 
@@ -561,6 +562,35 @@ sorting items without aggregation.
 \param info 		option to set - value of option is stored in *data\n
 	LNF_OPT_HASHBUCKETS - the number of buckets in hash table (int) (default 500000)
 	LNF_OPT_LISTMODE - switch lnf_mem into linked list mode (NULL)
+	LNF_OPT_COMP_STATSCMP - switch lnf_mem into mode where pair statistics compatible mode with nfdump 
+		
+In nfdump when the statistics i computed for the part item (for example port) the record is counted 
+twice - first for src port and then for destination port. However if the source and 
+destination port is the same nfdump counts the record only once. By default libnf always 
+counts the records with pair fields twice. This option switches libnf to the nfdump behavior. 
+
+Example: 
+We have input flow 
+SRC           DST          PKTS BYTES
+1.1.1.1:53 -> 2.2.2.2:53      1   20 
+3.3.3.3:80 -> 4.4.4.4:1222    3   80
+
+and we have statistics via port field 
+
+In the nfdump and libnf with LNF_OPT_COMP_STATSCMP option enabled 
+the result will be:
+PORT    PKTS BYTES
+53         1    20
+80         3    80
+1222       3    80
+
+but in libnf  without LNF_OPT_COMP_STATSCMP option the result will be: 
+PORT    PKTS BYTES
+53         2    40
+80         3    80
+1222       3    80
+
+
 \param *data 		pointer to data structure
 \param size			data size
 \return 			LNF_OK, LNF_ERR_OTHER
@@ -777,17 +807,17 @@ void lnf_mem_free(lnf_mem_t *lnf_mem);
 int lnf_fld_type(int field);
 #define LNF_FLD_INFO_FIELDS	0x01	/* fill array of ints ended with LNF_FLD_TERM_  */
 #define LNF_FLD_INFO_TYPE	0x02	/* type - int */
-#define LNF_FLD_INFO_SIZE	0x1F	/* field size in Bytes, 0 - for dinamis size fields */
+#define LNF_FLD_INFO_SIZE	0x1F	/* field size in Bytes, 0 - for dynamics size fields */
 #define LNF_FLD_INFO_NAME	0x04	/* name - char* */
 #define LNF_FLD_INFO_DESCR	0x08	/* description - char * */
 #define LNF_FLD_INFO_AGGR	0x0B	/* default aggregation - int */
 #define LNF_FLD_INFO_SORT	0x0E	/* default sort - int */
 #define LNF_FLD_INFO_IPFIX_NAME		0x11	/* ipfix name  - char */
 #define LNF_FLD_INFO_IPFIX_EID		0x12	/* enterprise ID - int */
-#define LNF_FLD_INFO_IPFIX_ID		0x14	/* elemnt ID - int */
+#define LNF_FLD_INFO_IPFIX_ID		0x14	/* element ID - int */
 #define LNF_FLD_INFO_IPFIX_NAME6	0x18	/* ipfix name - char */
 #define LNF_FLD_INFO_IPFIX_EID6		0x1B	/* enterprise ID - int */
-#define LNF_FLD_INFO_IPFIX_ID6		0x1E	/* elemnt ID - int */
+#define LNF_FLD_INFO_IPFIX_ID6		0x1E	/* element ID - int */
 
 #define LNF_INFO_BUFSIZE 4096		/* maximum buffer size for data lnf_*_fields */
 /* return LNF_OK or LNF_ERR_UNKFLD or LNF_ERR_OTHER */
