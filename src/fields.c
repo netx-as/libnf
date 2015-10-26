@@ -1847,7 +1847,7 @@ lnf_field_def_t lnf_fields_def[] = {
 
 	[LNF_FLD_CALC_BPP] = {
 		LNF_DOUBLE, sizeof(LNF_DOUBLE_T),		LNF_AGGR_SUM,	LNF_SORT_ASC,	
-		{LNF_FLD_DPKTS, LNF_FLD_DOCTETS, LNF_FLD_CALC_DURATION, LNF_FLD_ZERO_},
+		{LNF_FLD_DPKTS, LNF_FLD_DOCTETS, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"bpp",	"Bytes per packet",
 		NULL, 0, 0, 

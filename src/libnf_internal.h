@@ -202,6 +202,7 @@ void lnf_mem_upd_calc_fields(lnf_mem_t *lnf_mem);
 
 
 int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int *sizep, int maxsize, int *offset);
+lnf_fieldlist_t* lnf_filedlist_lookup(lnf_fieldlist_t *list, int field);
 void lnf_mem_fastaggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
 void lnf_mem_aggr_callback(char *key, char *hval, char *uval, void *lnf_mem);
 int lnf_mem_sort_callback(char *key1, char *val1, char *key2, char *val2, void *p);

@@ -291,6 +291,26 @@ int lnf_filedlist_add_or_upd(lnf_fieldlist_t **list, lnf_fieldlist_t *snode, int
 	return LNF_OK;
 }
 
+/*! 
+* lookup field in linked list and retur pointer to node or NULL
+*/
+lnf_fieldlist_t* lnf_filedlist_lookup(lnf_fieldlist_t *list, int field) {
+
+	lnf_fieldlist_t *tmp_node;
+
+	/* find item in list and update */
+	tmp_node = list;
+	while (tmp_node != NULL) {
+		if (tmp_node->field == field) {
+			return tmp_node;
+		} else {
+			tmp_node = tmp_node->next;
+		}
+	}
+
+	return NULL;
+}
+
 void lnf_filedlist_free(lnf_fieldlist_t *list) {
 
 	lnf_fieldlist_t *node, *tmp_node;
@@ -327,7 +347,7 @@ int lnf_mem_fastaggr(lnf_mem_t *lnf_mem, int mode) {
 int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numbits6) {
 
 	lnf_fieldlist_t fld;
-	int offset;
+	int offset, calcnum, ret;
 	
 	fld.field = field;
 	switch (lnf_fld_type(field)) { 
@@ -418,6 +438,23 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 			lnf_mem->sort_offset = offset;
 			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL | (flags & LNF_SORT_FLAGS);
 		}
+	}
+
+	/* if the filed is calculated field with dependencies add filds that the firld is depenedend on */
+	calcnum = 0;
+	while ( __lnf_fld_calc_dep(field, calcnum) != LNF_FLD_ZERO_) {
+
+		if ( (lnf_filedlist_lookup(lnf_mem->key_list, __lnf_fld_calc_dep(field, calcnum)) == NULL) &&
+			 (lnf_filedlist_lookup(lnf_mem->val_list, __lnf_fld_calc_dep(field, calcnum)) == NULL) ) {
+
+			if ((ret = lnf_mem_fadd(lnf_mem, __lnf_fld_calc_dep(field, calcnum), 0, 0,  0)) != LNF_OK) {
+				return ret;
+			}
+
+		}
+
+		calcnum++;
+
 	}
 
 	return LNF_OK;
