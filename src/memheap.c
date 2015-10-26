@@ -373,7 +373,6 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		/* if type is UINT64 and numbits is set then field is key */
 		if (fld.numbits > 0 && fld.type == LNF_UINT64) {
 			fld.aggr_flag = LNF_AGGR_KEY;
-			printf("XXX %d\n", fld.numbits);
 		} else {
 			lnf_fld_info(field, LNF_FLD_INFO_AGGR, &fld.aggr_flag, sizeof(fld.aggr_flag));
 		}
