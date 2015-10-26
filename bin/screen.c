@@ -232,7 +232,7 @@ int parse_aggreg(lnf_mem_t *memp, char *str) {
 			exit(1);
 		}
 
-		if (numbits > 32 || numbits6 > 128) {
+		if (lnf_fld_type(field) == LNF_ADDR && (numbits > 32 || numbits6 > 128)) {
 			fprintf(stderr, "Invalid bit size (%d/%d) for %s in -A \n", 
 			numbits, numbits6, token);
 			exit(1);

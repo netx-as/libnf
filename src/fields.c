@@ -2086,7 +2086,7 @@ int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
 		return LNF_FLD_ZERO_;
 	}
 
-	if (lnf_fld_type(field) != LNF_ADDR) {
+	if (lnf_fld_type(field) != LNF_ADDR && lnf_fld_type(field) != LNF_UINT64) {
 		if (numbits != NULL) { *numbits = 0; }
 		if (numbits6 != NULL) { *numbits6 = 0; }
 		return field;
