@@ -369,19 +369,19 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	fld.type = lnf_fld_type(field);
 	fld.numbits = numbits;
 	fld.numbits6 = numbits6;
-	if (!flags) {
+	if ((flags & LNF_AGGR_FLAGS) == 0) {
 		/* if type is UINT64 and numbits is set then field is key */
 		if (fld.numbits > 0 && fld.type == LNF_UINT64) {
 			fld.aggr_flag = LNF_AGGR_KEY;
 		} else {
 			lnf_fld_info(field, LNF_FLD_INFO_AGGR, &fld.aggr_flag, sizeof(fld.aggr_flag));
 		}
-		
 	} else {
 		fld.aggr_flag = flags & LNF_AGGR_FLAGS;
-		fld.sort_flag = flags & LNF_SORT_FLAGS;
 	}
 
+	fld.sort_flag = flags & LNF_SORT_FLAGS;
+		
 
 	/* select aggregation func for item */
 	fld.aggr_func = lnf_mem_aggr_EMPTY;
@@ -426,14 +426,14 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 	
 
 	/* add to key list */
-	if ((fld.aggr_flag & LNF_AGGR_FLAGS) == LNF_AGGR_KEY) {
+	if (fld.aggr_flag == LNF_AGGR_KEY) {
 		if ( lnf_filedlist_add_or_upd(&lnf_mem->key_list, &fld, &lnf_mem->key_len, LNF_MAX_KEY_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
-		if ((fld.sort_flag & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
+		if (fld.sort_flag != LNF_SORT_NONE) {
 			lnf_mem->sort_field = field;
 			lnf_mem->sort_offset = offset;
-			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY | (flags & LNF_SORT_FLAGS);
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_KEY | fld.sort_flag;
 		}
 		/* ser statistics mode for lnf_mem if there is pair field */
 		if (__lnf_fld_pair(field, 1) != LNF_FLD_ZERO_ && __lnf_fld_pair(field, 2) != LNF_FLD_ZERO_) {
@@ -443,10 +443,10 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		if ( lnf_filedlist_add_or_upd(&lnf_mem->val_list, &fld, &lnf_mem->val_len, LNF_MAX_VAL_LEN, &offset) != LNF_OK ) {
 			return LNF_ERR_NOMEM;
 		}
-		if ((fld.aggr_flag & LNF_SORT_FLAGS) != LNF_SORT_NONE) {
+		if (fld.sort_flag != LNF_SORT_NONE) {
 			lnf_mem->sort_field = field;
 			lnf_mem->sort_offset = offset;
-			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL | (flags & LNF_SORT_FLAGS);
+			lnf_mem->sort_flags = LNF_SORT_FLD_IN_VAL | fld.sort_flag;
 		}
 	}
 
@@ -542,12 +542,11 @@ int lnf_mem_fill_buf(lnf_fieldlist_t *fld, lnf_rec_t *rec, char *buf, int pairse
 			} else {
 				lnf_clear_bits_v6((uint64_t *)ckb, fld->numbits6);
 			}
-		}
-
-		if (fld->type == LNF_UINT64) { 
+		} else if (fld->type == LNF_UINT64 && fld->numbits > 0) { 
 			/* align time fields */
 			lnf_align_uint64((uint64_t *)ckb, fld->numbits);
 		}
+
 		keysize += fld->size;
 		fld = fld->next;
 	}

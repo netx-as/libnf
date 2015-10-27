@@ -4,6 +4,7 @@ Revision history for C and Perl extension of nfdump.
 	-perl: added test t/09-instances.t
 	-perl: test for calculated items in test t/08-aggreg-sort.t
 	-perl: net option CompatMode
+	-c: time fields can be user as aggregation key with alligned time
 	-c: new lnf_mem option LNF_OPT_COMP_STATSCMP 
 	-c: sort support for calculated fields
 	-c: removed bug when thread key was nor released after lnf_mem release
