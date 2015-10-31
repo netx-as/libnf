@@ -47,6 +47,7 @@
 #endif
 #include "bit_array.h"
 #include "hash_table.h"
+#include "ff_filter.h"
 
 #ifndef HAVE_HTONLL
 #ifdef WORDS_BIGENDIAN
@@ -75,7 +76,8 @@ typedef struct lnf_filter_s {
 
 	/* structures for new filter */
 	//lnf_filter_node_t	*root;
-	void				*root;
+	//void				*root;
+	ff_filter_t			ff_filter;
 
 } lnf_filter_t;
 
