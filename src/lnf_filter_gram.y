@@ -62,14 +62,14 @@ filter:
 	;
 
 expr:
-	NOT expr	 		{ $$ = ff_filter_new_node(scanner, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
-	| expr AND expr	 	{ $$ = ff_filter_new_node(scanner, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
-	| expr OR expr	 	{ $$ = ff_filter_new_node(scanner, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
+	NOT expr	 		{ $$ = ff_filter_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
+	| expr AND expr	 	{ $$ = ff_filter_new_node(scanner, filter, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
+	| expr OR expr	 	{ $$ = ff_filter_new_node(scanner, filter, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
 	| LP expr RP 		{ $$ = $2; }
-	| STRING STRING		{ $$ = ff_filter_new_leaf(scanner, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
-	| STRING EQ STRING	{ $$ = ff_filter_new_leaf(scanner, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
-	| STRING LT STRING	{ $$ = ff_filter_new_leaf(scanner, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
-	| STRING GT STRING	{ $$ = ff_filter_new_leaf(scanner, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING STRING		{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
+	| STRING EQ STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING LT STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING GT STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
 	;
 
 %%

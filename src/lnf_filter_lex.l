@@ -78,11 +78,13 @@ not|"!"			{ return NOT; }
 #.*             { ; }	//comments
 {ws}+			{ ; }	//whitespace 
 
+.			//	v2_error(yyscanner, NULL, "invalid character");
 .				v2_error(yyscanner, NULL, "invalid character");
 
 %%
 
 void v2_error(yyscan_t yyscanner, ff_filter_t *filter, char *s) {
+	//ff_filter_seterr(filter, "%s\n", s);
 	fprintf(stderr, "%s\n", s);
 }
 

@@ -47,6 +47,68 @@
 
 pthread_mutex_t lnf_nfdump_filter_match_mutex;    /* mutex for operations match filter  */
 
+/* callback from ffilter to lookup field */
+ff_error_t lnf_ff_lookup_func(ff_filter_t *filter, const char *fieldstr, ff_lvalue_t *lvalue) {
+
+	int field;
+
+	/* fieldstr is set - trie to find field id and relevant _fget function */
+	if ( fieldstr != NULL ) {
+
+		lvalue->id.index = lnf_fld_parse(fieldstr, NULL, NULL);
+
+		if (field == LNF_FLD_ZERO_) {
+			return FF_ERR_UNKN;
+		}
+
+		switch (lnf_fld_type(lvalue->id.index)) {
+			case LNF_UINT8: 
+					lvalue->type = FF_TYPE_UINT8;
+					break;
+			case LNF_UINT16: 
+					lvalue->type = FF_TYPE_UINT16;
+					break;
+			case LNF_UINT32: 
+					lvalue->type = FF_TYPE_UINT32;
+					break;
+			case LNF_UINT64: 
+					lvalue->type = FF_TYPE_UINT64;
+					break;
+			case LNF_ADDR: 
+					lvalue->type = FF_TYPE_ADDR;
+					break;
+			case LNF_MAC: 
+					lvalue->type = FF_TYPE_MAC;
+					break;
+			default: 
+					return FF_ERR_UNSUP;
+		}
+
+		return FF_OK;
+	} 
+
+	return FF_ERR_OTHER;	
+}
+
+
+/* getting data callback */
+ff_error_t lnf_ff_data_func(ff_filter_t *filter, void *rec, ff_extern_id_t id, char *data, size_t *size) { 
+
+	int ret; 
+
+	switch (lnf_rec_fget((lnf_rec_t *)rec, id.index, data) == LNF_OK) {
+		case LNF_OK:
+		case LNF_ERR_NAN:
+				*size = 0; 		/* only for variable length items */
+				return FF_OK;
+				break;
+		default:
+			 	return FF_ERR_OTHER;
+				break;
+	}
+
+}
+
 
 /* initialise filter */
 int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
@@ -62,8 +124,13 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 
 	filter->v2filter = 1;	/* nitialised as V2 - lnf pure filter */
 
-	/* call ff_filter code */
-	memset(&filter->ff_filter, 0x0, sizeof(ff_filter_t));
+	/* init ff_filter code */
+	ff_filter_init(&filter->ff_filter);
+
+	/* set callback functions */
+	filter->ff_filter.ff_lookup_func = lnf_ff_lookup_func;
+	filter->ff_filter.ff_data_func = lnf_ff_data_func;
+
 
 	ff_ret = ff_filter_parse(&filter->ff_filter, expr);
 

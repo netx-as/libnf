@@ -28,13 +28,19 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define FF_MAX_STRING  1024
+
 
 /*! \brief Supported data types */
 typedef enum {
 	FF_TYPE_UNSUPPORTED,  // for unsupported data types
 #define FF_TYPE_UNSUPPORTED_T void
 //	FF_TYPE_SIGNED,
-	FF_TYPE_UNSIGNED,
+//	FF_TYPE_UNSIGNED,
+	FF_TYPE_UINT8,
+	FF_TYPE_UINT16,
+	FF_TYPE_UINT32,
+	FF_TYPE_UINT64,
 #define FF_TYPE_UNSIGNED_T unit64_t
 	FF_TYPE_FLOAT,        // TODO: muzeme si byt jisti, ze se bude pouzivat format IEEE 754?
 #define FF_TYPE_FLOAT_T double
@@ -54,6 +60,8 @@ typedef enum {
 	FF_OK = 0x1,
 	FF_ERR_NOMEM = -0x1,
 	FF_ERR_UNKN  = -0x2,
+	FF_ERR_UNSUP  = -0x3,
+	FF_ERR_OTHER  = -0xE,
 	FF_ERR_OTHER_MSG  = -0xF,
 } ff_error_t;
 
@@ -62,7 +70,7 @@ typedef enum {
 typedef union {
 	uint64_t index;       /**< Index mapping      */
 	const void *ptr;      /**< Direct mapping     */
-} ff_extern_id;
+} ff_extern_id_t;
 
 
 
@@ -71,8 +79,8 @@ typedef struct ff_lvalue_s {
 	/** Type of left value */
 	ff_type_t type;
 	/** External identification */
-	ff_extern_id id;
-	ff_extern_id id2;	/* for pair fields  */
+	ff_extern_id_t id;
+	ff_extern_id_t id2;	/* for pair fields  */
 
 	int options;
 
@@ -84,33 +92,43 @@ typedef struct ff_lvalue_s {
 } ff_lvalue_t;
 
 
+typedef struct ff_filter_s ff_filter_t;
+
 /** \brief Function pointer on element lookup function
  *
  * - first: Name of the element
  * - returns: lvalue identification
  */
-typedef ff_error_t (*ff_lookup_func_t) (const char *, ff_lvalue_t *);
-typedef ff_error_t (*ff_data_func_t) (ff_extern_id, char*, size_t);
+typedef ff_error_t (*ff_lookup_func_t) (ff_filter_t *, const char *, ff_lvalue_t *);
+typedef ff_error_t (*ff_data_func_t) (ff_filter_t *, void *, ff_extern_id_t, char*, size_t);
 
 
 
 /** \brief Filter instance */
 typedef struct ff_filter_s {
-	/** Root node */
-	void *root;
 	
 	/** Element lookup function */
 	ff_lookup_func_t ff_lookup_func;
 	/** Value comparation function */
 	ff_data_func_t ff_data_func;
+
+	/** Root node */
+	void *root;
+
+	char error_str[FF_MAX_STRING];
+
 } ff_filter_t;
 
 
 
 //ff_error_t ff_filter_parse(ff_filter_t *ff_filter, const char *expr, ff_lookup_func func_lookup, ff_data_func func_data);
+ff_error_t ff_filter_init(ff_filter_t *ff_filter);
 ff_error_t ff_filter_parse(ff_filter_t *ff_filter, const char *expr);
 int ff_filter_eval(ff_filter_t *filter, void *rec);
 ff_error_t ff_filter_free(ff_filter_t *filter);
+
+void ff_filter_seterr(ff_filter_t *filter, char *format, ...);
+void ff_filter_error(ff_filter_t *filter, const char *buf, int buflen);
 
 
 #endif /* _LNF_FILTER_H */
