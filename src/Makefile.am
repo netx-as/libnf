@@ -29,9 +29,9 @@ EXTRA_DIST += scanner.c grammar.c
 libnf_la_SOURCES += nftree.c grammar.y scanner.l 
 
 # Libnf flow filter sources 
-EXTRA_DIST += ffilter/lnf_filter_gram.c ffilter/lnf_filter_lex.c ffilter/lnf_filter_gram.h ffilter/ffilter_internal.h
-BUILT_SOURCES += ffilter/lnf_filter_gram.h 
-libnf_la_SOURCES += ffilter/lnf_filter_gram.y ffilter/lnf_filter_lex.l ffilter/ff_filter.c
+EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h
+BUILT_SOURCES += ffilter/ffilter_gram.h 
+libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c
 
 # Simple info program 
 bin_PROGRAMS = libnf-info

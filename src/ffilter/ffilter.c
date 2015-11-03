@@ -147,7 +147,7 @@ void ff_error(ff_t *filter, const char *buf, int buflen) {
 
 /* add leaf entry into expr tree */
 ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t oper, char *valstr) {
-	int field;
+	//int field;
 	ff_node_t *node;
 	ff_lvalue_t lvalue;
 
@@ -237,7 +237,7 @@ ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_
 /* evaluate node in tree or proces subtree */
 /* return 0 - false; 1 - true; -1 - error  */
 int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
-	int buf[LNF_MAX_STRING];
+	char buf[LNF_MAX_STRING];
 	int left, right, res;
 	size_t size;
 
@@ -270,7 +270,7 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 
 	/* operations on leaf -> compare values  */
 	/* going to be callback */
-	if (filter->ff_data_func(filter, rec, node->field, &buf, &size) != FF_OK) {
+	if (filter->ff_data_func(filter, rec, node->field, buf, &size) != FF_OK) {
 		ff_seterr(filter, "Can't get data");
 		return -1;
 	}
@@ -330,15 +330,15 @@ ff_error_t ff_parse(ff_t *filter, const char *expr) {
 
 	filter->root = NULL;
 
-	v2_lex_init(&scanner);
-    buf = v2__scan_string(expr, scanner);
-    parse_ret = v2_parse(scanner, filter);
+	ff2_lex_init(&scanner);
+    buf = ff2__scan_string(expr, scanner);
+    parse_ret = ff2_parse(scanner, filter);
 
 //   if (buf != NULL) {
 //        v2__delete_buffer(buf, scanner);
 //    }
 
-	v2_lex_destroy(scanner);
+	ff2_lex_destroy(scanner);
 
 	/* error in parsing */
 	if (parse_ret != 0) {

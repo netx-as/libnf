@@ -2041,7 +2041,7 @@ int lnf_fld_info(int field, int info, void *data, size_t size) {
 /* parse fields from string 
 * accepted format like srcip/24/64 
 */
-int lnf_fld_parse(char *str, int *numbits, int *numbits6) {
+int lnf_fld_parse(const char *str, int *numbits, int *numbits6) {
 
 	char *name, *strbits;
 	int field = LNF_FLD_ZERO_;

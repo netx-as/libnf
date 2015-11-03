@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdlib.h> 
 #include "progress.h"
 
 
@@ -61,6 +62,8 @@ int progress_printf(progress_t *p, const char *format, ...) {
 
 		return 1;
 	}
+
+	return 1;
 }
 
 int progress_steps(progress_t *p, int steps) {

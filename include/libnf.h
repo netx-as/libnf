@@ -822,7 +822,7 @@ int lnf_fld_type(int field);
 #define LNF_INFO_BUFSIZE 4096		/* maximum buffer size for data lnf_*_fields */
 /* return LNF_OK or LNF_ERR_UNKFLD or LNF_ERR_OTHER */
 int lnf_fld_info(int field, int info, void *data, size_t size);
-int lnf_fld_parse(char *str, int *numbits, int *numbits6);
+int lnf_fld_parse(const char *str, int *numbits, int *numbits6);
 
 
 #ifndef IN6_IS_ADDR_V4COMPAT

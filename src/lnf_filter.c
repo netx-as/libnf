@@ -50,14 +50,12 @@ pthread_mutex_t lnf_nfdump_filter_match_mutex;    /* mutex for operations match 
 /* callback from ffilter to lookup field */
 ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *lvalue) {
 
-	int field;
-
 	/* fieldstr is set - trie to find field id and relevant _fget function */
 	if ( fieldstr != NULL ) {
 
 		lvalue->id.index = lnf_fld_parse(fieldstr, NULL, NULL);
 
-		if (field == LNF_FLD_ZERO_) {
+		if (lvalue->id.index == LNF_FLD_ZERO_) {
 			return FF_ERR_UNKN;
 		}
 
@@ -94,18 +92,16 @@ ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *l
 /* getting data callback */
 ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *data, size_t *size) { 
 
-	int ret; 
-
-	switch (lnf_rec_fget((lnf_rec_t *)rec, id.index, data) == LNF_OK) {
+	switch ( lnf_rec_fget((lnf_rec_t *)rec, id.index, data) ) {
 		case LNF_OK:
 		case LNF_ERR_NAN:
 				*size = 0; 		/* only for variable length items */
 				return FF_OK;
 				break;
-		default:
-			 	return FF_ERR_OTHER;
-				break;
 	}
+
+	
+ 	return FF_ERR_OTHER;
 
 }
 

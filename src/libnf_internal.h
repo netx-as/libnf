@@ -222,5 +222,9 @@ typedef struct lnf_fastaggr_s {
 } lnf_fastaggr_t;
 
 
+/* filter operations - callbacks */
+ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *lvalue);
+ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *data, size_t *size);
+
 #endif /* _LIBNF_INTERNAL_H */
 

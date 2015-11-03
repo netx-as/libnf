@@ -65,5 +65,16 @@ ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_
 /* evaluate filter */
 int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec);
 
+
+/* lex bison prototypes */
+int ff2_get_column(yyscan_t yyscanner);
+void ff2_set_column(int , yyscan_t);
+int ff2_lex_init(yyscan_t *yyscanner);
+YY_BUFFER_STATE ff2__scan_string(const char *, yyscan_t yyscanner);
+int ff2_parse(yyscan_t yyscanner, ff_t*);
+int ff2_lex_destroy(yyscan_t yyscanner);
+
+
+
 #endif /* _LNF_FILTER_INTERNAL_H */
 

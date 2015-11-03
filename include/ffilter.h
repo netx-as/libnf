@@ -92,15 +92,15 @@ typedef struct ff_lvalue_s {
 } ff_lvalue_t;
 
 
-typedef struct ff_filter_s ff_filter_t;
+typedef struct ff_s ff_t;
 
 /** \brief Function pointer on element lookup function
  *
  * - first: Name of the element
  * - returns: lvalue identification
  */
-typedef ff_error_t (*ff_lookup_func_t) (ff_filter_t *, const char *, ff_lvalue_t *);
-typedef ff_error_t (*ff_data_func_t) (ff_filter_t *, void *, ff_extern_id_t, char*, size_t);
+typedef ff_error_t (*ff_lookup_func_t) (ff_t *, const char *, ff_lvalue_t *);
+typedef ff_error_t (*ff_data_func_t) (ff_t *, void *, ff_extern_id_t, char*, size_t *);
 
 
 
