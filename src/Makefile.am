@@ -8,7 +8,9 @@ LDADD = $(DEPS_LIBS)
 #AM_LDFLAGS=-pthread
 
 #Add extra debug info for gdb and nfdump includes
-AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin
+AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/ffilter
+
+#SUBDIRS = ffilter
 
 EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h list_sort.h xxhash.h fields.h lnf_filter.h 
 #util.h
@@ -26,10 +28,10 @@ BUILT_SOURCES = grammar.h
 EXTRA_DIST += scanner.c grammar.c
 libnf_la_SOURCES += nftree.c grammar.y scanner.l 
 
-# Libnf filter sources 
-EXTRA_DIST += lnf_filter_gram.c lnf_filter_lex.c lnf_filter_gram.h ffilter_internal.h
-BUILT_SOURCES += lnf_filter_gram.h 
-libnf_la_SOURCES += lnf_filter_gram.y lnf_filter_lex.l ff_filter.c
+# Libnf flow filter sources 
+EXTRA_DIST += ffilter/lnf_filter_gram.c ffilter/lnf_filter_lex.c ffilter/lnf_filter_gram.h ffilter/ffilter_internal.h
+BUILT_SOURCES += ffilter/lnf_filter_gram.h 
+libnf_la_SOURCES += ffilter/lnf_filter_gram.y ffilter/lnf_filter_lex.l ffilter/ff_filter.c
 
 # Simple info program 
 bin_PROGRAMS = libnf-info
