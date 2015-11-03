@@ -4,7 +4,7 @@
 
 #include <libnf_internal.h>
 #include <libnf.h>
-#include <ff_filter.h>
+#include <ffilter.h>
 
 /* supported operations */
 typedef enum {
@@ -18,7 +18,7 @@ typedef enum {
 } ff_oper_t;
 
 /* node of syntax tree */
-typedef struct ff_filter_node_s {
+typedef struct ff_node_s {
 	//int field;                  /* field ID */
 	ff_extern_id_t field;        /* field ID */
 	char *value;                /*buffer allocated for data */
@@ -27,10 +27,10 @@ typedef struct ff_filter_node_s {
 	int numbits;                /* number of bits for IP adres */
 	ff_oper_t oper;            /* operation */
 
-	struct ff_filter_node_s *left;
-	struct ff_filter_node_s *right;
+	struct ff_node_s *left;
+	struct ff_node_s *right;
 
-} ff_filter_node_t;
+} ff_node_t;
 
 
 /* scanner instance */
@@ -45,25 +45,25 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
 
-YY_BUFFER_STATE ff_filter_yy_scan_string(const char *str, yyscan_t yyscanner);
-int ff_filter_yyparse(yyscan_t yyscanner, ff_filter_t *filter);
+YY_BUFFER_STATE ff_yy_scan_string(const char *str, yyscan_t yyscanner);
+int ff_yyparse(yyscan_t yyscanner, ff_t *filter);
 //int lnf_filter_yylex(YYSTYPE *yylval, void *scanner);
 
 
 
 /* error function for scanner */
-void yyerror(yyscan_t yyscanner, ff_filter_t *filter, char *);
+void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 
 /* conversion from string to numeric/bit value */
 int str_to_uint(char *str, int type, char **res, int *vsize);
 int str_to_addr(char *str, char **res, int *numbits);
 
 /* add new node into parse tree */
-ff_filter_node_t* ff_filter_new_leaf(yyscan_t scanner, ff_filter_t *filter, char *fieldstr, ff_oper_t oper, char *valstr);
-ff_filter_node_t* ff_filter_new_node(yyscan_t scanner, ff_filter_t *filter, ff_filter_node_t* left, ff_oper_t oper, ff_filter_node_t* right);
+ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter, char *fieldstr, ff_oper_t oper, char *valstr);
+ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_t oper, ff_node_t* right);
 
 /* evaluate filter */
-int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec);
+int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec);
 
 #endif /* _LNF_FILTER_INTERNAL_H */
 

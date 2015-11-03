@@ -42,8 +42,8 @@
 #include "lnf_filter.h"
 #include "libnf_internal.h"
 #include "libnf.h" 
-#include "ff_filter.h" 
-#include "ff_filter_internal.h" 
+#include "ffilter.h" 
+#include "ffilter_internal.h" 
 #include "lnf_filter_gram.h"
 
 
@@ -128,7 +128,7 @@ int str_to_addr(char *str, char **res, int *numbits) {
 
 /* set error to error buffer */
 /* set error string */
-void ff_filter_seterr(ff_filter_t *filter, char *format, ...) {
+void ff_seterr(ff_t *filter, char *format, ...) {
 va_list args;
 
 	va_start(args, format);
@@ -137,7 +137,7 @@ va_list args;
 }
 
 /* get error string */
-void ff_filter_error(ff_filter_t *filter, const char *buf, int buflen) {
+void ff_error(ff_t *filter, const char *buf, int buflen) {
 
 	strncpy((char *)buf, filter->error_str, buflen - 1);
 
@@ -146,21 +146,21 @@ void ff_filter_error(ff_filter_t *filter, const char *buf, int buflen) {
 
 
 /* add leaf entry into expr tree */
-ff_filter_node_t* ff_filter_new_leaf(yyscan_t scanner, ff_filter_t *filter,char *fieldstr, ff_oper_t oper, char *valstr) {
+ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t oper, char *valstr) {
 	int field;
-	ff_filter_node_t *node;
+	ff_node_t *node;
 	ff_lvalue_t lvalue;
 
 
 	/* callback to fetch field type and additional info */
 	if (filter->ff_lookup_func == NULL) {
-		ff_filter_seterr(filter, "Filter lookup function not defined for %s", fieldstr);
+		ff_seterr(filter, "Filter lookup function not defined for %s", fieldstr);
 		return NULL;
 	}
 
 	memset(&lvalue, 0x0, sizeof(ff_lvalue_t));
 	if (filter->ff_lookup_func(filter, fieldstr, &lvalue) != FF_OK) {
-		ff_filter_seterr(filter, "Can't lookup field type for %s", fieldstr);
+		ff_seterr(filter, "Can't lookup field type for %s", fieldstr);
 		return NULL;
 	}
 
@@ -173,7 +173,7 @@ ff_filter_node_t* ff_filter_new_leaf(yyscan_t scanner, ff_filter_t *filter,char 
 	//	}
 	//}
 
-	node = malloc(sizeof(ff_filter_node_t));
+	node = malloc(sizeof(ff_node_t));
 
 	if (node == NULL) {
 		return NULL;
@@ -195,7 +195,7 @@ ff_filter_node_t* ff_filter_new_leaf(yyscan_t scanner, ff_filter_t *filter,char 
 		case FF_TYPE_UINT8:
 //		case FF_TYPE_UNSIGNED:
 				if (str_to_uint(valstr, node->type, &node->value, &node->vsize) == 0) {
-					ff_filter_seterr(filter, "Can't convert '%s' into numeric value", valstr);
+					ff_seterr(filter, "Can't convert '%s' into numeric value", valstr);
 					return NULL;
 				}
 				break;
@@ -214,11 +214,11 @@ ff_filter_node_t* ff_filter_new_leaf(yyscan_t scanner, ff_filter_t *filter,char 
 }
 
 /* add node entry into expr tree */
-ff_filter_node_t* ff_filter_new_node(yyscan_t scanner, ff_filter_t *filter, ff_filter_node_t* left, ff_oper_t oper, ff_filter_node_t* right) {
+ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_t oper, ff_node_t* right) {
 
-	ff_filter_node_t *node;
+	ff_node_t *node;
 
-	node = malloc(sizeof(ff_filter_node_t));
+	node = malloc(sizeof(ff_node_t));
 
 	if (node == NULL) {
 		return NULL;
@@ -236,7 +236,7 @@ ff_filter_node_t* ff_filter_new_node(yyscan_t scanner, ff_filter_t *filter, ff_f
 
 /* evaluate node in tree or proces subtree */
 /* return 0 - false; 1 - true; -1 - error  */
-int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec) {
+int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 	int buf[LNF_MAX_STRING];
 	int left, right, res;
 	size_t size;
@@ -249,7 +249,7 @@ int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec) 
 
 	/* go deeper into tree */
 	if (node->left != NULL ) { 
-		left = ff_filter_eval_node(filter, node->left, rec); 
+		left = ff_eval_node(filter, node->left, rec); 
 
 		/* do not evaluate if the result is obvious */
 		if (node->oper == FF_OP_NOT)              { return !left; };
@@ -258,7 +258,7 @@ int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec) 
 	}
 
 	if (node->right != NULL ) { 
-		right = ff_filter_eval_node(filter, node->right, rec); 
+		right = ff_eval_node(filter, node->right, rec); 
 
 		switch (node->oper) {
 			case FF_OP_NOT: return !right; break;
@@ -271,7 +271,7 @@ int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec) 
 	/* operations on leaf -> compare values  */
 	/* going to be callback */
 	if (filter->ff_data_func(filter, rec, node->field, &buf, &size) != FF_OK) {
-		ff_filter_seterr(filter, "Can't get data");
+		ff_seterr(filter, "Can't get data");
 		return -1;
 	}
 
@@ -303,16 +303,16 @@ int ff_filter_eval_node(ff_filter_t *filter, ff_filter_node_t *node, void *rec) 
 
 
 /* initialise filter */
-ff_error_t ff_filter_init(ff_filter_t *filter) {
+ff_error_t ff_init(ff_t *filter) {
 
-	memset(filter, 0x0, sizeof(ff_filter_t));
+	memset(filter, 0x0, sizeof(ff_t));
 	
 	return FF_OK;
 
 }
 
- //   filter = malloc(sizeof(lnf_filter_t));
-ff_error_t ff_filter_parse(ff_filter_t *filter, const char *expr) {
+ //   filter = malloc(sizeof(lnf_t));
+ff_error_t ff_parse(ff_t *filter, const char *expr) {
 
 //    lnf_filter_t *filter;
 	yyscan_t scanner;
@@ -343,7 +343,7 @@ ff_error_t ff_filter_parse(ff_filter_t *filter, const char *expr) {
 	/* error in parsing */
 	if (parse_ret != 0) {
 //		free(filter);
-		ff_filter_error(filter, errbuf, FF_MAX_STRING);
+		ff_error(filter, errbuf, FF_MAX_STRING);
 		lnf_seterror("%s", errbuf);
 		return FF_ERR_OTHER_MSG;
 	}
@@ -355,15 +355,15 @@ ff_error_t ff_filter_parse(ff_filter_t *filter, const char *expr) {
 
 /* matches the record agains filter */
 /* returns 1 - record was matched, 0 - record wasn't matched */
-int ff_filter_eval(ff_filter_t *filter, void *rec) {
+int ff_eval(ff_t *filter, void *rec) {
 
 	/* call eval node on root node */
-	return ff_filter_eval_node(filter, filter->root, rec);
+	return ff_eval_node(filter, filter->root, rec);
 
 }
 
 /* release all resources allocated by filter */
-ff_error_t ff_filter_free(ff_filter_t *filter) {
+ff_error_t ff_free(ff_t *filter) {
 
 	/* !!! memory clenaup */
 	return FF_OK;

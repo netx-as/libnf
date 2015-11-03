@@ -34,14 +34,14 @@ ws		[ \t]
 	#include <string.h>
 	#include "libnf_internal.h"
 	#include "libnf.h"
-	#include "ff_filter_internal.h"
+	#include "ffilter_internal.h"
 	#include "lnf_filter_gram.h"
-	#include "ff_filter.h"
+	#include "ffilter.h"
 //    YY_BUFFER_STATE yy_scan_string(const char *str, yyscan_t yyscanner);
 //	int yyparse(yyscan_t yyscanner, lnf_filter_t *filter);
 //	int yylex(YYSTYPE *yylval, void *scanner);
 //	int yylineno;
-	void v2_error(yyscan_t yyscanner, ff_filter_t *filter, char *s);
+	void v2_error(yyscan_t yyscanner, ff_t *filter, char *s);
 %}
 
 %%
@@ -83,7 +83,7 @@ not|"!"			{ return NOT; }
 
 %%
 
-void v2_error(yyscan_t yyscanner, ff_filter_t *filter, char *s) {
+void v2_error(yyscan_t yyscanner, ff_t *filter, char *s) {
 	//ff_filter_seterr(filter, "%s\n", s);
 	fprintf(stderr, "%s\n", s);
 }

@@ -105,7 +105,7 @@ typedef ff_error_t (*ff_data_func_t) (ff_filter_t *, void *, ff_extern_id_t, cha
 
 
 /** \brief Filter instance */
-typedef struct ff_filter_s {
+typedef struct ff_s {
 	
 	/** Element lookup function */
 	ff_lookup_func_t ff_lookup_func;
@@ -117,18 +117,18 @@ typedef struct ff_filter_s {
 
 	char error_str[FF_MAX_STRING];
 
-} ff_filter_t;
+} ff_t;
 
 
 
 //ff_error_t ff_filter_parse(ff_filter_t *ff_filter, const char *expr, ff_lookup_func func_lookup, ff_data_func func_data);
-ff_error_t ff_filter_init(ff_filter_t *ff_filter);
-ff_error_t ff_filter_parse(ff_filter_t *ff_filter, const char *expr);
-int ff_filter_eval(ff_filter_t *filter, void *rec);
-ff_error_t ff_filter_free(ff_filter_t *filter);
+ff_error_t ff_init(ff_t *ff_filter);
+ff_error_t ff_parse(ff_t *ff_filter, const char *expr);
+int ff_eval(ff_t *filter, void *rec);
+ff_error_t ff_free(ff_t *filter);
 
-void ff_filter_seterr(ff_filter_t *filter, char *format, ...);
-void ff_filter_error(ff_filter_t *filter, const char *buf, int buflen);
+void ff_seterr(ff_t *filter, char *format, ...);
+void ff_error(ff_t *filter, const char *buf, int buflen);
 
 
 #endif /* _LNF_FILTER_H */

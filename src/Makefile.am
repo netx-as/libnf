@@ -27,7 +27,7 @@ EXTRA_DIST += scanner.c grammar.c
 libnf_la_SOURCES += nftree.c grammar.y scanner.l 
 
 # Libnf filter sources 
-EXTRA_DIST += lnf_filter_gram.c lnf_filter_lex.c lnf_filter_gram.h ff_filter_internal.h
+EXTRA_DIST += lnf_filter_gram.c lnf_filter_lex.c lnf_filter_gram.h ffilter_internal.h
 BUILT_SOURCES += lnf_filter_gram.h 
 libnf_la_SOURCES += lnf_filter_gram.y lnf_filter_lex.l ff_filter.c
 

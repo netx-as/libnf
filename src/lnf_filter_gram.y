@@ -23,15 +23,15 @@
 %pure-parser
 %lex-param   { yyscan_t scanner }
 %parse-param { yyscan_t scanner }
-%parse-param { ff_filter_t *filter }
+%parse-param { ff_t *filter }
 %name-prefix = "v2_"
 
 %{
 	#include <stdio.h>
 	#include "libnf_internal.h"
 	#include "libnf.h"
-	#include "ff_filter.h"
-	#include "ff_filter_internal.h"
+	#include "ffilter.h"
+	#include "ffilter_internal.h"
 
 	#define YY_EXTRA_TYPE ff_filter_t
 
@@ -62,14 +62,14 @@ filter:
 	;
 
 expr:
-	NOT expr	 		{ $$ = ff_filter_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
-	| expr AND expr	 	{ $$ = ff_filter_new_node(scanner, filter, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
-	| expr OR expr	 	{ $$ = ff_filter_new_node(scanner, filter, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
+	NOT expr	 		{ $$ = ff_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
+	| expr AND expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
+	| expr OR expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
 	| LP expr RP 		{ $$ = $2; }
-	| STRING STRING		{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
-	| STRING EQ STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
-	| STRING LT STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
-	| STRING GT STRING	{ $$ = ff_filter_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING STRING		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
+	| STRING EQ STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING LT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
+	| STRING GT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
 	;
 
 %%
