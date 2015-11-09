@@ -77,7 +77,7 @@ typedef struct lnf_filter_s {
 	/* structures for new filter */
 	//lnf_filter_node_t	*root;
 	//void				*root;
-	ff_t				ff_filter;
+	ff_t				*ff_filter;
 
 } lnf_filter_t;
 

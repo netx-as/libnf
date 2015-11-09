@@ -22,29 +22,8 @@
 #include <stdint.h>
 #endif
 
-#include "nffile.h"
-#include "nfx.h"
-#include "nfnet.h"
-#include "bookkeeper.h"
-#include "nfxstat.h"
-#include "nf_common.h"
-#include "rbtree.h"
-#include "nftree.h"
-#include "nfprof.h"
-#include "nfdump.h"
-#include "nflowcache.h"
-#include "nfstat.h"
-#include "nfexport.h"
-#include "ipconv.h"
-#include "flist.h"
-#include "util.h"
-
-#include "lnf_filter.h"
-#include "libnf_internal.h"
-#include "libnf.h" 
-#include "ffilter.h" 
 #include "ffilter_internal.h" 
-#include "lnf_filter_gram.h"
+#include "ffilter_gram.h"
 
 
 /* convert string into uint64_t */
@@ -97,18 +76,19 @@ int str_to_uint(char *str, int type, char **res, int *vsize) {
 
 /* convert string into lnf_ip_t */
 /* FIXME: also converst string with units (64k -> 64000) */
-int str_to_addr(char *str, char **res, int *numbits) {
+int str_to_addr(ff_t *filter, char *str, char **res, int *numbits) {
 
-	lnf_ip_t *ptr;
+	ff_ip_t *ptr;
 
-	ptr = malloc(sizeof(lnf_ip_t));
+	ptr = malloc(sizeof(ff_ip_t));
 
-	memset(ptr, 0x0, sizeof(lnf_ip_t));
 
 	if (ptr == NULL) {
 		return 0;
 	}
 	
+	memset(ptr, 0x0, sizeof(ff_ip_t));
+
 	*numbits = 0;
 
 	*res = (char *)ptr;
@@ -121,14 +101,14 @@ int str_to_addr(char *str, char **res, int *numbits) {
 		return 1;
 	}
 
-	lnf_seterror("Can't convert '%s' into IP address", str);
+	ff_set_error(filter, "Can't convert '%s' into IP address", str);
 
 	return 0;
 }
 
 /* set error to error buffer */
 /* set error string */
-void ff_seterr(ff_t *filter, char *format, ...) {
+void ff_set_error(ff_t *filter, char *format, ...) {
 va_list args;
 
 	va_start(args, format);
@@ -153,14 +133,14 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 
 
 	/* callback to fetch field type and additional info */
-	if (filter->ff_lookup_func == NULL) {
-		ff_seterr(filter, "Filter lookup function not defined for %s", fieldstr);
+	if (filter->options.ff_lookup_func == NULL) {
+		ff_set_error(filter, "Filter lookup function not defined for %s", fieldstr);
 		return NULL;
 	}
 
 	memset(&lvalue, 0x0, sizeof(ff_lvalue_t));
-	if (filter->ff_lookup_func(filter, fieldstr, &lvalue) != FF_OK) {
-		ff_seterr(filter, "Can't lookup field type for %s", fieldstr);
+	if (filter->options.ff_lookup_func(filter, fieldstr, &lvalue) != FF_OK) {
+		ff_set_error(filter, "Can't lookup field type for %s", fieldstr);
 		return NULL;
 	}
 
@@ -195,15 +175,15 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 		case FF_TYPE_UINT8:
 //		case FF_TYPE_UNSIGNED:
 				if (str_to_uint(valstr, node->type, &node->value, &node->vsize) == 0) {
-					ff_seterr(filter, "Can't convert '%s' into numeric value", valstr);
+					ff_set_error(filter, "Can't convert '%s' into numeric value", valstr);
 					return NULL;
 				}
 				break;
 		case FF_TYPE_ADDR:
-				if (str_to_addr(valstr, &node->value, &node->numbits) == 0) {
+				if (str_to_addr(filter, valstr, &node->value, &node->numbits) == 0) {
 					return NULL;
 				}
-				node->vsize = sizeof(lnf_ip_t);
+				node->vsize = sizeof(ff_ip_t);
 				break;
 	}
 
@@ -237,7 +217,7 @@ ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_
 /* evaluate node in tree or proces subtree */
 /* return 0 - false; 1 - true; -1 - error  */
 int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
-	char buf[LNF_MAX_STRING];
+	char buf[FF_MAX_STRING];
 	int left, right, res;
 	size_t size;
 
@@ -270,8 +250,8 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 
 	/* operations on leaf -> compare values  */
 	/* going to be callback */
-	if (filter->ff_data_func(filter, rec, node->field, buf, &size) != FF_OK) {
-		ff_seterr(filter, "Can't get data");
+	if (filter->options.ff_data_func(filter, rec, node->field, buf, &size) != FF_OK) {
+		ff_set_error(filter, "Can't get data");
 		return -1;
 	}
 
@@ -301,34 +281,60 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 	return -1;
 }
 
+ff_error_t ff_options_init(ff_options_t **poptions) {
 
-/* initialise filter */
-ff_error_t ff_init(ff_t *filter) {
+	ff_options_t *options;
 
-	memset(filter, 0x0, sizeof(ff_t));
+	options = malloc(sizeof(ff_options_t));
+
+	if (options == NULL) {
+		*poptions = NULL;
+		return FF_ERR_NOMEM;
+	}
+
+	*poptions = options;
 	
 	return FF_OK;
 
 }
 
- //   filter = malloc(sizeof(lnf_t));
-ff_error_t ff_parse(ff_t *filter, const char *expr) {
+/* release all resources allocated by filter */
+ff_error_t ff_options_free(ff_options_t *options) {
+
+	/* !!! memory clenaup */
+	free(options);
+
+	return FF_OK;
+
+}
+
+
+
+ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 
 //    lnf_filter_t *filter;
 	yyscan_t scanner;
 	YY_BUFFER_STATE buf;
 	int parse_ret;
 	char errbuf[FF_MAX_STRING] = "\0";
+	ff_t *filter;
 
- //   filter = malloc(sizeof(lnf_filter_t));
+	filter = malloc(sizeof(ff_t));
+	*pfilter = NULL;
 
- //  if (filter == NULL) {
-//        return LNF_ERR_NOMEM;
- //   }
-
-//	filter->v2filter = 1;	/* nitialised as V2 - lnf pure filter */
+	if (filter == NULL) {
+		return FF_ERR_NOMEM;
+	}
 
 	filter->root = NULL;
+
+
+	if (options == NULL) {
+		free(filter);
+		return FF_ERR_OTHER;
+		
+	}
+	memcpy(&filter->options, options, sizeof(ff_options_t));
 
 	ff2_lex_init(&scanner);
     buf = ff2__scan_string(expr, scanner);
@@ -342,13 +348,11 @@ ff_error_t ff_parse(ff_t *filter, const char *expr) {
 
 	/* error in parsing */
 	if (parse_ret != 0) {
-//		free(filter);
-		ff_error(filter, errbuf, FF_MAX_STRING);
-		lnf_seterror("%s", errbuf);
+		*pfilter = filter;
 		return FF_ERR_OTHER_MSG;
 	}
 
-//	*filterp = filter;
+	*pfilter = filter;
 
     return FF_OK;
 }
@@ -366,6 +370,11 @@ int ff_eval(ff_t *filter, void *rec) {
 ff_error_t ff_free(ff_t *filter) {
 
 	/* !!! memory clenaup */
+
+	if (filter != NULL) {
+		free(filter);
+	}
+
 	return FF_OK;
 
 }

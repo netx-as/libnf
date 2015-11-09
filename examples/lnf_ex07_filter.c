@@ -79,9 +79,9 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Can not init old (nfdump) filter '%s'\n", filter);
 		if (res == LNF_ERR_OTHER_MSG) {
 			lnf_error(buf, LNF_MAX_STRING);
-			fprintf(stderr, "%s\n", buf);
+			fprintf(stderr, "RES: %s\n", buf);
+			filterp1 = NULL;
 		}
-		exit(1);
 	}
 
 	if ((res = lnf_filter_init_v2(&filterp2, filter)) != LNF_OK) {
@@ -89,9 +89,9 @@ int main(int argc, char **argv) {
 		lnf_error(buf, LNF_MAX_STRING);
 		if (res == LNF_ERR_OTHER_MSG) {
 			lnf_error(buf, LNF_MAX_STRING);
-			fprintf(stderr, "%s\n", buf);
+			fprintf(stderr, "RES: %s\n", buf);
+			filterp2 = NULL;
 		}
-		exit(1);
 	}
 
 	lnf_rec_init(&recp);
@@ -103,11 +103,11 @@ int main(int argc, char **argv) {
 		match1 = 0;
 		match2 = 0;
 		if (filter) {
-			if (lnf_filter_match(filterp1, recp)) {
+			if (filterp1 != NULL && lnf_filter_match(filterp1, recp)) {
 				if1++;
 				match1 = 1;
 			}
-			if (lnf_filter_match(filterp2, recp)) {
+			if (filterp2 != NULL && lnf_filter_match(filterp2, recp)) {
 				if2++;
 				match2 = 1;
 			}

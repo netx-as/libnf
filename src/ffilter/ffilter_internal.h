@@ -1,9 +1,7 @@
 
-#ifndef _LNF_FILTER_INTERNAL_H
-#define _LNF_FILTER_INTERNAL_H
+#ifndef _FFILTER_INTERNAL_H
+#define _FFILTER_INTERNAL_H
 
-#include <libnf_internal.h>
-#include <libnf.h>
 #include <ffilter.h>
 
 /* supported operations */
@@ -56,7 +54,7 @@ void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 
 /* conversion from string to numeric/bit value */
 int str_to_uint(char *str, int type, char **res, int *vsize);
-int str_to_addr(char *str, char **res, int *numbits);
+int str_to_addr(ff_t *filter, char *str, char **res, int *numbits);
 
 /* add new node into parse tree */
 ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter, char *fieldstr, ff_oper_t oper, char *valstr);
@@ -76,5 +74,5 @@ int ff2_lex_destroy(yyscan_t yyscanner);
 
 
 
-#endif /* _LNF_FILTER_INTERNAL_H */
+#endif 
 

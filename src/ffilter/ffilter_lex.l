@@ -34,16 +34,10 @@ ws		[ \t]
 %{
 	#include <stdlib.h>
 	#include <string.h>
-	#include "libnf_internal.h"
-	#include "libnf.h"
 	#include "ffilter_internal.h"
-	#include "lnf_filter_gram.h"
+	#include "ffilter_gram.h"
 	#include "ffilter.h"
-//    YY_BUFFER_STATE yy_scan_string(const char *str, yyscan_t yyscanner);
-//	int yyparse(yyscan_t yyscanner, lnf_filter_t *filter);
-//	int yylex(YYSTYPE *yylval, void *scanner);
-//	int yylineno;
-	void ff2_error(yyscan_t yyscanner, ff_t *filter, char *s);
+//	#define YY_FATAL_ERROR(msg) (printf("LEXXX> %s\n", msg))
 %}
 
 %%
@@ -58,35 +52,26 @@ not|"!"			{ return NOT; }
 ")"				{ return RP; }
 
 "src"{ws}+"ip"	{
-					strncpy(yylval->string, "srcip", LNF_MAX_STRING - 1);
+					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
 					return STRING;
 				}
 "src"{ws}+"net"	{
-					strncpy(yylval->string, "srcip", LNF_MAX_STRING - 1);
+					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
 					return STRING;
 				}
 "src"{ws}+"port" {
-					strncpy(yylval->string, "srcport", LNF_MAX_STRING - 1);
+					strncpy(yylval->string, "srcport", FF_MAX_STRING - 1);
 					return STRING;
 				}
 ({letter}|{digit})+	{
-					strncpy(yylval->string, yytext, LNF_MAX_STRING - 1);
+					strncpy(yylval->string, yytext, FF_MAX_STRING - 1);
 					return STRING;
-				}
-[\n]			{
-					//printf("konec radku.\n");
-					;
 				}
 #.*             { ; }	//comments
 {ws}+			{ ; }	//whitespace 
+[\n]			{ ; }	//end of line 
 
 .			//	v2_error(yyscanner, NULL, "invalid character");
-.				ff2_error(yyscanner, NULL, "invalid character");
 
 %%
-
-void ff2_error(yyscan_t yyscanner, ff_t *filter, char *s) {
-	//ff_filter_seterr(filter, "%s\n", s);
-	fprintf(stderr, "%s\n", s);
-}
 

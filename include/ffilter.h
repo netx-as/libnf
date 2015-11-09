@@ -31,9 +31,12 @@
 #define FF_MAX_STRING  1024
 
 
+typedef struct ff_ip_s { uint32_t data[4]; } ff_ip_t; /*!< IPv4/IPv6 address */
+
+
 /*! \brief Supported data types */
 typedef enum {
-	FF_TYPE_UNSUPPORTED,  // for unsupported data types
+	FF_TYPE_UNSUPPORTED = 0x0,  // for unsupported data types
 #define FF_TYPE_UNSUPPORTED_T void
 //	FF_TYPE_SIGNED,
 //	FF_TYPE_UNSIGNED,
@@ -45,7 +48,7 @@ typedef enum {
 	FF_TYPE_FLOAT,        // TODO: muzeme si byt jisti, ze se bude pouzivat format IEEE 754?
 #define FF_TYPE_FLOAT_T double
 	FF_TYPE_ADDR,
-#define FF_TYPE_ADDR_T ?
+#define FF_TYPE_ADDR_T ff_ip_t
 	FF_TYPE_MAC,
 #define FF_TYPE_MAC_T char[8]
 	FF_TYPE_STRING,
@@ -103,31 +106,38 @@ typedef ff_error_t (*ff_lookup_func_t) (ff_t *, const char *, ff_lvalue_t *);
 typedef ff_error_t (*ff_data_func_t) (ff_t *, void *, ff_extern_id_t, char*, size_t *);
 
 
-
-/** \brief Filter instance */
-typedef struct ff_s {
+/** \brief Options  */
+typedef struct ff_options_s {
 	
 	/** Element lookup function */
 	ff_lookup_func_t ff_lookup_func;
 	/** Value comparation function */
 	ff_data_func_t ff_data_func;
 
-	/** Root node */
-	void *root;
+} ff_options_t;
 
+
+/** \brief Filter instance */
+typedef struct ff_s {
+	
+	ff_options_t	options;
+
+	void *root;
 	char error_str[FF_MAX_STRING];
 
 } ff_t;
 
 
 
-//ff_error_t ff_filter_parse(ff_filter_t *ff_filter, const char *expr, ff_lookup_func func_lookup, ff_data_func func_data);
-ff_error_t ff_init(ff_t *ff_filter);
-ff_error_t ff_parse(ff_t *ff_filter, const char *expr);
+
+ff_error_t ff_options_init(ff_options_t **ff_options);
+ff_error_t ff_options_free(ff_options_t *ff_options);
+
+ff_error_t ff_init(ff_t **ff_filter, const char *expr, ff_options_t *ff_options);
 int ff_eval(ff_t *filter, void *rec);
 ff_error_t ff_free(ff_t *filter);
 
-void ff_seterr(ff_t *filter, char *format, ...);
+void ff_set_error(ff_t *filter, char *format, ...);
 void ff_error(ff_t *filter, const char *buf, int buflen);
 
 

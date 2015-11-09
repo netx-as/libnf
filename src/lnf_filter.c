@@ -111,6 +111,8 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 
     lnf_filter_t *filter;
 	int ff_ret;
+	ff_options_t *ff_options;
+	char errbuf[FF_MAX_STRING];
 
     filter = malloc(sizeof(lnf_filter_t));
 
@@ -121,23 +123,31 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 	filter->v2filter = 1;	/* nitialised as V2 - lnf pure filter */
 
 	/* init ff_filter code */
-	ff_init(&filter->ff_filter);
+	if (ff_options_init(&ff_options) != FF_OK)  {
+		free(filter);
+        return LNF_ERR_NOMEM;
+	}
 
 	/* set callback functions */
-	filter->ff_filter.ff_lookup_func = lnf_ff_lookup_func;
-	filter->ff_filter.ff_data_func = lnf_ff_data_func;
+	ff_options->ff_lookup_func = lnf_ff_lookup_func;
+	ff_options->ff_data_func = lnf_ff_data_func;
 
 
-	ff_ret = ff_parse(&filter->ff_filter, expr);
+	ff_ret = ff_init(&filter->ff_filter, expr, ff_options);
+
+	ff_options_free(ff_options);
 
 	/* error in parsing */
 	if (ff_ret == FF_ERR_OTHER_MSG) {
-		ff_free(&filter->ff_filter);
+		ff_error(filter->ff_filter, errbuf, FF_MAX_STRING);
+		lnf_seterror("%s", errbuf);
+
+		ff_free(filter->ff_filter);
 		free(filter);
 		/* handle error message */
 		return LNF_ERR_OTHER_MSG;
 	} else if (ff_ret != FF_OK) {
-		ff_free(&filter->ff_filter);
+		ff_free(filter->ff_filter);
 		free(filter);
 		/* handle error message */
 		return LNF_ERR_OTHER;
@@ -154,7 +164,7 @@ int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
 
     /* call proper version of match function depends on initialised filter version */
     if (filter->v2filter) {
-		return ff_eval(&filter->ff_filter, (void *)rec);
+		return ff_eval(filter->ff_filter, (void *)rec);
 		//return lnf_filter_eval(filter->root, rec);
     } else {
 		int res;
@@ -179,7 +189,7 @@ void lnf_filter_free(lnf_filter_t *filter) {
 
 	/* cleanup V2 filter */
 	if (filter->v2filter) { 	/* nitialised as V2 - lnf pure filter */
-		ff_free(&filter->ff_filter);
+		ff_free(filter->ff_filter);
 	}
 
 	free(filter);

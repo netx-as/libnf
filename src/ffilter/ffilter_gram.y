@@ -22,25 +22,31 @@
 %defines
 %pure-parser
 %lex-param   { yyscan_t scanner }
+%lex-param	 { ff_t *filter }
 %parse-param { yyscan_t scanner }
 %parse-param { ff_t *filter }
 %name-prefix = "ff2_"
 
 %{
 	#include <stdio.h>
-	#include "libnf_internal.h"
-	#include "libnf.h"
 	#include "ffilter.h"
 	#include "ffilter_internal.h"
 
 	#define YY_EXTRA_TYPE ff_t
+
+
+	void yyerror(yyscan_t scanner, ff_t *filter, char *msg) {
+
+		ff_set_error(filter, msg);
+	}
+
 
 %}
 
 %union {
 	uint64_t	t_uint;
 	double		t_double;
-	char 		string[LNF_MAX_STRING];
+	char 		string[FF_MAX_STRING];
 	void		*node;
 };
 
