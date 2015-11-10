@@ -138,7 +138,7 @@ int ff_eval(ff_t *filter, void *rec);
 ff_error_t ff_free(ff_t *filter);
 
 void ff_set_error(ff_t *filter, char *format, ...);
-void ff_error(ff_t *filter, const char *buf, int buflen);
+const char* ff_error(ff_t *filter, const char *buf, int buflen);
 
 
 #endif /* _LNF_FILTER_H */

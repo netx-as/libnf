@@ -245,7 +245,7 @@ int hash_table_sort_heap(hash_table_t *t) {
 /* sort as list using merge sort  */
 int hash_table_sort(hash_table_t *t) {
 
-	t->sfirst = list_sort(t->sfirst, &hash_table_sort_callback, t);
+	t->sfirst = (char *)list_sort((hash_table_row_hdr_t *)t->sfirst, &hash_table_sort_callback, t);
 
 	return 1;
 

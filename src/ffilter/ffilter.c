@@ -117,9 +117,10 @@ va_list args;
 }
 
 /* get error string */
-void ff_error(ff_t *filter, const char *buf, int buflen) {
+const char* ff_error(ff_t *filter, const char *buf, int buflen) {
 
 	strncpy((char *)buf, filter->error_str, buflen - 1);
+	return buf;
 
 }
 
@@ -335,6 +336,8 @@ ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 		
 	}
 	memcpy(&filter->options, options, sizeof(ff_options_t));
+
+	ff_set_error(filter, "No Error.");
 
 	ff2_lex_init(&scanner);
     buf = ff2__scan_string(expr, scanner);

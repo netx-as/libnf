@@ -2050,7 +2050,7 @@ int lnf_fld_parse(const char *str, int *numbits, int *numbits6) {
 
 
 	/* find first token */
-	name = strsep(&str, "/");
+	name = strsep((char **)&str, "/");
 
 	if (name == NULL) {	
 		return LNF_ERR_OTHER;
@@ -2097,7 +2097,7 @@ int lnf_fld_parse(const char *str, int *numbits, int *numbits6) {
 
 	/* numbits */
 	if (str != NULL) {
-		strbits = strsep(&str, "/");
+		strbits = strsep((char **)&str, "/");
 		if (strbits != NULL && numbits != NULL) {
 			if (lastch == '6') {
 				*numbits6 = strtol(strbits, NULL, 10);
