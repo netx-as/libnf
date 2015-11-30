@@ -39,13 +39,32 @@ typedef enum {
 	FF_TYPE_UNSUPPORTED = 0x0,  // for unsupported data types
 #define FF_TYPE_UNSUPPORTED_T void
 //	FF_TYPE_SIGNED,
-//	FF_TYPE_UNSIGNED,
-	FF_TYPE_UINT8,
+#define FF_TYPE_UNSIGNED_T char*
+	FF_TYPE_UNSIGNED,
+#define FF_TYPE_UNSIGNED_BIG_T char*
+	FF_TYPE_UNSIGNED_BIG,
+#define FF_TYPE_SIGNED_T char*
+	FF_TYPE_SIGNED,
+#define FF_TYPE_SIGNED_BIG_T char*
+	FF_TYPE_SIGNED_BIG,
+#define FF_TYPE_UINT8_T uint8_t
+	FF_TYPE_UINT8,				/* 1Byte unsigned - fixed size */
+#define FF_TYPE_UINT16_T uint8_t
 	FF_TYPE_UINT16,
+#define FF_TYPE_UINT32_T uint32_t
 	FF_TYPE_UINT32,
+#define FF_TYPE_UINT64_T uint64_t
 	FF_TYPE_UINT64,
-#define FF_TYPE_UNSIGNED_T unit64_t
-	FF_TYPE_FLOAT,        // TODO: muzeme si byt jisti, ze se bude pouzivat format IEEE 754?
+#define FF_TYPE_INT8_T int8_t
+	FF_TYPE_INT8,				/* 1Byte unsigned - fixed size */
+#define FF_TYPE_INT16_T int8_t
+	FF_TYPE_INT16,
+#define FF_TYPE_INT32_T int32_t
+	FF_TYPE_INT32,
+#define FF_TYPE_INT64_T int64_t
+	FF_TYPE_INT64,
+#define FF_TYPE_DOUBLE_T double
+	FF_TYPE_DOUBLE,        // TODO: muzeme si byt jisti, ze se bude pouzivat format IEEE 754?
 #define FF_TYPE_FLOAT_T double
 	FF_TYPE_ADDR,
 #define FF_TYPE_ADDR_T ff_ip_t
@@ -103,7 +122,7 @@ typedef struct ff_s ff_t;
  * - returns: lvalue identification
  */
 typedef ff_error_t (*ff_lookup_func_t) (ff_t *, const char *, ff_lvalue_t *);
-typedef ff_error_t (*ff_data_func_t) (ff_t *, void *, ff_extern_id_t, char*, size_t *);
+typedef ff_error_t (*ff_data_func_t) (ff_t*, void *, ff_extern_id_t, char*, size_t *);
 
 
 /** \brief Options  */

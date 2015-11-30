@@ -54,6 +54,7 @@ void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 
 /* conversion from string to numeric/bit value */
 int str_to_uint(char *str, int type, char **res, int *vsize);
+int str_to_int(char *str, int type, char **res, int *vsize);
 int str_to_addr(ff_t *filter, char *str, char **res, int *numbits);
 
 /* add new node into parse tree */
