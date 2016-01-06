@@ -214,7 +214,7 @@ if test "$ac_cv_struct_semun" = "yes"; then
 fi
 
 
-AC_OUTPUT(Makefile include/Makefile src/Makefile bin/Makefile examples/Makefile)
+AC_OUTPUT(Makefile libnf.spec include/Makefile src/Makefile bin/Makefile examples/Makefile)
 
 if test "${enable_threads}" = "no" ; then
 echo ""

@@ -1,5 +1,5 @@
 Name: 		libnf
-Version: 	1.15
+Version: 	@VERSION@
 #Release:	1%{?dist}
 Release:	1
 Summary:	Library providing C API for processing nfdump files
@@ -66,10 +66,12 @@ rm -rf %{buildroot}
 %{_bindir}/libnf-info
 %{_bindir}/lnf_ex*
 %{_includedir}/libnf.h
+%{_includedir}/ffilter.h
 %{_libdir}/libnf.so.*
 
 %files devel
 %{_includedir}/libnf.h
+%{_includedir}/ffilter.h
 %{_libdir}/libnf.so*
 %{_libdir}/libnf.a
 %{_libdir}/libnf.la
