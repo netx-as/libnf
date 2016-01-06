@@ -30,6 +30,17 @@ typedef struct ff_node_s {
 
 } ff_node_t;
 
+#ifndef HAVE_HTONLL
+#ifdef WORDS_BIGENDIAN
+#   define ntohll(n)    (n)
+#   define htonll(n)    (n)
+#else
+#   define ntohll(n)    (((uint64_t)ntohl(n)) << 32) + ntohl((n) >> 32)
+#   define htonll(n)    (((uint64_t)htonl(n)) << 32) + htonl((n) >> 32)
+#endif
+#define HAVE_HTONLL 1
+#endif
+
 
 /* scanner instance */
 #ifndef YY_TYPEDEF_YY_SCANNER_T

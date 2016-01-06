@@ -1,5 +1,13 @@
 Revision history for C and Perl extension of nfdump.
 
+1.18 2016-01-xx
+	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
+		   to get returned number and names if fields (thanks to Alexander
+		   Zangerl, Report #110170)
+	-c: separation of new filter code. The new filter can also be used in 
+		other projects (include/ffliter.h and src/ffiltler,
+		thank to Lukas Hutak for cooperation). 
+
 1.17 2015-10-27
 	-perl: added test t/09-instances.t
 	-perl: test for calculated items in test t/08-aggreg-sort.t
