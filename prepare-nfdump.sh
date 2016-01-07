@@ -58,7 +58,7 @@ mv $NFDUMP nfdump  || exit 1
 (cd nfdump && ./configure && make clean) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
 #(cd nfdump && patch -p1 < ../nfdump-leak.patch && cd .. ) || exit 1
-(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
+#(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
 
 echo ""
 echo "##########################################################"

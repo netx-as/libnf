@@ -2,11 +2,12 @@ Revision history for C and Perl extension of nfdump.
 
 1.18 2016-01-xx
 	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
-		   to get returned number and names if fields (thanks to Alexander
-		   Zangerl, Report #110170)
+	       to get returned number and names if fields (thanks to Alexander
+	       Zangerl, Report #110170)
 	-c: separation of new filter code. The new filter can also be used in 
-		other projects (include/ffliter.h and src/ffiltler,
-		thank to Lukas Hutak for cooperation). 
+	    other projects (include/ffliter.h and src/ffiltler,
+	    thanks to Lukas Hutak for cooperation). 
+	-c: two new info options LNF_INFO_LZO_COMPRESSED and LNF_INFO_BZ2_COMPRESSED
 
 1.17 2015-10-27
 	-perl: added test t/09-instances.t

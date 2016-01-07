@@ -250,6 +250,8 @@ typedef void lnf_mem_cursor_t;
 #define LNF_INFO_FILE_VERSION	0x06	/* nfdump file version  - int*/
 #define LNF_INFO_BLOCKS			0x08	/* number of block in file - unit64_t */
 #define LNF_INFO_COMPRESSED		0x0A	/* is file compressed - int */
+#define LNF_INFO_LZO_COMPRESSED	0x0B	/* is file LZO compressed - int */
+#define LNF_INFO_BZ2_COMPRESSED	0x0D	/* is file BZ2 compressed - int */
 #define LNF_INFO_ANONYMIZED		0x0C	/* is file anonymized - int */
 #define LNF_INFO_CATALOG		0x0E	/* file have catalog - int */
 #define LNF_INFO_IDENT			0x10	/* string ident - char* */
