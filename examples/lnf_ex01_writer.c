@@ -38,41 +38,51 @@ int main (int argc, char **argv) {
 	uint32_t input, output;
 
 	int nrecs = 1;
-	int compress = 1;
+	int compress = LNF_COMP_LZO;
 	int aggip = 1;
 	int append = 0;
 	char *filename = FILENAME;
 	char c;
+	char errbuf[1024];
 
-	while ((c = getopt (argc, argv, "acn:f:r:?")) != -1) {
+	while ((c = getopt (argc, argv, "acbzn:f:r:?")) != -1) {
 		switch (c) {
 			case 'n':
 				nrecs = atoi(optarg);
-			break;
+				break;
 			case 'f':
 				filename = optarg;
-			break;
+				break;
 			case 'c':
 				compress = 0; 
-			break;
+				break;
+			case 'b':
+				compress = LNF_COMP_BZ2; 
+				break;
+			case 'z':
+				compress = LNF_COMP_LZO; 
+				break;
 			case 'a':
 				append = 1; 
-			break;
+				break;
 			case 'r':
 				aggip = atoi(optarg); 
-			break;
+				break;
 			case '?': 
 				printf("Usage: %s [ -ac ] [ -r <step > ] [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
 				printf(" -r  <n> : rotate src IP addess (for aggregation testing)\n\n");
 				printf(" -a      : open in append mode\n");
+				printf(" -z      : compress with LZO (default)\n");
+				printf(" -b      : compress with BZ2\n");
 				printf(" -c      : do not compressed file\n");
 				exit(1);
 		}
 	}
 
 	/* open lnf file desriptor */
-	if (lnf_open(&filep, filename, LNF_WRITE | ( compress ? LNF_COMP : 0 ) | (append ? LNF_APPEND : 0), "myfile") != LNF_OK) {
-		fprintf(stderr, "Can not open file.\n");
+	if (lnf_open(&filep, filename, LNF_WRITE | compress  | (append ? LNF_APPEND : 0), "myfile") != LNF_OK) { 
+		lnf_error(errbuf, sizeof(errbuf));
+		fprintf(stderr, "Can not open file (%s).\n", errbuf);
 		exit(1);
 	}
 

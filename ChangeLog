@@ -7,6 +7,7 @@ Revision history for C and Perl extension of nfdump.
 	-c: separation of new filter code. The new filter can also be used in 
 	    other projects (include/ffliter.h and src/ffiltler,
 	    thanks to Lukas Hutak for cooperation). 
+	-c: two new lnf_open flags LNF_COMP_LZO and LNF_COMP_BZ2
 	-c: two new info options LNF_INFO_LZO_COMPRESSED and LNF_INFO_BZ2_COMPRESSED
 
 1.17 2015-10-27

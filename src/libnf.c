@@ -271,6 +271,7 @@ lnf_field_t lnf_fields[] = {
 int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, const char * ident) {
 	int i;
 	lnf_file_t *lnf_file;
+	int comp;
 
 	lnf_file = malloc(sizeof(lnf_file_t));
 	
@@ -290,7 +291,15 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 
 	} else if (flags & LNF_WRITE) {
 
-		lnf_file->nffile = OpenNewFile((char *)filename, NULL, flags & LNF_COMP, 
+		if (flags & LNF_COMP_LZO) {
+			comp = 1; 
+		} else if (flags & LNF_COMP_BZ2) { 
+			comp = 2; 
+		} else {
+			comp = 0;
+		}
+
+		lnf_file->nffile = OpenNewFile((char *)filename, NULL, comp, 
 								flags & LNF_ANON, (char *)ident);
 
 	} else {

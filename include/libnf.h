@@ -222,6 +222,8 @@ typedef void lnf_mem_cursor_t;
 #define LNF_APPEND			0x10
 #define LNF_ANON			0x02
 #define LNF_COMP			0x04
+#define LNF_COMP_LZO		0x04
+#define LNF_COMP_BZ2		0x20
 #define LNF_WEAKERR			0x08
 
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
@@ -311,7 +313,9 @@ structure (see record operations).
 	LNF_APPEND - open file for reading in append mode \n
 	LNF_WRITE - open file for for writing  \n
 	LNF_ANON - set anon flag on the file (only for write mode) \n
-	LNF_COMP - set the output file to be compressed \n
+	LNF_COMP - set the output file to be compressed (using LZO)\n
+	LNF_COMP_LZO - set the output file to be compressed (using LZO)\n
+	LNF_COMP_BZ2 - set the output file to be compressed (using BZ2)\n
 	LNF_WEAKERR - when reading reports also weak errors (unknown block, ...) \n
 \param *ident 		file ident for newly created files, can be set to NULL
 \return 			LNF_OK, LNF_ERR_NOMEM
