@@ -864,6 +864,7 @@ void lnf_rec_free(lnf_rec_t *rec) {
 				free(rec->field_data[i]);
 			}
 		}
+		free(rec->field_data);
 	}
 	free(rec);
 }
