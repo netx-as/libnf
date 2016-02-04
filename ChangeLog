@@ -7,6 +7,9 @@ Revision history for C and Perl extension of nfdump.
 	-c: separation of new filter code. The new filter can also be used in 
 		other projects (include/ffliter.h and src/ffiltler,
 		thank to Lukas Hutak for cooperation). 
+	-c: removed memory leak in lnf_lookup_map and lnf_close (tnaks for Lukas
+	    Hutak)
+	-c: fixed size of some fields (patch submitted by Lukas Hutak)
 
 1.17 2015-10-27
 	-perl: added test t/09-instances.t

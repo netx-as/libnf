@@ -460,6 +460,8 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 /* close file handler and release related structures */
 void lnf_close(lnf_file_t *lnf_file) {
 
+	lnf_map_list_t *map_list, *tmp_map_list;
+
 	if (lnf_file == NULL || lnf_file->nffile == NULL) {
 		return ;
 	}
@@ -482,6 +484,17 @@ void lnf_close(lnf_file_t *lnf_file) {
 
 	PackExtensionMapList(lnf_file->extension_map_list);
 	FreeExtensionMaps(lnf_file->extension_map_list);
+
+	map_list = lnf_file->lnf_map_list; 
+	while (map_list != NULL) {
+		tmp_map_list = map_list;
+		map_list = map_list->next;
+		bit_array_release(&tmp_map_list->bit_array);
+		if (tmp_map_list->map != NULL) {
+			free(tmp_map_list->map);
+		}
+		free(tmp_map_list);
+	}
 
 	free(lnf_file);
 }
@@ -672,6 +685,7 @@ int map_id = 0;
 	// allocate memory potentially for all extensions 
 	map = malloc(sizeof(extension_map_t) + (lnf_file->max_num_extensions + 1) * sizeof(uint16_t));
 	if (map == NULL) {
+		free(map_list);
 		return NULL;
 	}
 
