@@ -189,7 +189,7 @@ static int inline lnf_field_fset_DSTPORT(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_TCP_FLAGS(lnf_rec_t *rec, void *p) { 
-	*((uint16_t *)p) = MR->tcp_flags;
+	*((uint8_t *)p) = MR->tcp_flags;
 	return LNF_OK;
 }
 
@@ -415,24 +415,24 @@ static int inline lnf_field_fset_PROT(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_SRC_VLAN(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->src_vlan;
+	*((uint16_t *)p) = MR->src_vlan;
 	return __bit_array_get(EA, EX_VLAN) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_SRC_VLAN(lnf_rec_t *rec, void *p) { 
-	MR->src_vlan = *((uint32_t *)p);
+	MR->src_vlan = *((uint16_t *)p);
 	__bit_array_set(EA, EX_VLAN, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_DST_VLAN(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->dst_vlan;
+	*((uint16_t *)p) = MR->dst_vlan;
 	return __bit_array_get(EA, EX_VLAN) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_DST_VLAN(lnf_rec_t *rec, void *p) { 
-	MR->dst_vlan = *((uint32_t *)p);
+	MR->dst_vlan = *((uint16_t *)p);
 	__bit_array_set(EA, EX_VLAN, 1);
 	return LNF_OK;
 }
@@ -553,24 +553,24 @@ static int inline lnf_field_fset_OUTPUT(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_DIR(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) =  MR->dir;
+	*((uint8_t *)p) =  MR->dir;
 	return __bit_array_get(EA, EX_MULIPLE) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_DIR(lnf_rec_t *rec, void *p) { 
-	MR->dir = *((uint32_t *)p);
+	MR->dir = *((uint8_t *)p);
 	__bit_array_set(EA, EX_MULIPLE, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_FWD_STATUS(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->fwd_status;
+	*((uint8_t *)p) = MR->fwd_status;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_FWD_STATUS(lnf_rec_t *rec, void *p) { 
-	MR->fwd_status = *((uint32_t *)p);
+	MR->fwd_status = *((uint8_t *)p);
 	return LNF_OK;
 }
 
@@ -1362,7 +1362,7 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  Layer 2 information
 // pod:  =====================
 	[LNF_FLD_SRC_VLAN] = {
-		LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"srcvlan",		"Source vlan label",
@@ -1372,7 +1372,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fset_SRC_VLAN},
 
 	[LNF_FLD_DST_VLAN] = {
-		LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dstvlan",		"Destination vlan label",
@@ -1438,7 +1438,7 @@ lnf_field_def_t lnf_fields_def[] = {
 // pod:  Layer 1 information
 // pod:  =====================
 	[LNF_FLD_INPUT] = {
-		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"inif",		"SNMP input interface number",
@@ -1448,7 +1448,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fset_INPUT},
 
 	[LNF_FLD_OUTPUT] = {
-		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"outif",	"SNMP output interface number",
@@ -1458,7 +1458,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fset_OUTPUT},
 
 	[LNF_FLD_DIR] = {
-		LNF_UINT8, sizeof(LNF_UINT16_T),			LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT8, sizeof(LNF_UINT8_T),			LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"dir",		"Flow directions ingress/egress",
@@ -1533,7 +1533,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fset_CONN_ID},
 
 	[LNF_FLD_ICMP_CODE] = {
-		LNF_UINT8, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"icmpcode",		"NSEL ICMP code value",
