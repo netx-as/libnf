@@ -14,9 +14,6 @@
 #include <pthread.h>
 #include "screen.h"
 
-#define MAX_STR 100	/* max length of format string */
-#define MAX_STR_LONG 1000	/* max length of format string */
-
 #define UNIT_1K (double)(1000.0)
 #define UNIT_1M (double)(1000.0 * 1000.0)
 #define UNIT_1G (double)(1000.0 * 1000.0 * 1000.0)
@@ -35,9 +32,6 @@ static void num_unit(char *buff, double num) {
 		sprintf(buff, "%.1f", num);
 	}
 }
-
-/* prototype of formating function */
-typedef void (*format_func_t)(char *buff, char *data);
 
 /* function for print number */
 static void format_uint64_unit(char *buff, char *data) {
@@ -99,15 +93,15 @@ static void format_addr(char *buff, char *data) {
 
 
 /* list of the fields to be displayed */
-typedef struct field_ent_s {
-	int field;
-	int type;
-	int numbits;
-	int numbits6;
-	char format[MAX_STR];
-	char hdr_format[MAX_STR];
-	format_func_t format_func;
-} field_ent_t;
+//typedef struct field_ent_s {
+//	int field;
+//	int type;
+//	int numbits;
+//	int numbits6;
+//	char format[MAX_STR];
+//	char hdr_format[MAX_STR];
+//	format_func_t format_func;
+//} field_ent_t;
 
 field_ent_t fields[LNF_FLD_TERM_] = { };
 int numfields = 0;
@@ -141,19 +135,25 @@ const format_ent_t formats[] = {
 
 pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void print_header() {
+void output_init(output_t *output) {
+
+	memset(output, 0x0, sizeof(output_t));
+
+}
+
+void print_header(output_t *output) {
 	int i;
 	char buf[LNF_INFO_BUFSIZE];
 
-	for (i = 0; i < numfields; i++) {
-		lnf_fld_info(fields[i].field, LNF_FLD_INFO_NAME, &buf, LNF_INFO_BUFSIZE);
-		printf(fields[i].format, &buf);
+	for (i = 0; i < output->numfields; i++) {
+		lnf_fld_info(output->fields[i].field, LNF_FLD_INFO_NAME, &buf, LNF_INFO_BUFSIZE);
+		printf(output->fields[i].format, &buf);
 	}
 
 	printf("\n");
 }
 
-void print_row(lnf_rec_t *rec) {
+void print_row(output_t *output, lnf_rec_t *rec) {
 	int i; 
 	char buf[MAX_STR];
 	char str[MAX_STR];
@@ -162,14 +162,14 @@ void print_row(lnf_rec_t *rec) {
 
 	row[0] = '\0';
 
-	for (i = 0; i < numfields; i++) {
-		lnf_rec_fget(rec, fields[i].field, buf);
-		if (fields[i].format_func != NULL) {
-			fields[i].format_func(str, buf);
+	for (i = 0; i < output->numfields; i++) {
+		lnf_rec_fget(rec, output->fields[i].field, buf);
+		if (output->fields[i].format_func != NULL) {
+			output->fields[i].format_func(str, buf);
 		} else {
 			strcpy(str, "<?>");
 		}
-		sprintf(str2, fields[i].format, str);
+		sprintf(str2, output->fields[i].format, str);
 		strcat(row, str2);
 	}
 
@@ -181,7 +181,7 @@ void print_row(lnf_rec_t *rec) {
 	pthread_mutex_unlock(&print_mutex);
 }
 
-int fields_add(int field) {
+int output_field_add(output_t *output, int field) {
 
 	field_ent_t *fe;
 	format_ent_t fmte;
@@ -204,16 +204,16 @@ int fields_add(int field) {
 		}
 	}
 
-	fe = &fields[numfields];
+	fe = &output->fields[numfields];
 	fe->field = field;
 	strncpy(fe->format, fmte.format, MAX_STR);
 	fe->format_func = fmte.format_func;
-	numfields++;
+	output->numfields++;
 	return 1;
 }
 
 /* parse argument given by -A */
-int parse_aggreg(lnf_mem_t *memp, char *str) {
+int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
 
 	char *token = str;
 	int field, numbits, numbits6;
@@ -239,7 +239,7 @@ int parse_aggreg(lnf_mem_t *memp, char *str) {
 		}	
 		
 		lnf_mem_fadd(memp, field, LNF_AGGR_KEY, numbits, numbits6);
-		fields_add(field);
+		output_field_add(output, field);
 
 		token = NULL;
 	}
