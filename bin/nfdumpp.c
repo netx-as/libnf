@@ -12,7 +12,7 @@
 #include <getopt.h>
 #include "cpucores.h"
 #include "flist.h"
-#include "screen.h"
+#include "output.h"
 #include "progress.h"
 
 #define MAX_THREADS 50				/* maximum number of threads */

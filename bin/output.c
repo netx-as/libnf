@@ -12,7 +12,7 @@
 #include <flist.h>
 #include <time.h>
 #include <pthread.h>
-#include "screen.h"
+#include "output.h"
 
 #define UNIT_1K (double)(1000.0)
 #define UNIT_1M (double)(1000.0 * 1000.0)
