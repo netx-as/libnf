@@ -195,11 +195,12 @@ int main(int argc, char **argv) {
 
 	/* fields in all outpusts */
 	output_init(&output);
+	output_set_fmt(&output, OFMT_TXT_LINE, NULL);			
 	outputp = &output;
 	output_field_add(&output, LNF_FLD_FIRST);
 	output_field_add(&output, LNF_FLD_CALC_DURATION);
 
-	while ((c = getopt_long(argc, argv, "A:O:r:R:T:W;", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "w:o:A:O:r:R:T:W;", longopts, NULL)) != -1) {
 		switch (c) {
 			case 1: 
 			case 'T': 	/* T option will be removed in future */
@@ -223,6 +224,19 @@ int main(int argc, char **argv) {
 			case 'r':
 			case 'R':
 				flist_lookup_dir(&flist, optarg);
+				break;
+			case 'w': 
+				output_set_fmt(&output, OFMT_BIN_NFDUMP, optarg);
+				break;
+			case 'o': 
+				if (strcmp(optarg, "raw") == 0) {
+					output_set_fmt(&output, OFMT_TXT_RAW, NULL);			
+				} else if (strcmp(optarg, "line") == 0) {
+					output_set_fmt(&output, OFMT_TXT_LINE, NULL);			
+				} else {
+					fprintf(stderr, "Unknown output format \"%s\".\n", optarg);
+					exit(1);
+				}
 				break;
 			case 'A':
 				if (memp == NULL) {

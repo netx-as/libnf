@@ -141,9 +141,28 @@ void output_init(output_t *output) {
 
 }
 
+
+void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename) {
+
+	output->output_fmt = output_fmt;
+
+	if (filename != NULL) {
+		output->filename = malloc(strlen(filename) + 1);
+		if (output->filename != NULL) {
+			strcpy(output->filename, filename);
+		}
+	}
+
+}
+
+
 void print_header(output_t *output) {
 	int i;
 	char buf[LNF_INFO_BUFSIZE];
+
+	if (output->output_fmt != OFMT_TXT_LINE) {
+		return;
+	}
 
 	for (i = 0; i < output->numfields; i++) {
 		lnf_fld_info(output->fields[i].field, LNF_FLD_INFO_NAME, &buf, LNF_INFO_BUFSIZE);
