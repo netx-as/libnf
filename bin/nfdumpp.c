@@ -29,6 +29,7 @@ int fileidx = 0;
 unsigned long outputflows = 0;
 progress_t *progressp;
 lnf_filter_t *filterp;
+output_t *outputp;
 char filter[1024];
 
 #define NFDUMPP_FILTER_DEFAULT 0
@@ -80,7 +81,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 			if (memp != NULL) {
 				lnf_mem_write(memp, recp);
 			} else {
-				print_row(recp);
+				print_row(outputp, recp);
 				outputflows++;
 			}
 		}
@@ -177,6 +178,7 @@ int main(int argc, char **argv) {
 	int sortbits4 = 0;
 	int sortbits6 = 0;
     char c;
+	output_t output;
 //	lnf_filter_t *filterp;
 	
 
@@ -192,9 +194,10 @@ int main(int argc, char **argv) {
 	filter[0] = '\0';
 
 	/* fields in all outpusts */
-	fields_add(LNF_FLD_FIRST);
-	fields_add(LNF_FLD_CALC_DURATION);
-
+	output_init(&output);
+	outputp = &output;
+	output_field_add(&output, LNF_FLD_FIRST);
+	output_field_add(&output, LNF_FLD_CALC_DURATION);
 
 	while ((c = getopt_long(argc, argv, "A:O:r:R:T:W;", longopts, NULL)) != -1) {
 		switch (c) {
@@ -225,7 +228,7 @@ int main(int argc, char **argv) {
 				if (memp == NULL) {
 					lnf_mem_init(&memp);
 				}
-				parse_aggreg(memp, optarg);
+				parse_aggreg(&output, memp, optarg);
 				break;
 			case 'O':
 				sortfield = lnf_fld_parse(optarg, &sortbits4, &sortbits6);
@@ -304,19 +307,19 @@ int main(int argc, char **argv) {
 			lnf_mem_fadd(memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 24, 128);
 			lnf_mem_fadd(memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
 		}
-    	fields_add(LNF_FLD_PROT);
-    	fields_add(LNF_FLD_SRCADDR);
-    	fields_add(LNF_FLD_SRCPORT);
-    	fields_add(LNF_FLD_DSTADDR);
-    	fields_add(LNF_FLD_DSTPORT);
+    	output_field_add(&output, LNF_FLD_PROT);
+    	output_field_add(&output, LNF_FLD_SRCADDR);
+    	output_field_add(&output, LNF_FLD_SRCPORT);
+    	output_field_add(&output, LNF_FLD_DSTADDR);
+    	output_field_add(&output, LNF_FLD_DSTPORT);
 	}
 
 	/* default fields on the ond of the list */
-    fields_add(LNF_FLD_DPKTS);
-    fields_add(LNF_FLD_DOCTETS);
-    fields_add(LNF_FLD_CALC_BPS);
-    fields_add(LNF_FLD_CALC_BPP);
-    fields_add(LNF_FLD_AGGR_FLOWS);
+    output_field_add(&output, LNF_FLD_DPKTS);
+    output_field_add(&output, LNF_FLD_DOCTETS);
+    output_field_add(&output, LNF_FLD_CALC_BPS);
+    output_field_add(&output, LNF_FLD_CALC_BPP);
+    output_field_add(&output, LNF_FLD_AGGR_FLOWS);
 
 	/* set sort firld */
 	if (sortfield > 0) {
@@ -328,7 +331,7 @@ int main(int argc, char **argv) {
 	}
 
 
-	print_header();
+	print_header(&output);
 
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
@@ -354,7 +357,7 @@ int main(int argc, char **argv) {
 		lnf_rec_init(&recp);
 		while (lnf_mem_read(memp, recp) != LNF_EOF) {
 			i++;
-			print_row(recp);
+			print_row(&output, recp);
 			outputflows++;
 		}
 	}
