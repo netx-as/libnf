@@ -103,8 +103,8 @@ static void format_addr(char *buff, char *data) {
 //	format_func_t format_func;
 //} field_ent_t;
 
-field_ent_t fields[LNF_FLD_TERM_] = { };
-int numfields = 0;
+//field_ent_t fields[LNF_FLD_TERM_] = { };
+//int numfields = 0;
 
 /* defines format ptions for types and fields */
 /* type 0 and field 0 defines default value  */
@@ -204,7 +204,7 @@ int output_field_add(output_t *output, int field) {
 		}
 	}
 
-	fe = &output->fields[numfields];
+	fe = &output->fields[output->numfields];
 	fe->field = field;
 	strncpy(fe->format, fmte.format, MAX_STR);
 	fe->format_func = fmte.format_func;
