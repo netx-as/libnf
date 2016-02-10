@@ -10,6 +10,8 @@ Revision history for C and Perl extension of nfdump.
 	-c: removed memory leak in lnf_lookup_map and lnf_close (tnaks for Lukas
 	    Hutak)
 	-c: fixed size of some fields (patch submitted by Lukas Hutak)
+	-nfdumpp: new -w and -o options 
+	-nfdumpp: new modular output system 
 
 1.17 2015-10-27
 	-perl: added test t/09-instances.t
