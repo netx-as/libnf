@@ -81,7 +81,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 			if (memp != NULL) {
 				lnf_mem_write(memp, recp);
 			} else {
-				print_row(outputp, recp);
+				output_row(outputp, recp);
 				outputflows++;
 			}
 		}
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
 
 	/* fields in all outpusts */
 	output_init(&output);
-	output_set_fmt(&output, OFMT_TXT_LINE, NULL);			
+	output_set_fmt(&output, OFMT_LINE, NULL);			
 	outputp = &output;
 	output_field_add(&output, LNF_FLD_FIRST);
 	output_field_add(&output, LNF_FLD_CALC_DURATION);
@@ -230,9 +230,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'o': 
 				if (strcmp(optarg, "raw") == 0) {
-					output_set_fmt(&output, OFMT_TXT_RAW, NULL);			
+					output_set_fmt(&output, OFMT_RAW, NULL);			
 				} else if (strcmp(optarg, "line") == 0) {
-					output_set_fmt(&output, OFMT_TXT_LINE, NULL);			
+					output_set_fmt(&output, OFMT_LINE, NULL);			
 				} else {
 					fprintf(stderr, "Unknown output format \"%s\".\n", optarg);
 					exit(1);
@@ -345,7 +345,7 @@ int main(int argc, char **argv) {
 	}
 
 
-	print_header(&output);
+	output_start(&output);
 
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
@@ -371,10 +371,12 @@ int main(int argc, char **argv) {
 		lnf_rec_init(&recp);
 		while (lnf_mem_read(memp, recp) != LNF_EOF) {
 			i++;
-			print_row(&output, recp);
+			output_row(&output, recp);
 			outputflows++;
 		}
 	}
+
+	output_finish(&output);
 
 	/* header */
 	printf("Total input flows %d, output flows: %lu\n", totalrows, outputflows);

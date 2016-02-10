@@ -7,13 +7,17 @@
 /* output formats */
 typedef enum output_fmt_s {
 	OFMT_BIN_NFDUMP,
-	OFMT_TXT_LINE,
-	OFMT_TXT_RAW
+	OFMT_LINE,
+	OFMT_RAW
 } output_fmt_t;
 
+struct output_s;
 
 /* prototype of formating function */
 typedef void (*format_func_t)(char *buff, char *data);
+typedef int (*output_start_func_t)(struct output_s *output);
+typedef int (*output_row_func_t)(struct output_s *output, lnf_rec_t *rec);
+typedef int (*output_finish_func_t)(struct output_s *output);
 
 
 /* list of the fields to be displayed */
@@ -33,6 +37,11 @@ typedef struct output_s {
 	char *filename;
 	field_ent_t fields[LNF_FLD_TERM_];
 	int numfields;
+
+	output_start_func_t output_start_func;
+	output_row_func_t output_row_func;
+	output_finish_func_t output_finish_func;
+
 } output_t;
 
 /* initialise output */
@@ -41,8 +50,9 @@ void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename);
 
 int output_field_add(output_t *output, int field);
 
-void print_header(output_t *output);
-void print_row(output_t *output, lnf_rec_t *rec);
+int output_start(output_t *output);
+int output_row(output_t *output, lnf_rec_t *rec);
+int output_finish(output_t *output);
 
 /* parse aggreg string and add into output_t and lnf_mem_t */
 int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str);
