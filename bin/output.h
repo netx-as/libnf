@@ -38,6 +38,8 @@ typedef struct output_s {
 	field_ent_t fields[LNF_FLD_TERM_];
 	int numfields;
 
+	lnf_file_t *filep;
+
 	output_start_func_t output_start_func;
 	output_row_func_t output_row_func;
 	output_finish_func_t output_finish_func;

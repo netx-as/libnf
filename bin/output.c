@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include "output.h"
 #include "output_line.h"
+#include "output_nfdump.h"
 
 
 void output_init(output_t *output) {
@@ -32,8 +33,11 @@ void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename) {
 
 	switch (output_fmt) {
 
-	//	case OFM_BIN_NFDUMP:
-	//			break;
+		case OFMT_BIN_NFDUMP:
+				output->output_start_func = output_start_nfdump;
+				output->output_row_func = output_row_nfdump;
+				output->output_finish_func = output_finish_nfdump;
+				break;
 		default:
 				output->output_start_func = output_start_line;
 				output->output_row_func = output_row_line;
@@ -70,10 +74,6 @@ int output_finish(output_t *output) {
 	return output->output_finish_func(output);
 }
 
-int output_finish_line(output_t *output) {
-
-	return 1;
-}
 
 int output_field_add(output_t *output, int field) {
 

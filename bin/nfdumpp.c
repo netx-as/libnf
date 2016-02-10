@@ -257,6 +257,8 @@ int main(int argc, char **argv) {
 				printf(" -R : Input file or directory  (multiple -r -R options is allowed)\n");
 				printf(" -A : aggregation\n");
 				printf(" -O : sort order\n");
+				printf(" -o : output format: line, raw, nfdump (default: line or nfdump with -w option)\n");
+				printf(" -w : output file\n");
 				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
 							NUM_THREADS_FACTOR * 100, numthreads);
 				printf(" --filter-type = nfdump|libnf : use original nfdump filter or new libnf implementation \n");
