@@ -2091,9 +2091,14 @@ int lnf_fld_parse(const char *str, int *numbits, int *numbits6) {
 		if (numbits6 != NULL) { *numbits6 = 0; }
 		return field;
 	}
-		
-	if (numbits != NULL) { *numbits = 32; }
-	if (numbits6 != NULL) { *numbits6 = 128; }
+	
+	if (lnf_fld_type(field) == LNF_ADDR) {
+		if (numbits != NULL) { *numbits = 32; }
+		if (numbits6 != NULL) { *numbits6 = 128; }
+	} else {
+		if (numbits != NULL) { *numbits = 0; }
+		if (numbits6 != NULL) { *numbits6 = 0; }
+	}
 
 	/* numbits */
 	if (str != NULL) {
