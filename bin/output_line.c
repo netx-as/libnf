@@ -129,10 +129,6 @@ int output_start_line(output_t *output) {
 	field_ent_t *fe;
 	format_ent_t fmte;
 
-	if (output->output_fmt != OFMT_LINE) {
-		return 1;
-	}
-
 	for (i = 0; i < output->numfields; i++) {
 
 		fe = &output->fields[i];	/* get field entry for better manipulation */
@@ -160,6 +156,7 @@ int output_start_line(output_t *output) {
 
 		/* print header */
 		lnf_fld_info(fe->field, LNF_FLD_INFO_NAME, &buf, LNF_INFO_BUFSIZE);
+		strncpy(fe->name, buf, MAX_STR);
 		printf(output->fields[i].format, &buf);
 
 	}
@@ -196,6 +193,43 @@ int output_row_line(output_t *output, lnf_rec_t *rec) {
 	//printf("%s\n", row);
 	fputs(row, stdout);
 	pthread_mutex_unlock(&print_mutex);
+
+	return 1;
+}
+
+int output_row_raw(output_t *output, lnf_rec_t *rec) {
+	int i; 
+	char buf[MAX_STR];
+	char str[MAX_STR];
+	char str2[MAX_STR];
+	char row[MAX_STR_LONG];
+
+	pthread_mutex_lock(&print_mutex);
+	fputs("\nFlow Record:\n", stdout);
+	pthread_mutex_unlock(&print_mutex);
+
+	for (i = 0; i < output->numfields; i++) {
+
+		row[0] = '\0';
+
+		lnf_rec_fget(rec, output->fields[i].field, buf);
+		if (output->fields[i].format_func != NULL) {
+			output->fields[i].format_func(str, buf);
+		} else {
+			strcpy(str, "<?>");
+		}
+		sprintf(str2, "  %-10s = ", output->fields[i].name);
+		strcat(row, str2);
+		sprintf(str2, output->fields[i].format, str);
+		strcat(row, str2);
+
+		strcat(row, "\n");
+
+		pthread_mutex_lock(&print_mutex);
+		fputs(row, stdout);
+		pthread_mutex_unlock(&print_mutex);
+
+	}
 
 	return 1;
 }

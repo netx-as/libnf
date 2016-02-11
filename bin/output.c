@@ -38,6 +38,11 @@ void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename) {
 				output->output_row_func = output_row_nfdump;
 				output->output_finish_func = output_finish_nfdump;
 				break;
+		case OFMT_RAW:
+				output->output_start_func = output_start_line;
+				output->output_row_func = output_row_raw;
+				output->output_finish_func = output_finish_line;
+				break;
 		default:
 				output->output_start_func = output_start_line;
 				output->output_row_func = output_row_line;

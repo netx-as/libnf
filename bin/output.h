@@ -28,6 +28,7 @@ typedef struct field_ent_s {
 	int numbits6;
 	char format[MAX_STR];
 	char hdr_format[MAX_STR];
+	char name[MAX_STR];
 	format_func_t format_func;
 } field_ent_t;
 
