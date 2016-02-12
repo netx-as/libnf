@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     int print = 1;
     int printa = 1;
     char *filename = FILENAME;
-    char c;
+    int c;
 
 	char buff[LNF_MAX_RAW_LEN];
 	int datasize;

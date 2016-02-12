@@ -42,7 +42,7 @@ int main (int argc, char **argv) {
 	int aggip = 1;
 	int append = 0;
 	char *filename = FILENAME;
-	char c;
+	int c;
 
 	while ((c = getopt (argc, argv, "acn:f:r:?")) != -1) {
 		switch (c) {

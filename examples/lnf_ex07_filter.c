@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 	int if2 = 0;
 
     char *filename = FILENAME;
-    char c;
+    int c;
 
 	while ((c = getopt (argc, argv, "f:1:")) != -1) {
 		switch (c) {

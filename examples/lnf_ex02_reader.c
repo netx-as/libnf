@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     int filter = 1;
     int fget = 1;
     char *filename = FILENAME;
-    char c;
+    int c;
 
 	while ((c = getopt (argc, argv, "pPFGf:1:2:")) != -1) {
 		switch (c) {

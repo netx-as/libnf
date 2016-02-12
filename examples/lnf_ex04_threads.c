@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
     int printa = 1;
 	int numthreads = 1;
 	int listmode = 0;
-    char c;
+	int c;
 
 	while ((c = getopt (argc, argv, "lnpPAt:")) != -1) {
 		switch (c) {

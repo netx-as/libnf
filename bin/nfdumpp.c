@@ -177,7 +177,7 @@ int main(int argc, char **argv) {
 	int sortfield = 0;
 	int sortbits4 = 0;
 	int sortbits6 = 0;
-    char c;
+	int c;
 	output_t output;
 //	lnf_filter_t *filterp;
 	

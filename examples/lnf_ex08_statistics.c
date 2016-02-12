@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     int print = 1;
     int printa = 1;
     char *filename = FILENAME;
-    char c;
+    int c;
 
 	while ((c = getopt (argc, argv, "pPAf:")) != -1) {
 		switch (c) {
