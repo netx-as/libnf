@@ -382,7 +382,6 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 
 	fld.sort_flag = flags & LNF_SORT_FLAGS;
 		
-
 	/* select aggregation func for item */
 	fld.aggr_func = lnf_mem_aggr_EMPTY;
 	switch (lnf_fld_type(fld.field)) {
@@ -450,7 +449,7 @@ int lnf_mem_fadd(lnf_mem_t *lnf_mem, int field, int flags, int numbits, int numb
 		}
 	}
 
-	/* if the filed is calculated field with dependencies add filds that the firld is depenedend on */
+	/* if the filed is calculated field with dependencies add fields that the field is depenedend on */
 	calcnum = 0;
 	while ( __lnf_fld_calc_dep(field, calcnum) != LNF_FLD_ZERO_) {
 

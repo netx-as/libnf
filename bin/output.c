@@ -82,6 +82,14 @@ int output_finish(output_t *output) {
 
 int output_field_add(output_t *output, int field) {
 
+	int i;
+
+	/* check whether the field is in list */
+	for (i = 0; i < output->numfields; i++) {
+		if (output->fields[i].field == field ) {
+			return 0;
+		}
+	}
 
 	if (field < LNF_FLD_TERM_) {
 		output->fields[output->numfields++].field = field;
@@ -98,9 +106,12 @@ int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
 	int field, numbits, numbits6;
 
 	/* default fields on the begining of the list */
-	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
-//	fields_add(LNF_FLD_FIRST);
-//	fields_add(LNF_FLD_CALC_DURATION);
+//	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
+	output_field_add(output, LNF_FLD_FIRST);
+	output_field_add(output, LNF_FLD_CALC_DURATION);
+	lnf_mem_fadd(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_LAST, LNF_AGGR_MIN, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_CALC_DURATION, LNF_AGGR_SUM, 0, 0);
 
 	while ( (token = strsep(&str, ",")) != NULL ) {
 		/* parse field */
@@ -116,7 +127,7 @@ int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
 			numbits, numbits6, token);
 			exit(1);
 		}	
-		
+	
 		lnf_mem_fadd(memp, field, LNF_AGGR_KEY, numbits, numbits6);
 		output_field_add(output, field);
 
@@ -124,8 +135,11 @@ int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
 	}
 
 	/* default fields on the ond of the list */
+	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(memp, LNF_FLD_AGGR_FLOWS, LNF_AGGR_SUM, 0, 0);
 /*
-	fields_add(LNF_FLD_DPKTS);
+	fields_add(LNF_FLD_DPKTS)M;
 	fields_add(LNF_FLD_DOCTETS);
 	fields_add(LNF_FLD_CALC_BPS);
 	fields_add(LNF_FLD_CALC_BPP);

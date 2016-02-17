@@ -598,11 +598,12 @@ PORT    PKTS BYTES
 int lnf_mem_setopt(lnf_mem_t *lnf_mem, int opt, void *data, size_t size);
 
 /* flags for lnf_mem_addf */
-#define LNF_AGGR_KEY	0x0000	/* the key item */
+#define LNF_AGGR_AUTO	0x0000	/* autodetect aggregation key */
 #define LNF_AGGR_MIN	0x0001	/* min value - for LNF_FLD_FIRST */
 #define LNF_AGGR_MAX	0x0002	/* max value - for LNF_FLD_LAST */
 #define LNF_AGGR_SUM	0x0003	/* summary of values - for all counters */
 #define LNF_AGGR_OR		0x0004	/* OR operation - for LNF_TCP_FLAGS */
+#define LNF_AGGR_KEY	0x0008	/* key field */
 #define LNF_AGGR_FLAGS	0x000F
 
 #define LNF_SORT_NONE	0x0000	/* do not sort by this field */

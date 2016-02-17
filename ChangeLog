@@ -10,8 +10,12 @@ Revision history for C and Perl extension of nfdump.
 	-c: removed memory leak in lnf_lookup_map and lnf_close (tnaks for Lukas
 	    Hutak)
 	-c: fixed size of some fields (patch submitted by Lukas Hutak)
+	-c: API change - tha value of LNF_AGGR_KEY is 0x0008
+	-c: API change - new LNF_AGGR_AUTO for autodetection aggregation mode
 	-nfdumpp: new -w and -o options 
 	-nfdumpp: new modular output system 
+	-nfdumpp: invalid dispaly of duration field 
+	
 
 1.17 2015-10-27
 	-perl: added test t/09-instances.t

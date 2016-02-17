@@ -63,7 +63,7 @@ static void format_double(char *buff, char *data) {
 
 /* function for print duration */
 static void format_duration(char *buff, char *data) {
-	sprintf(buff, " %1.3f", *((double *)data) / 1000);
+	sprintf(buff, " %1.3f", *((uint64_t *)data) / 1000.0);
 }
 
 /* format date/time */
@@ -110,9 +110,9 @@ const format_ent_t formats[] = {
 	{ LNF_UINT8,  0, "%8s ", format_uint8 },	/* default for uint8_t */
 	{ LNF_ADDR,   0, "%17s ", format_addr }, 				/* default for all LNF_ADDR */
 	{ LNF_MAC,    0, "%10s ", NULL },  				/* default for all LNF_MAC */
-	{ LNF_UINT64, LNF_FLD_FIRST, "%23s ", format_date }, /* default for all LNF_MAC */
-	{ LNF_UINT64, LNF_FLD_LAST, "%10s ", format_date }, /* default for all LNF_MAC */
-	{ LNF_DOUBLE, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
+	{ LNF_UINT64, LNF_FLD_FIRST, "%23s ", format_date }, 
+	{ LNF_UINT64, LNF_FLD_LAST, "%10s ", format_date }, 
+	{ LNF_UINT64, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
 	{ LNF_UINT64, LNF_FLD_DPKTS, "%9s ", format_uint64_unit }, 
 	{ LNF_DOUBLE, LNF_FLD_CALC_BPS, "%8s ", format_double }, 
 //	{ LNF_DOUBLE, LNF_FLD_CALC_PPS, "%6s ", format_double }, 
