@@ -21,7 +21,7 @@ See http://libnf.net for more information.
 %package devel
 Summary:	Libraries and header files for the libnf.net library
 Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name} 
 
 
 %description devel
@@ -32,7 +32,7 @@ resources needed for developing libnf applications.
 %package -n nfdumpp
 Summary:	Parallel nfdump 
 Group:		Networking/Tools
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name} 
 
 %description -n nfdumpp
 Nfdumpp is implementation of parallel nfdump based on libnf.net library. 
