@@ -24,6 +24,11 @@ void output_init(output_t *output) {
 	output->output_start_func = output_start_line;
 	output->output_row_func = output_row_line;
 	output->output_finish_func = output_finish_line;
+
+	output->recp = NULL;
+	output->memp = NULL;
+	output->sortfield = 0;
+
 }
 
 
@@ -59,10 +64,85 @@ void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename) {
 
 }
 
+void output_set_sort(output_t *output, int sortfield, int sortbits4, int sortbits6) {
+
+	output->sortfield = sortfield;
+	output->sortbits4 = sortbits4;
+	output->sortbits6 = sortbits6;
+
+}
+
+int output_merge_threads(output_t *output) {
+
+	if ( output->memp != NULL ) {
+		return lnf_mem_merge_threads(output->memp);
+	}
+
+	return 1;
+}
+
+
 
 int output_start(output_t *output) {
 
+	/* aggregated or not aggregated records */
+	if (output->memp == NULL) {
+		/* not aggregated, but sorted */
+		if (output->sortfield > 0) {
+			if (lnf_mem_init(&output->memp) != LNF_OK) {
+				return 0;
+			}
+			/* switch memp into list mode */
+			lnf_mem_setopt(output->memp, LNF_OPT_LISTMODE, NULL, 0);
+			lnf_mem_fastaggr(output->memp, LNF_FAST_AGGR_BASIC);
+			lnf_mem_fadd(output->memp, LNF_FLD_PROT, LNF_AGGR_KEY, 0, 0);
+			lnf_mem_fadd(output->memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(output->memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0);
+			lnf_mem_fadd(output->memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(output->memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
+		}
+		output_field_add(output, LNF_FLD_PROT);
+		output_field_add(output, LNF_FLD_SRCADDR);
+		output_field_add(output, LNF_FLD_SRCPORT);
+		output_field_add(output, LNF_FLD_DSTADDR);
+		output_field_add(output, LNF_FLD_DSTPORT);
+	}
+
+    /* default fields on the ond of the list */
+    output_field_add(output, LNF_FLD_DPKTS);
+    output_field_add(output, LNF_FLD_DOCTETS);
+    output_field_add(output, LNF_FLD_CALC_BPS);
+    output_field_add(output, LNF_FLD_CALC_BPP);
+    output_field_add(output, LNF_FLD_AGGR_FLOWS);
+
+    /* set sort firld */
+    if (output->sortfield > 0) {
+        int defaultaggr = 0;
+        int defaultsort = 0;
+        lnf_fld_info(output->sortfield, LNF_FLD_INFO_AGGR, &defaultaggr, sizeof(int));
+        lnf_fld_info(output->sortfield, LNF_FLD_INFO_SORT, &defaultsort, sizeof(int));
+        lnf_mem_fadd(output->memp, output->sortfield, defaultaggr|defaultsort, output->sortbits4, output->sortbits6);
+    }
+
 	return output->output_start_func(output);
+
+}
+
+/* add record to output (either add to lnf_mem or orint out */
+int output_write(output_t *output, lnf_rec_t *rec) {
+
+	if (output->memp != NULL) {
+		if ( lnf_mem_write(output->memp, rec) == LNF_OK ) {
+			return 1;
+		}
+	} else {
+		if ( output_row(output, rec) == LNF_OK ) {
+			output->outputflows++;
+			return 1;
+		}
+	}	
+
+	return 0;
 
 }
 
@@ -73,10 +153,40 @@ int output_row(output_t *output, lnf_rec_t *rec) {
 
 }
 
+int output_output_rows(output_t *output) {
+
+	int i;
+
+	/* print the records out */
+	if (output->memp != NULL) {
+		i = 0;
+		lnf_rec_init(&output->recp);
+		while (lnf_mem_read(output->memp, output->recp) != LNF_EOF) {
+			i++;
+			output->outputflows++;
+			output_row(output, output->recp);
+		}
+	}
+
+	return 0;
+}
+
+
 
 int output_finish(output_t *output) {
 
-	return output->output_finish_func(output);
+	int ret;
+
+	ret =  output->output_finish_func(output);
+
+	if (ret) {
+		lnf_mem_free(output->memp);
+		lnf_rec_free(output->recp);
+		return ret;
+	} else {
+		return 0;
+	}
+
 }
 
 
@@ -100,18 +210,24 @@ int output_field_add(output_t *output, int field) {
 }
 
 /* parse argument given by -A */
-int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
+int output_parse_aggreg(output_t *output, char *str) {
 
 	char *token = str;
 	int field, numbits, numbits6;
+
+	if (output->memp == NULL) {
+		if (lnf_mem_init(&output->memp) != LNF_OK) {
+			return 0;
+		}
+	}
 
 	/* default fields on the begining of the list */
 //	lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
 	output_field_add(output, LNF_FLD_FIRST);
 	output_field_add(output, LNF_FLD_CALC_DURATION);
-	lnf_mem_fadd(memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_LAST, LNF_AGGR_MIN, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_CALC_DURATION, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_FIRST, LNF_AGGR_MIN, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_LAST, LNF_AGGR_MAX, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_CALC_DURATION, LNF_AGGR_SUM, 0, 0);
 
 	while ( (token = strsep(&str, ",")) != NULL ) {
 		/* parse field */
@@ -119,25 +235,25 @@ int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str) {
 
 		if (field == LNF_FLD_ZERO_) {
 			fprintf(stderr, "Cannot parse %s in -A \n", token);
-			exit(1);
+			return 0;
 		}
 
 		if (lnf_fld_type(field) == LNF_ADDR && (numbits > 32 || numbits6 > 128)) {
 			fprintf(stderr, "Invalid bit size (%d/%d) for %s in -A \n", 
 			numbits, numbits6, token);
-			exit(1);
+			return 0;
 		}	
 	
-		lnf_mem_fadd(memp, field, LNF_AGGR_KEY, numbits, numbits6);
+		lnf_mem_fadd(output->memp, field, LNF_AGGR_KEY, numbits, numbits6);
 		output_field_add(output, field);
 
 		token = NULL;
 	}
 
 	/* default fields on the ond of the list */
-	lnf_mem_fadd(memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
-	lnf_mem_fadd(memp, LNF_FLD_AGGR_FLOWS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_DPKTS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_DOCTETS, LNF_AGGR_SUM, 0, 0);
+	lnf_mem_fadd(output->memp, LNF_FLD_AGGR_FLOWS, LNF_AGGR_SUM, 0, 0);
 /*
 	fields_add(LNF_FLD_DPKTS)M;
 	fields_add(LNF_FLD_DOCTETS);

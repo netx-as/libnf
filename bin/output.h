@@ -38,6 +38,13 @@ typedef struct output_s {
 	char *filename;
 	field_ent_t fields[LNF_FLD_TERM_];
 	int numfields;
+	int sortbits4;
+	int sortbits6;
+
+	lnf_rec_t *recp;
+	lnf_mem_t *memp;
+	int sortfield;
+	long int outputflows;
 
 	lnf_file_t *filep;
 
@@ -50,13 +57,18 @@ typedef struct output_s {
 /* initialise output */
 void output_init(output_t *output);
 void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename);
+void output_set_sort(output_t *output, int sortfield, int sortbits4, int sortbits6);
 
 int output_field_add(output_t *output, int field);
 
+int output_write(output_t *output, lnf_rec_t *rec);
+int output_merge_threads(output_t *output);
+
 int output_start(output_t *output);
+int output_output_rows(output_t *output);
 int output_row(output_t *output, lnf_rec_t *rec);
 int output_finish(output_t *output);
 
 /* parse aggreg string and add into output_t and lnf_mem_t */
-int parse_aggreg(output_t *output, lnf_mem_t *memp, char *str);
+int output_parse_aggreg(output_t *output, char *str);
 

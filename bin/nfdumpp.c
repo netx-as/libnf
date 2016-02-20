@@ -21,7 +21,7 @@
 #define MAX_FILTER_LEN 1024
 
 /* global variable */
-lnf_mem_t *memp;
+//lnf_mem_t *memp;
 int totalrows = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 flist_t *flist;
@@ -78,12 +78,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 
 		/* add to memory heap */
 		if ( match ) {
-			if (memp != NULL) {
-				lnf_mem_write(memp, recp);
-			} else {
-				output_row(outputp, recp);
-				outputflows++;
-			}
+			output_write(outputp, recp);
 		}
 
 	}
@@ -103,37 +98,8 @@ void *process_thread(void *p) {
 	int rows;
 	int tid;
 	char filename[PATH_MAX];
-//	lnf_filter_t *filterp = NULL;
 
 	tid = (int)pthread_self();
-
-/*
-	if (filter[0] != '\0') {
-		switch (filter_type) {
-			case NFDUMPP_FILTER_DEFAULT: 
-					lnf_filter_init(&filterp, filter); 
-					break;
-			case NFDUMPP_FILTER_NFDUMP: 
-					lnf_filter_init_v1(&filterp, filter); 
-					break;
-			case NFDUMPP_FILTER_LIBNF: 
-					lnf_filter_init_v2(&filterp, filter); 
-					break;
-			default:
-					fprintf(stderr, "This should never hapen line: %d\n", __LINE__);
-					exit(1);
-					break;
-		}
-					
-		lnf_filter_init(&filterp, filter);
-
-		if (filterp == NULL) {
-			fprintf(stderr, "[#%x] Can not initialise filter %s\n", tid, filter);
-			return 0;
-		}
-	}
-*/
-
 
 	for (;;) {
 
@@ -159,18 +125,15 @@ void *process_thread(void *p) {
 
 DONE:
 
-	if ( memp != NULL ) {
-		lnf_mem_merge_threads(memp);
-	}
+	output_merge_threads(outputp);
 
-//	lnf_filter_free(filterp);
 	return NULL;
 }
 
 
 int main(int argc, char **argv) {
 
-	lnf_rec_t *recp;
+//	lnf_rec_t *recp;
 	pthread_t th[MAX_THREADS];
 	int i = 0;
 	int numthreads = 1;
@@ -187,10 +150,10 @@ int main(int argc, char **argv) {
 	numthreads = get_cpu_cores() * NUM_THREADS_FACTOR;
 
 	/* initalise one instance of memory heap (share by all threads) */
-	memp = NULL;
+//	memp = NULL;
 	filterp = NULL;
 	progressp = NULL;
-	recp = NULL;
+//	recp = NULL;
 	filter[0] = '\0';
 
 	/* fields in all outpusts */
@@ -239,10 +202,9 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'A':
-				if (memp == NULL) {
-					lnf_mem_init(&memp);
+				if ( ! output_parse_aggreg(&output, optarg) ) { 
+					exit(1);
 				}
-				parse_aggreg(&output, memp, optarg);
 				break;
 			case 'O':
 				sortfield = lnf_fld_parse(optarg, &sortbits4, &sortbits6);
@@ -250,6 +212,7 @@ int main(int argc, char **argv) {
 					fprintf(stderr, "Unknow or unsupported sort field: %s\n", optarg);
 					exit(1);
 				}
+				output_set_sort(&output, sortfield, sortbits4, sortbits6);
 				break;
 			case '?':
 				printf("Usage: %s [ -A ] [ -R -r ] [ <filter> ] \n", argv[0]);
@@ -309,44 +272,6 @@ int main(int argc, char **argv) {
 		progress_steps(progressp,  flist_count(&flist));
 	}
 
-	/* aggregated or not aggregated records */
-	if (memp == NULL) {
-		/* not aggregated, but sorted */
-		if (sortfield > 0) {
-			lnf_mem_init(&memp);
-			/* switch memp into list mode */
-			lnf_mem_setopt(memp, LNF_OPT_LISTMODE, NULL, 0);
-			lnf_mem_fastaggr(memp, LNF_FAST_AGGR_BASIC);
-			lnf_mem_fadd(memp, LNF_FLD_PROT, LNF_AGGR_KEY, 0, 0);
-			lnf_mem_fadd(memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 24, 128);
-			lnf_mem_fadd(memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0);
-			lnf_mem_fadd(memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 24, 128);
-			lnf_mem_fadd(memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
-		}
-    	output_field_add(&output, LNF_FLD_PROT);
-    	output_field_add(&output, LNF_FLD_SRCADDR);
-    	output_field_add(&output, LNF_FLD_SRCPORT);
-    	output_field_add(&output, LNF_FLD_DSTADDR);
-    	output_field_add(&output, LNF_FLD_DSTPORT);
-	}
-
-	/* default fields on the ond of the list */
-    output_field_add(&output, LNF_FLD_DPKTS);
-    output_field_add(&output, LNF_FLD_DOCTETS);
-    output_field_add(&output, LNF_FLD_CALC_BPS);
-    output_field_add(&output, LNF_FLD_CALC_BPP);
-    output_field_add(&output, LNF_FLD_AGGR_FLOWS);
-
-	/* set sort firld */
-	if (sortfield > 0) {
-		int defaultaggr = 0;
-		int defaultsort = 0;
-		lnf_fld_info(sortfield, LNF_FLD_INFO_AGGR, &defaultaggr, sizeof(int));
-		lnf_fld_info(sortfield, LNF_FLD_INFO_SORT, &defaultsort, sizeof(int));
-		lnf_mem_fadd(memp, sortfield, defaultaggr|defaultsort, sortbits4, sortbits6);
-	}
-
-
 	output_start(&output);
 
 	/*  prepare and run threads */
@@ -368,27 +293,18 @@ int main(int argc, char **argv) {
 	}
 
 	/* print the records out */
-	if (memp != NULL) {
-		i = 0;
-		lnf_rec_init(&recp);
-		while (lnf_mem_read(memp, recp) != LNF_EOF) {
-			i++;
-			output_row(&output, recp);
-			outputflows++;
-		}
-	}
+	output_output_rows(&output);
 
+
+	/* finish output */
 	output_finish(&output);
 
 	/* header */
-	printf("Total input flows %d, output flows: %lu\n", totalrows, outputflows);
+	printf("Total input flows %d, output flows: %lu\n", totalrows, output.outputflows);
 
-	lnf_mem_free(memp);
-	lnf_rec_free(recp);
 	if (filterp != NULL) {
 		lnf_filter_free(filterp);
 	}
-
 
 }
 
