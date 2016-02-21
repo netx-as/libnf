@@ -15,8 +15,12 @@ Revision history for C and Perl extension of nfdump.
 	-nfdumpp: new -w and -o options 
 	-nfdumpp: new modular output system 
 	-nfdumpp: invalid dispaly of duration field 
+	-nfdumpp: multiple outputs when multiple -A switch is used 
+	          Examples: 
+	           nfdumpp -R DIR -A proto -O bytes -A srcvlan -O bps
+	           nfdumpp -R DIR -A ip -O pkts -A port -O bytes -A proto 
+	           nfdumpp -R DIR -A ip/16 -O bytes -A ip/24 
 	
-
 1.17 2015-10-27
 	-perl: added test t/09-instances.t
 	-perl: test for calculated items in test t/08-aggreg-sort.t

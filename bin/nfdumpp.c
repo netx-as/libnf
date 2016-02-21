@@ -16,6 +16,7 @@
 #include "progress.h"
 
 #define MAX_THREADS 50				/* maximum number of threads */
+#define MAX_OUTPUTS 50				/* maximum number of outpus */
 #define NUM_THREADS_FACTOR 0.7		/* defalt number of threads = real number of thread * THREADS_FACTOR */
 #define LLUI long long unsigned int
 #define MAX_FILTER_LEN 1024
@@ -29,7 +30,8 @@ int fileidx = 0;
 unsigned long outputflows = 0;
 progress_t *progressp;
 lnf_filter_t *filterp;
-output_t *outputp;
+output_t output[MAX_OUTPUTS];
+int numoutputs;
 char filter[1024];
 
 #define NFDUMPP_FILTER_DEFAULT 0
@@ -78,7 +80,9 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 
 		/* add to memory heap */
 		if ( match ) {
-			output_write(outputp, recp);
+			for (int o = 0; o < numoutputs; o++) {
+				output_write(&output[o], recp);
+			}
 		}
 
 	}
@@ -125,7 +129,9 @@ void *process_thread(void *p) {
 
 DONE:
 
-	output_merge_threads(outputp);
+	for (int o = 0; o < numoutputs; o++) {
+		output_merge_threads(&output[o]);
+	}
 
 	return NULL;
 }
@@ -141,7 +147,8 @@ int main(int argc, char **argv) {
 	int sortbits4 = 0;
 	int sortbits6 = 0;
 	int c;
-	output_t output;
+	int numaflags = 0;
+	output_t *outputp;
 //	lnf_filter_t *filterp;
 	
 
@@ -156,12 +163,16 @@ int main(int argc, char **argv) {
 //	recp = NULL;
 	filter[0] = '\0';
 
-	/* fields in all outpusts */
-	output_init(&output);
-	output_set_fmt(&output, OFMT_LINE, NULL);			
-	outputp = &output;
-	output_field_add(&output, LNF_FLD_FIRST);
-	output_field_add(&output, LNF_FLD_CALC_DURATION);
+	/* fields in all outpusts  - initalised in all outputs */
+	for (int i = 0; i < MAX_OUTPUTS; i++) {
+		output_init(&output[i]);
+		output_set_fmt(&output[i], OFMT_LINE, NULL);			
+		output_field_add(&output[i], LNF_FLD_FIRST);
+		output_field_add(&output[i], LNF_FLD_CALC_DURATION);
+	}
+
+	numoutputs = 1;
+	outputp = &output[0];
 
 	while ((c = getopt_long(argc, argv, "w:o:A:O:r:R:T:W;", longopts, NULL)) != -1) {
 		switch (c) {
@@ -189,22 +200,33 @@ int main(int argc, char **argv) {
 				flist_lookup_dir(&flist, optarg);
 				break;
 			case 'w': 
-				output_set_fmt(&output, OFMT_BIN_NFDUMP, optarg);
+				output_set_fmt(outputp, OFMT_BIN_NFDUMP, optarg);
 				break;
 			case 'o': 
 				if (strcmp(optarg, "raw") == 0) {
-					output_set_fmt(&output, OFMT_RAW, NULL);			
+					output_set_fmt(outputp, OFMT_RAW, NULL);			
 				} else if (strcmp(optarg, "line") == 0) {
-					output_set_fmt(&output, OFMT_LINE, NULL);			
+					output_set_fmt(outputp, OFMT_LINE, NULL);			
 				} else {
 					fprintf(stderr, "Unknown output format \"%s\".\n", optarg);
 					exit(1);
 				}
 				break;
 			case 'A':
-				if ( ! output_parse_aggreg(&output, optarg) ) { 
+				/* if it is the second A flag we initialise second screen */
+				if (numaflags >= 1) {
+					if (numoutputs >= MAX_OUTPUTS - 1) {
+						fprintf(stderr, "Reached max outputs \"%d\".\n", MAX_OUTPUTS);
+					}
+					outputp = &output[numoutputs];
+					outputp->sortfield = output[numoutputs - 1].sortfield;
+					numoutputs++;
+				}
+
+				if ( ! output_parse_aggreg(outputp, optarg) ) { 
 					exit(1);
 				}
+				numaflags++;
 				break;
 			case 'O':
 				sortfield = lnf_fld_parse(optarg, &sortbits4, &sortbits6);
@@ -212,7 +234,7 @@ int main(int argc, char **argv) {
 					fprintf(stderr, "Unknow or unsupported sort field: %s\n", optarg);
 					exit(1);
 				}
-				output_set_sort(&output, sortfield, sortbits4, sortbits6);
+				output_set_sort(outputp, sortfield, sortbits4, sortbits6);
 				break;
 			case '?':
 				printf("Usage: %s [ -A ] [ -R -r ] [ <filter> ] \n", argv[0]);
@@ -266,13 +288,13 @@ int main(int argc, char **argv) {
 //		lnf_filter_free(filterp);
 	}
 
+	output_start(&output[0]);
 
 	/* init progress bar */
 	if  (progress_init(&progressp, 0, NULL) != NULL) {
 		progress_steps(progressp,  flist_count(&flist));
 	}
 
-	output_start(&output);
 
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
@@ -292,15 +314,22 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	/* print the records out */
-	output_output_rows(&output);
+	for (int o = 0; o < numoutputs; o++) {
+		if (o > 0 ) { 
+			output_start(&output[o]);
+		}
+
+		/* print the records out */
+		output_output_rows(&output[o]);
 
 
-	/* finish output */
-	output_finish(&output);
+		/* finish output */
+		output_finish(&output[o]);
 
-	/* header */
-	printf("Total input flows %d, output flows: %lu\n", totalrows, output.outputflows);
+		/* header */
+		printf("Total input flows %d, output flows: %lu\n\n", totalrows, output[o].outputflows);
+
+	}
 
 	if (filterp != NULL) {
 		lnf_filter_free(filterp);

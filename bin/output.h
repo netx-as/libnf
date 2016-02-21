@@ -44,7 +44,7 @@ typedef struct output_s {
 	lnf_rec_t *recp;
 	lnf_mem_t *memp;
 	int sortfield;
-	long int outputflows;
+	unsigned long int outputflows;
 
 	lnf_file_t *filep;
 
