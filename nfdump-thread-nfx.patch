@@ -1,0 +1,28 @@
+--- nfdump-1.6.14-b2/bin/nfx.c	2015-11-21 12:42:58.000000000 +0100
++++ nfdump/bin/nfx.c	2016-01-11 17:02:40.000000000 +0100
+@@ -137,7 +137,7 @@
+ 	{ 0,	0,	0, 0,	NULL }
+ };
+ 
+-uint32_t Max_num_extensions;
++uint32_t Max_num_extensions = 0;
+ 
+ void FixExtensionMap(extension_map_t *map);
+ 
+@@ -154,10 +154,12 @@
+ 		list->last_map = &list->map_list;
+ 	}
+ 
+-	Max_num_extensions = 0;
+-	i = 1;
+-	while ( extension_descriptor[i++].id ) {
+-		Max_num_extensions++;
++//	Max_num_extensions = 0;
++	if (Max_num_extensions == 0) {
++		i = 1;
++		while ( extension_descriptor[i++].id ) {
++			Max_num_extensions++;
++		}
+ 	}
+ #ifdef DEVEL
+ 	i = 1;
