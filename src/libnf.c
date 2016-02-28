@@ -325,6 +325,7 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 #endif
 	lnf_file->extension_map_list = InitExtensionMaps(NEEDS_EXTENSION_LIST);
 
+	lnf_file->v1convert_buffer = NULL;
 	lnf_file->lnf_map_list = NULL;
 
 	i = 1;
@@ -513,6 +514,10 @@ void lnf_close(lnf_file_t *lnf_file) {
 		free(tmp_map_list);
 	}
 
+	if (lnf_file->v1convert_buffer != NULL) {
+		free(lnf_file->v1convert_buffer);
+	}
+
 	free(lnf_file);
 }
 
@@ -525,6 +530,7 @@ int ret;
 uint32_t map_id;
 extension_map_t *map;
 int i;
+common_record_t *common_record_ptr;
 
 #ifdef COMPAT15
 int	v1_map_done = 0;
@@ -600,8 +606,22 @@ begin:
 				break;
 			
 		case CommonRecordV0Type:
+
+				// convert common record v0
+				if ( lnf_file->v1convert_buffer == NULL) {
+					lnf_file->v1convert_buffer = malloc(65536); /* very suspisous part of code taken from nfdump */
+					if ( lnf_file->v1convert_buffer == NULL ) {
+						return LNF_ERR_NOMEM;
+					}
+				}
+				ConvertCommonV0((void *)lnf_file->flow_record, (common_record_t *)lnf_file->v1convert_buffer);
+				common_record_ptr = (common_record_t *)lnf_file->v1convert_buffer;
+
+				break;
+
 		case CommonRecordType:
 				/* data record type - go ahead */
+				common_record_ptr = lnf_file->flow_record;
 				break;
 
 		default:
@@ -624,7 +644,7 @@ begin:
 
 	// changed in 1.6.8 - added exporter info 
 //	ExpandRecord_v2( flow_record, extension_map_list.slot[map_id], master_record);
-	ExpandRecord_v2(lnf_file->flow_record, lnf_file->extension_map_list->slot[map_id], NULL, lnf_rec->master_record);
+	ExpandRecord_v2(common_record_ptr, lnf_file->extension_map_list->slot[map_id], NULL, lnf_rec->master_record);
 
 	// update number of flows matching a given map
 	lnf_file->extension_map_list->slot[map_id]->ref_count++;

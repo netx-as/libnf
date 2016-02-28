@@ -4,6 +4,7 @@ Revision history for C and Perl extension of nfdump.
 	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
 	       to get returned number and names if fields (thanks to Alexander
 	       Zangerl, Report #110170)
+	-c: adjusted to nfdump-1.6.14
 	-c: two new lnf_open flags LNF_COMP_LZO and LNF_COMP_BZ2
 	-c: two new info options LNF_INFO_LZO_COMPRESSED and LNF_INFO_BZ2_COMPRESSED
 	-c: separation of new filter code. The new filter can also be used in 

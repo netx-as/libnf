@@ -107,6 +107,7 @@ typedef struct lnf_file_s {
 	lnf_map_list_t			*lnf_map_list;			/* internal list of maps (used by lnf) */
 	int						max_num_extensions;		/* the max number of extensions */
 	common_record_t 		*flow_record;			/* ptr to buffer/next record */
+	char					*v1convert_buffer;		/* convert buffer for V1 record types */
 //	master_record_t			*master_record;
 //	lnf_rec_t				*lnf_rec;				/* temporary */
 //	bit_array_t				extensions_arr;			/* structure initialised at the beginging to store bitt array of extensions from last record */
