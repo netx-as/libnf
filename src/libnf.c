@@ -271,6 +271,7 @@ lnf_field_t lnf_fields[] = {
 int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, const char * ident) {
 	int i;
 	lnf_file_t *lnf_file;
+	int comp;
 
 	lnf_file = malloc(sizeof(lnf_file_t));
 	
@@ -290,7 +291,15 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 
 	} else if (flags & LNF_WRITE) {
 
-		lnf_file->nffile = OpenNewFile((char *)filename, NULL, flags & LNF_COMP, 
+		if (flags & LNF_COMP_LZO) {
+			comp = 1; 
+		} else if (flags & LNF_COMP_BZ2) { 
+			comp = 2; 
+		} else {
+			comp = 0;
+		}
+
+		lnf_file->nffile = OpenNewFile((char *)filename, NULL, comp, 
 								flags & LNF_ANON, (char *)ident);
 
 	} else {
@@ -379,7 +388,15 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			reqsize = sizeof(uint64_t);
 			break;
 		case LNF_INFO_COMPRESSED:
-			*((int *)buf) = h->flags & FLAG_COMPRESSED;
+			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile) || FILE_IS_BZ2_COMPRESSED(lnf_file->nffile) ;
+			reqsize = sizeof(int);
+			break;
+		case LNF_INFO_LZO_COMPRESSED:
+			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile);
+			reqsize = sizeof(int);
+			break;
+		case LNF_INFO_BZ2_COMPRESSED:
+			*((int *)buf) = FILE_IS_BZ2_COMPRESSED(lnf_file->nffile);
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_ANONYMIZED:
@@ -1004,4 +1021,9 @@ va_list args;
 /* empry functions - required by nfdump */
 void LogInfo(char *format, ...) { }
 void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
+/* dummy functions from flist.c */
+char *GetCurrentFilename(void) { return NULL; } 
+nffile_t *GetNextFile(nffile_t *nffile, time_t twin_start, time_t twin_end) { return NULL; }
+void SetupInputFileSequence(char *multiple_dirs, char *single_file, char *multiple_files) { }
+
 

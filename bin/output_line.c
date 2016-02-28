@@ -122,7 +122,6 @@ const format_ent_t formats[] = {
 
 pthread_mutex_t print_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-
 int output_start_line(output_t *output) {
 	int i,j;
 	char buf[LNF_INFO_BUFSIZE];
@@ -165,7 +164,6 @@ int output_start_line(output_t *output) {
 
 	return 1;
 }
-
 
 int output_row_line(output_t *output, lnf_rec_t *rec) {
 	int i; 
@@ -233,7 +231,6 @@ int output_row_raw(output_t *output, lnf_rec_t *rec) {
 
 	return 1;
 }
-
 
 int output_finish_line(output_t *output) {
 

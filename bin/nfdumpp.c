@@ -295,7 +295,6 @@ int main(int argc, char **argv) {
 		progress_steps(progressp,  flist_count(&flist));
 	}
 
-
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
 

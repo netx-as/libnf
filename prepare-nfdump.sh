@@ -23,10 +23,11 @@
 
 LIBNF_VERSION="1.10"
 
-NFDUMP="nfdump-1.6.13"
-NFDUMP_MD5="f5e916049aec1b531c63303b92270d42"
+NFDUMP_VERSION="1.6.14-b2"
+NFDUMP="nfdump-$NFDUMP_VERSION"
+NFDUMP_MD5=" e0b5421ef542d4dc340498b9c4447477"
 NFDUMP_SRC="$NFDUMP.tar.gz"
-NFDUMP_URL="http://downloads.sourceforge.net/project/nfdump/stable/$NFDUMP/$NFDUMP_SRC"
+NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
 
 echo ""
@@ -56,8 +57,14 @@ tar xzf $NFDUMP_SRC || exit 1
 mv $NFDUMP nfdump  || exit 1
 (cd nfdump && ./configure && make clean) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
-#(cd nfdump && patch -p1 < ../nfdump-leak.patch && cd .. ) || exit 1
-(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
+# for version < 1.6.4
+#(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
+# for version >= 1.6.4
+(cd nfdump && patch -p1 < ../nfdump-thread-nffile.patch && cd .. ) || exit 1
+(cd nfdump && patch -p1 < ../nfdump-thread-nfx.patch && cd .. ) || exit 1
+if [ ! -f nfdump/README ]; then
+	echo > nfdump/README
+fi
 
 echo ""
 echo "##########################################################"
