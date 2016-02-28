@@ -1,7 +1,7 @@
 
 AM_CFLAGS = -I$(top_srcdir)/include 
 
-EXTRA_DIST = cpucores.h flist.h screen.h progress.h output_line.h output_nfdump.h
+EXTRA_DIST = cpucores.h flist.h output.h progress.h output_line.h output_nfdump.h 
 
 if LNF_THREADS
 bin_PROGRAMS = nfdumpp

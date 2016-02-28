@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 1.17, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.18, tpoder@cis.vutbr.cz)
 
 AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.13, phaag@users.sourceforge.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
@@ -218,7 +218,7 @@ if test "$ac_cv_struct_semun" = "yes"; then
 fi
 
 
-AC_OUTPUT(Makefile libnf.spec include/Makefile src/Makefile bin/Makefile examples/Makefile)
+AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile bin/Makefile examples/Makefile)
 
 if test "${enable_threads}" = "no" ; then
 echo ""

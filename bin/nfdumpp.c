@@ -57,6 +57,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 	int i = 0;
 	int tid;
 	int match;
+	int o;
 
 	tid = (int)pthread_self();
 
@@ -80,7 +81,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 
 		/* add to memory heap */
 		if ( match ) {
-			for (int o = 0; o < numoutputs; o++) {
+			for (o = 0; o < numoutputs; o++) {
 				output_write(&output[o], recp);
 			}
 		}
@@ -102,6 +103,7 @@ void *process_thread(void *p) {
 	int rows;
 	int tid;
 	char filename[PATH_MAX];
+	int o;
 
 	tid = (int)pthread_self();
 
@@ -129,7 +131,7 @@ void *process_thread(void *p) {
 
 DONE:
 
-	for (int o = 0; o < numoutputs; o++) {
+	for (o = 0; o < numoutputs; o++) {
 		output_merge_threads(&output[o]);
 	}
 
@@ -146,7 +148,7 @@ int main(int argc, char **argv) {
 	int sortfield = 0;
 	int sortbits4 = 0;
 	int sortbits6 = 0;
-	int c;
+	int c, o;
 	int numaflags = 0;
 	output_t *outputp;
 //	lnf_filter_t *filterp;
@@ -164,7 +166,7 @@ int main(int argc, char **argv) {
 	filter[0] = '\0';
 
 	/* fields in all outpusts  - initalised in all outputs */
-	for (int i = 0; i < MAX_OUTPUTS; i++) {
+	for (i = 0; i < MAX_OUTPUTS; i++) {
 		output_init(&output[i]);
 		output_set_fmt(&output[i], OFMT_LINE, NULL);			
 		output_field_add(&output[i], LNF_FLD_FIRST);
@@ -298,7 +300,7 @@ int main(int argc, char **argv) {
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
 
-	for ( i = 0 ; i < numthreads ; i++ ) {
+	for (i = 0 ; i < numthreads ; i++ ) {
 		if ( pthread_create(&th[i], NULL, process_thread, NULL) < 0) {
 			fprintf(stderr, "Can not create thread for %d\n", i);
 			break;
@@ -306,14 +308,14 @@ int main(int argc, char **argv) {
 	}
 
 	/* wait for threads */
-	for ( i = 0; i < numthreads; i++ ) {
+	for (i = 0; i < numthreads; i++ ) {
 		if( pthread_join(th[i], NULL) ) {
 			fprintf(stderr, "Error joining thread\n");
 			break;
 		}
 	}
 
-	for (int o = 0; o < numoutputs; o++) {
+	for (o = 0; o < numoutputs; o++) {
 		if (o > 0 ) { 
 			output_start(&output[o]);
 		}

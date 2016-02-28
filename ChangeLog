@@ -1,8 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
-1.18 2016-01-xx
+1.18 2016-01-29
 	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
-	       to get returned number and names if fields (thanks to Alexander
+/bin/bash: q: command not found
 	       Zangerl, Report #110170)
 	-c: adjusted to nfdump-1.6.14
 	-c: two new lnf_open flags LNF_COMP_LZO and LNF_COMP_BZ2
@@ -14,7 +14,7 @@ Revision history for C and Perl extension of nfdump.
 	    Hutak)
 	-c: fixed size of some fields (patch submitted by Lukas Hutak)
 	-c: API change - tha value of LNF_AGGR_KEY is 0x0008
-	-c: API change - new LNF_AGGR_AUTO for autodetection aggregation mode
+	-c: API change - new LNF_AGGR_AUTO for autodetection of aggregation mode
 	-nfdumpp: new -w and -o options 
 	-nfdumpp: new modular output system 
 	-nfdumpp: invalid dispaly of duration field 
