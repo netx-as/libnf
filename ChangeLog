@@ -2,11 +2,11 @@ Revision history for C and Perl extension of nfdump.
 
 1.18 2016-01-29
 	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
-/bin/bash: q: command not found
 	       Zangerl, Report #110170)
 	-c: adjusted to nfdump-1.6.14
 	-c: two new lnf_open flags LNF_COMP_LZO and LNF_COMP_BZ2
 	-c: two new info options LNF_INFO_LZO_COMPRESSED and LNF_INFO_BZ2_COMPRESSED
+	-c: new ./configure option to build with static or dynam BZ2 support
 	-c: separation of new filter code. The new filter can also be used in 
 		other projects (include/ffliter.h and src/ffiltler,
 		thank to Lukas Hutak for cooperation). 
@@ -27,7 +27,7 @@ Revision history for C and Perl extension of nfdump.
 1.17 2015-10-27
 	-perl: added test t/09-instances.t
 	-perl: test for calculated items in test t/08-aggreg-sort.t
-	-perl: net option CompatMode
+	-perl: new option CompatMode
 	-c: time fields can be user as aggregation key with alligned time
 	-c: new lnf_mem option LNF_OPT_COMP_STATSCMP 
 	-c: sort support for calculated fields
