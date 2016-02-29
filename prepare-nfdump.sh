@@ -29,10 +29,16 @@ NFDUMP_MD5="41fd9c3669455cdc05dd3917e13cc2f2"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
+BZIP2_VERSION="1.0.6"
+BZIP2="bzip2-$BZIP2_VERSION"
+BZIP2_MD5="00b516f4704d4a7cb50a1d97e6e8e15b"
+BZIP2_SRC="$BZIP2.tar.gz"
+BZIP2_URL="http://www.bzip.org/1.0.6/$BZIP2_SRC"
+
 
 echo ""
 echo "##########################################################"
-echo "# STAGE 1: getting and patching nfdump sources           #"
+echo "# STAGE 1.1: getting and patching nfdump sources         #"
 echo "##########################################################"
 
 if [ ! -f $NFDUMP_SRC ] ; then 
@@ -42,11 +48,11 @@ if [ ! -f $NFDUMP_SRC ] ; then
 	echo "!!  sources manually                                   !!"
 	echo "!!                                                     !!"
 	echo "!!  VERSION: $NFDUMP                             !!"
-	echo "!!  URL:     http://sourceforge.net/projects/nfdump/   !!"
+	echo "!!  URL:     $NFDUMP_URL  !!"
 	echo "!!  FILE:    $NFDUMP.tar.gz                      !!"
 	echo "!!                                                     !!"
 	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-	wget -nv $NFDUMP_URL || curl -L -o $NFDUMP_SRC $NFDUMP_URL || exit 1
+	wget -nv -O $NFDUMP_SRC $NFDUMP_URL || curl -L -o $NFDUMP_SRC $NFDUMP_URL || exit 1
 fi 
 
 rm -rf nfdump/ $NFDUMP 
@@ -65,6 +71,19 @@ mv $NFDUMP nfdump  || exit 1
 if [ ! -f nfdump/README ]; then
 	echo > nfdump/README
 fi
+
+echo ""
+echo "##########################################################"
+echo "# STAGE 1.1: fetching BZ2 source codes                   #"
+echo "##########################################################"
+wget -nv -O $BZIP2_SRC $BZIP2_URL || curl -L -o $BZIP2_SRC $BZIP2_URL || exit 1
+rm -rf bzip2/ $BZIP2
+
+./md5sum.sh $BZIP2_MD5 $BZIP2_SRC || exit 1
+
+tar xzf $BZIP2_SRC || exit 1
+mv $BZIP2 bzip2  || exit 1
+
 
 echo ""
 echo "##########################################################"

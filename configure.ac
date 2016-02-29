@@ -23,7 +23,7 @@ if test $ac_cv_prog_gcc = yes -a "x$CFLAGS" = "x-g -O2"; then
 fi
 
 AC_ARG_ENABLE(devel,
-[  --enable-devel       compile debug and development code into libnf and nfdump; default is NO])
+[  --enable-devel          compile debug and development code into libnf and nfdump; default is NO])
 
 # Which way is better?
 if test "${enable_devel}" = "yes" ; then
@@ -38,7 +38,7 @@ _ACEOF
 fi
 
 AC_ARG_ENABLE(threads,
-[  --enable-threads       enable thread support for libnf_mem - see documentation; default is YES])
+[  --enable-threads        enable thread support in libnf - see documentation; default is YES])
 if test "${enable_threads}" = "no" ; then
 	AM_CONDITIONAL(LNF_THREADS, false)
 else 
@@ -48,6 +48,19 @@ else
 	AC_CHECK_FUNCS(pthread_mutex_init pthread_key_create pthread_mutex_lock pthread_mutex_unlock)
 	AC_CHECK_FUNCS(pthread_setspecific pthread_getspecific) 
 	AM_CONDITIONAL(LNF_THREADS, true)
+fi
+
+AC_ARG_ENABLE(bz2static,
+[  --enable-bz2static      enable static build of bz2 code; default is YES])
+if test "${enable_bz2static}" = "no" ; then
+	AC_CHECK_HEADERS([bzlib.h])
+	if test "$ac_cv_header_bzlib_h" = no; then
+		AC_MSG_ERROR(Required bzlib.h header file not found!)
+	fi
+	AC_CHECK_LIB(bz2, BZ2_bzCompressInit, [ LIBS="$LIBS -lbz2" ], [])
+	AM_CONDITIONAL(LNF_BZ2STATIC, false)
+else 
+	AM_CONDITIONAL(LNF_BZ2STATIC, true)
 fi
 
 
@@ -137,6 +150,7 @@ AC_CHECK_HEADERS(sys/types.h netinet/in.h arpa/nameser.h arpa/nameser_compat.h n
 #  include <netdb.h>
 #endif]])
 
+
 AC_SUBST(FTS_OBJ)
 
 # Checks for typedefs, structures, and compiler characteristics.
@@ -176,10 +190,6 @@ AC_CHECK_LIB(socket, res_search, [
   AC_CHECK_LIB(resolv, __dn_skipname)
  ]) 
 ])
-
-AC_CHECK_LIB(bz2, BZ2_bzCompressInit, [
- LIBS="$LIBS -lbz2"
- ], [])
 
 # lzo compression requirements
 AC_CHECK_TYPE(ptrdiff_t, long)

@@ -10,6 +10,10 @@ LDADD = $(DEPS_LIBS)
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/ffilter
 
+if LNF_BZ2STATIC
+AM_CFLAGS += -I$(top_srcdir)/bzip2 
+endif
+
 #SUBDIRS = ffilter
 
 EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h list_sort.h xxhash.h fields.h lnf_filter.h 
@@ -32,6 +36,14 @@ libnf_la_SOURCES += nftree.c grammar.y scanner.l
 EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h
 BUILT_SOURCES += ffilter/ffilter_gram.h 
 libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c
+
+# if the bz2 is staticaly linked to libnf 
+if LNF_BZ2STATIC
+libnf_la_SOURCES += ../bzip2/bzlib.c ../bzip2/bzip2.c ../bzip2/blocksort.c ../bzip2/huffman.c \
+					../bzip2/crctable.c ../bzip2/randtable.c ../bzip2/compress.c \
+					../bzip2/decompress.c
+endif
+
 
 # Simple info program 
 bin_PROGRAMS = libnf-info
