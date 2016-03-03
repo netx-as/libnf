@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.19 2016-02-03
+	-perl: removed dependency on lbz 
+
 1.18 2016-01-29
 	-perl: new variables $flow->{NUM_OF_FIELDS} and $flow->{NAME} can be accesed 
 	       Zangerl, Report #110170)
