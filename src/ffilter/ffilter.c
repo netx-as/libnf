@@ -365,10 +365,10 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 							res = htons(*(uint16_t*)buf) < *(uint64_t*)(node->value);
 							break;
 						case sizeof(uint32_t):
-							res = htonl(*(uint16_t*)buf) < *(uint64_t*)(node->value);
+							res = (htonl(*(uint16_t*)buf)) < (*(uint64_t*)(node->value));
 							break;
 						case sizeof(uint64_t):
-							res = htonll(*(uint16_t*)buf) < *(uint64_t*)(node->value);
+							res = (htonll(*(uint64_t*)buf)) < (*(uint64_t*)(node->value));
 							break;
 						default: 
 							res = -1;
@@ -418,7 +418,7 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 							res = htonl(*(int16_t*)buf) < *(int64_t*)(node->value);
 							break;
 						case sizeof(int64_t):
-							res = htonll(*(int16_t*)buf) < *(int64_t*)(node->value);
+							res = htonll(*(int64_t*)buf) < *(int64_t*)(node->value);
 							break;
 						default: 
 							res = -1;
@@ -504,7 +504,7 @@ ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 
 //    lnf_filter_t *filter;
 	yyscan_t scanner;
-	YY_BUFFER_STATE buf;
+	//YY_BUFFER_STATE buf;
 	int parse_ret;
 	ff_t *filter;
 
@@ -528,7 +528,8 @@ ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 	ff_set_error(filter, "No Error.");
 
 	ff2_lex_init(&scanner);
-    buf = ff2__scan_string(expr, scanner);
+    //buf = ff2__scan_string(expr, scanner);
+    ff2__scan_string(expr, scanner);
     parse_ret = ff2_parse(scanner, filter);
 
 //   if (buf != NULL) {

@@ -131,17 +131,21 @@ int output_start(output_t *output) {
 /* add record to output (either add to lnf_mem or orint out */
 int output_write(output_t *output, lnf_rec_t *rec) {
 
+	pthread_mutex_lock(&output->write_lock);
 	if (output->memp != NULL) {
 		if ( lnf_mem_write(output->memp, rec) == LNF_OK ) {
+			pthread_mutex_unlock(&output->write_lock);
 			return 1;
 		}
 	} else {
 		if ( output_row(output, rec) == LNF_OK ) {
 			output->outputflows++;
+			pthread_mutex_unlock(&output->write_lock);
 			return 1;
 		}
 	}	
 
+	pthread_mutex_unlock(&output->write_lock);
 	return 0;
 
 }

@@ -52,6 +52,8 @@ typedef struct output_s {
 	output_row_func_t output_row_func;
 	output_finish_func_t output_finish_func;
 
+	pthread_mutex_t write_lock;
+
 } output_t;
 
 /* initialise output */

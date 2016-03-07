@@ -101,11 +101,11 @@ void *process_thread(void *p);
 void *process_thread(void *p) {
 
 	int rows;
-	int tid;
+	//int tid;
 	char filename[PATH_MAX];
 	int o;
 
-	tid = (int)pthread_self();
+//	tid = (int)pthread_self();
 
 	for (;;) {
 
@@ -335,6 +335,8 @@ int main(int argc, char **argv) {
 	if (filterp != NULL) {
 		lnf_filter_free(filterp);
 	}
+
+	return 0;
 
 }
 

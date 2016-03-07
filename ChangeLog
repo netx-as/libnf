@@ -1,5 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
+1.20 2016-03-xx
+	-removed several warnings 
+	-nfdumpp: removed bug where nfdumpp produces corupted output file 
+
 1.19 2016-02-03
 	-perl: removed dependency on lbz 
 

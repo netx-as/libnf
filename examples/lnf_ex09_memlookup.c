@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 
 	int i = 0;
 
-    int print = 1;
+//    int print = 1;
     int printa = 1;
 	int len;
     char *filename = FILENAME;
@@ -54,10 +54,10 @@ int main(int argc, char **argv) {
 	while ((c = getopt (argc, argv, "pPAf:")) != -1) {
 		switch (c) {
 			case 'p':
-				print = 0;
+//				print = 0;
 				break;
 			case 'P':
-				print = 0;
+//				print = 0;
 				break;
 			case 'f':
 				filename = optarg;

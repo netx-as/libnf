@@ -42,19 +42,12 @@ int main(int argc, char **argv) {
 
 	int i = 0;
 
-    int print = 1;
     int printa = 1;
     char *filename = FILENAME;
     int c;
 
-	while ((c = getopt (argc, argv, "pPAf:")) != -1) {
+	while ((c = getopt (argc, argv, "Af:")) != -1) {
 		switch (c) {
-			case 'p':
-				print = 0;
-				break;
-			case 'P':
-				print = 0;
-				break;
 			case 'f':
 				filename = optarg;
 				break;
@@ -63,7 +56,6 @@ int main(int argc, char **argv) {
 				break;
 			case '?':
 				printf("Usage: %s [ -P ] [ -A ] [ -f <input file name> ] \n", argv[0]);
-				printf(" -P : do not print input records to stdout\n");
 				printf(" -A : do not aggregated records to stdout\n");
 				exit(1);
 		}

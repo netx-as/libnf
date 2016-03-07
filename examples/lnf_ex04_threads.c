@@ -106,10 +106,7 @@ void *process_thread(void *p);
 void *process_thread(void *p) {
 
 	int rows;
-	int tid;
 	char *filename;
-
-	tid = (int)pthread_self();
 
 	for (;;) {
 
@@ -267,6 +264,7 @@ int main(int argc, char **argv) {
 	lnf_rec_free(recp);
 
 
+	return 0;
 }
 
 

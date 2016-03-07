@@ -41,7 +41,7 @@ static void format_uint64_unit(char *buff, char *data) {
 
 /* basic functions for print number */
 static void format_uint64(char *buff, char *data) {
-	sprintf(buff, " %llu", *((uint64_t *)data));
+	sprintf(buff, " %llu", (long long unsigned)*((uint64_t *)data));
 }
 
 static void format_uint32(char *buff, char *data) {

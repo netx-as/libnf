@@ -276,9 +276,6 @@ char * hash_table_next(hash_table_t *t, char *prow) {
 /* fetch data on prow pointer; no extra chexks for ranges! */
 void hash_table_fetch(hash_table_t *t, char *prow, char **pkey, char **pval) {
 
-	hash_table_row_hdr_t *phdr;
-
-	phdr = (hash_table_row_hdr_t *)prow;	
 	*pkey = (prow + sizeof(hash_table_row_hdr_t));
 	*pval = (prow + sizeof(hash_table_row_hdr_t) + t->keylen);
 

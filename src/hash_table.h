@@ -87,6 +87,7 @@ char * hash_table_lookup(hash_table_t *t, char *key, char **val, unsigned long *
 int hash_table_sort_callback(char *prow1, char *prow2, void *p);
 void hash_table_link(hash_table_t *t);
 int hash_table_sort(hash_table_t *t);
+int hash_table_sort_heap(hash_table_t *t);
 hash_table_t * hash_table_join(hash_table_t *td, hash_table_t *ts);
 hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts);
 void hash_table_free(hash_table_t *t);
