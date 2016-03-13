@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 	numoutputs = 1;
 	outputp = &output[0];
 
-	while ((c = getopt_long(argc, argv, "w:o:A:O:r:R:T:W;", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "w:o:A:O:r:R:T:n:W;", longopts, NULL)) != -1) {
 		switch (c) {
 			case 1: 
 			case 'T': 	/* T option will be removed in future */
@@ -203,6 +203,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'w': 
 				output_set_fmt(outputp, OFMT_BIN_NFDUMP, optarg);
+				break;
+			case 'n': 
+				output_set_limit(outputp, atoi(optarg));
 				break;
 			case 'o': 
 				if (strcmp(optarg, "raw") == 0) {
@@ -246,6 +249,7 @@ int main(int argc, char **argv) {
 				printf(" -O : sort order\n");
 				printf(" -o : output format: line, raw, nfdump (default: line or nfdump with -w option)\n");
 				printf(" -w : output file\n");
+				printf(" -n : number of output records\n");
 				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
 							NUM_THREADS_FACTOR * 100, numthreads);
 				printf(" --filter-type = nfdump|libnf : use original nfdump filter or new libnf implementation \n");

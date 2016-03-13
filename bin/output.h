@@ -44,6 +44,7 @@ typedef struct output_s {
 	lnf_rec_t *recp;
 	lnf_mem_t *memp;
 	int sortfield;
+	unsigned long int limit;
 	unsigned long int outputflows;
 
 	lnf_file_t *filep;
@@ -60,6 +61,7 @@ typedef struct output_s {
 void output_init(output_t *output);
 void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename);
 void output_set_sort(output_t *output, int sortfield, int sortbits4, int sortbits6);
+void output_set_limit(output_t *output, int limit);
 
 int output_field_add(output_t *output, int field);
 

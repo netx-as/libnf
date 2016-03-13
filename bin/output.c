@@ -72,6 +72,12 @@ void output_set_sort(output_t *output, int sortfield, int sortbits4, int sortbit
 
 }
 
+void output_set_limit(output_t *output, int limit) {
+
+	output->limit = limit;
+
+}
+
 int output_merge_threads(output_t *output) {
 
 	if ( output->memp != NULL ) {
@@ -169,6 +175,11 @@ int output_output_rows(output_t *output) {
 			i++;
 			output->outputflows++;
 			output_row(output, output->recp);
+
+			/* if the limit of output files is set */
+			if (output->limit > 0 && output->outputflows > output->limit) {
+				break;
+			}
 		}
 	}
 
