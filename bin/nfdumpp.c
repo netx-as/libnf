@@ -225,6 +225,7 @@ int main(int argc, char **argv) {
 					}
 					outputp = &output[numoutputs];
 					outputp->sortfield = output[numoutputs - 1].sortfield;
+					outputp->limit = output[numoutputs - 1].limit;
 					numoutputs++;
 				}
 
@@ -332,7 +333,7 @@ int main(int argc, char **argv) {
 		output_finish(&output[o]);
 
 		/* header */
-		printf("Total input flows %d, output flows: %lu\n\n", totalrows, output[o].outputflows);
+		printf("Input flows: %d, Output flows: %lu\n\n", totalrows, output[o].outputflows);
 
 	}
 

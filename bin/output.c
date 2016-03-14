@@ -177,7 +177,7 @@ int output_output_rows(output_t *output) {
 			output_row(output, output->recp);
 
 			/* if the limit of output files is set */
-			if (output->limit > 0 && output->outputflows > output->limit) {
+			if (output->limit > 0 && output->outputflows >= output->limit) {
 				break;
 			}
 		}
