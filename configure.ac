@@ -227,6 +227,9 @@ if test "$ac_cv_struct_semun" = "yes"; then
 	AC_DEFINE(HAVE_SEMUN, 1, [Define if sys/sem.h defines struct semun])
 fi
 
+#arrange for 64-bit file offsets, known as large-file support
+#sometimes needed on 32bit systems
+AC_SYS_LARGEFILE
 
 AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile bin/Makefile examples/Makefile)
 
