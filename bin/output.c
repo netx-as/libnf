@@ -117,6 +117,7 @@ int output_start(output_t *output) {
     /* default fields on the ond of the list */
     output_field_add(output, LNF_FLD_DPKTS);
     output_field_add(output, LNF_FLD_DOCTETS);
+    output_field_add(output, LNF_FLD_CALC_PPS);
     output_field_add(output, LNF_FLD_CALC_BPS);
     output_field_add(output, LNF_FLD_CALC_BPP);
     output_field_add(output, LNF_FLD_AGGR_FLOWS);

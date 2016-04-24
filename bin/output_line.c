@@ -29,6 +29,8 @@ static void num_unit(char *buff, double num) {
 		sprintf(buff, "%.1f G", num / UNIT_1G);
 	} else if (num >= UNIT_1M) {
 		sprintf(buff, "%.1f M", num / UNIT_1M);
+	} else if (num >= UNIT_1K) {
+		sprintf(buff, "%.1f K", num / UNIT_1K);
 	} else {
 		sprintf(buff, "%.1f", num);
 	}
@@ -115,7 +117,7 @@ const format_ent_t formats[] = {
 	{ LNF_UINT64, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
 	{ LNF_UINT64, LNF_FLD_DPKTS, "%9s ", format_uint64_unit }, 
 	{ LNF_DOUBLE, LNF_FLD_CALC_BPS, "%8s ", format_double }, 
-//	{ LNF_DOUBLE, LNF_FLD_CALC_PPS, "%6s ", format_double }, 
+	{ LNF_DOUBLE, LNF_FLD_CALC_PPS, "%8s ", format_double }, 
 	{ LNF_DOUBLE, LNF_FLD_CALC_BPP, "%7s ", format_double }, 
 	{ LNF_UINT64, LNF_FLD_AGGR_FLOWS, "%5s ", format_uint64 } /* aggr flow withou unit */
 };
