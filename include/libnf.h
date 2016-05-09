@@ -173,6 +173,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_FW_EVENT		0x41
 #define LNF_FLD_INGRESS_ACL		0x42
 #define LNF_FLD_EGRESS_ACL		0x43
+#define LNF_FLD_INET_FAMILY		0x44
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */

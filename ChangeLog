@@ -2,6 +2,9 @@ Revision history for C and Perl extension of nfdump.
 
 1.20 2016-03-xx
 	-removed several warnings 
+	-c: new field LNF_FLD_INET_FAMILY containing either AF_INET or AF_INET6
+	-perl: new field inetfamily 
+	-perl: new function family2txt and txt2family 
 	-nfdumpp: removed bug where nfdumpp produces corupted output file 
 	-nfdumpp: added -n option to limit aggregated outputs 
 

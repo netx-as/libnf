@@ -1026,6 +1026,28 @@ static int inline lnf_field_fset_APPL_LATENCY_USEC(lnf_rec_t *rec, void *p) {
 }
 
 /* ----------------------- */
+static int inline lnf_field_fget_INET_FAMILY(lnf_rec_t *rec, void *p) { 
+	if ( TestFlag(MR->flags, FLAG_IPV6_ADDR) ) {
+		*((uint32_t *)p) = AF_INET6;
+	} else { 
+		*((uint32_t *)p) = AF_INET;
+	}
+	return LNF_OK;
+}
+
+static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) { 
+	if ( *((uint32_t *)p) == AF_INET ) {
+		ClearFlag(MR->flags, FLAG_IPV6_ADDR);
+		return LNF_OK;
+	} else if ( *((uint32_t *)p) == AF_INET6 ) {
+		SetFlag(MR->flags, FLAG_IPV6_ADDR);
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOTSET;
+	}
+}
+
+/* ----------------------- */
 static int inline lnf_field_fset_EMPTY_(lnf_rec_t *rec, void *p) { 
 	return LNF_OK;
 }
@@ -1812,6 +1834,15 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_APPL_LATENCY_USEC,
 		lnf_field_fset_APPL_LATENCY_USEC},
 
+	[LNF_FLD_INET_FAMILY] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"inetfamily",	"IENT family for src/dst IP address (ipv4 or ipv6); platform dependend",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_INET_FAMILY,
+		lnf_field_fset_INET_FAMILY},
 // pod:
 // pod:  Calculated items
 // pod:  =====================
