@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.21 2016-05-xx
+	-nffdump: invalid mutex initialisation 
+
 1.20 2016-05-09
 	-removed several warnings 
 	-c: new field LNF_FLD_INET_FAMILY containing either AF_INET or AF_INET6
