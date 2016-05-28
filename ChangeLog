@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.21 2016-05-xx
+1.21 2016-05-28
 	-nffdump: invalid mutex initialisation 
 
 1.20 2016-05-09
