@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 1.23, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.24, tpoder@cis.vutbr.cz)
 
 AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.15, peter@people.ops-trust.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
