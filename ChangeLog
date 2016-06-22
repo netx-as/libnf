@@ -1,5 +1,8 @@
 Revision history for C and Perl extension of nfdump.
 
+1.25 2016-07-xx
+	-c: some leaks in memheap removed
+
 1.24 2016-06-21
 	-perl: better thread testing (with more detailed results)
 
