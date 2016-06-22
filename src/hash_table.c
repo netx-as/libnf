@@ -336,6 +336,10 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 	free(ts->buckets);
 	ts->buckets = NULL;
 
+	ts->numentries = 0; 
+	ts->sfirst = NULL;
+	ts->slast = NULL;
+
 	return td;
 }
 
@@ -368,7 +372,9 @@ void hash_table_clean(hash_table_t *t) {
 	t->sfirst = NULL;
 	t->slast = NULL;
 
-	memset(t->buckets, 0x0, sizeof(void *) * t->numbuckets);
+	if (t->buckets != NULL ) {
+		memset(t->buckets, 0x0, sizeof(void *) * t->numbuckets);	
+	}
 }
 
 void hash_table_free(hash_table_t *t) {

@@ -804,6 +804,15 @@ Use lnf_mem_first_c instead.
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem);
 
 /*!	\ingroup memheap
+\brief Clean all data in memheap. 
+
+The memheap will be in the same state as it was after the initialisation. 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+*/
+void lnf_mem_clean(lnf_mem_t *lnf_mem);
+
+/*!	\ingroup memheap
 \brief Close memheap and release resources.
 
 \param *lnf_mem 	pointer to lnf_mem_t structure 

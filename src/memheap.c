@@ -1092,11 +1092,13 @@ void lnf_mem_clean(lnf_mem_t *lnf_mem) {
 
 	if (lnf_mem->thread_status[0] != LNF_TH_EMPTY) {
 		hash_table_clean(&lnf_mem->hash_table[0]);
-		lnf_mem->thread_status[0] != LNF_TH_EMPTY;
+		lnf_mem->thread_status[0] = LNF_TH_EMPTY;
 	}
 }
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
+
+	void *tmp;
 
 	if (lnf_mem == NULL) {
 		return;
@@ -1115,8 +1117,15 @@ void lnf_mem_free(lnf_mem_t *lnf_mem) {
 	}
 
 #ifdef LNF_THREADS
+	if ((tmp = pthread_getspecific(lnf_mem->thread_id_key)) != NULL) {
+		free(tmp);
+	}
 	pthread_key_delete(lnf_mem->thread_id_key);
+#else
+	free((void *)lnf_mem->thread_id_key);
 #endif
+
+	lnf_rec_free(lnf_mem->lnf_rec);
 
 	free(lnf_mem);
 
