@@ -321,7 +321,7 @@ void lnf_filedlist_free(lnf_fieldlist_t *list) {
 
 	node = list;
 
-	while (node == NULL) {
+	while (node != NULL) {
 		tmp_node = node;
 		node = node->next;
 		free(tmp_node);
@@ -1081,6 +1081,19 @@ void lnf_mem_read_reset(lnf_mem_t *lnf_mem) {
 
 	lnf_mem_first_c(lnf_mem, &lnf_mem->read_cursor);
 
+}
+
+/* make lnf_mem object empty */
+void lnf_mem_clean(lnf_mem_t *lnf_mem) {
+
+	if (lnf_mem == NULL) {
+		return;
+	}
+
+	if (lnf_mem->thread_status[0] != LNF_TH_EMPTY) {
+		hash_table_clean(&lnf_mem->hash_table[0]);
+		lnf_mem->thread_status[0] != LNF_TH_EMPTY;
+	}
 }
 
 void lnf_mem_free(lnf_mem_t *lnf_mem) {
