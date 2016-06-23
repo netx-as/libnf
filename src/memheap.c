@@ -759,9 +759,9 @@ int lnf_mem_write(lnf_mem_t *lnf_mem, lnf_rec_t *rec) {
 		if (id == NULL) {
 			return LNF_ERR_OTHER;
 		}
-		lnf_mem->thread_status[*id] = LNF_TH_WRITE;
 	}
 
+	lnf_mem->thread_status[*id] = LNF_TH_WRITE;
 
 	if (lnf_mem->list_mode) {
 		if (hash_table_insert_list(&lnf_mem->hash_table[*id], keybuf, valbuf) == NULL) {

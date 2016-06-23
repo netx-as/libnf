@@ -121,7 +121,6 @@ char * hash_table_insert_hash(hash_table_t *t, char *key, char *val) {
 		return NULL;
 	}
 
-
 	phdr = (hash_table_row_hdr_t *)prow;
 	pkey = prow + sizeof(hash_table_row_hdr_t);
 	pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
