@@ -599,16 +599,33 @@ int ff_eval(ff_t *filter, void *rec) {
 
 }
 
+void ff_free_node(ff_node_t* node) {
+
+	if (node->left != NULL) {
+		ff_free_node(node->left);
+	}
+	if (node->right != NULL) {
+		ff_free_node(node->left);
+	}
+
+	free(node->value);
+	free(node);
+}
+
 /* release all resources allocated by filter */
 ff_error_t ff_free(ff_t *filter) {
 
 	/* !!! memory clenaup */
 
 	if (filter != NULL) {
+
+		if (filter->root != NULL) {
+			ff_free_node(filter->root);
+		}
+
 		free(filter);
 	}
 
 	return FF_OK;
 
 }
-
