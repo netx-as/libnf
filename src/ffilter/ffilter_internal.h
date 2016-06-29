@@ -13,6 +13,7 @@ typedef enum {
 	FF_OP_NE,
 	FF_OP_LT,
 	FF_OP_GT,
+	FF_OP_BITAND
 } ff_oper_t;
 
 /* node of syntax tree */
