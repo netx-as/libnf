@@ -28,7 +28,7 @@
 
 digit 	[0-9]
 letter	[A-Za-z.:/]
-ws		[ \t]
+ws	[ \t]
 
 
 %{
@@ -45,11 +45,13 @@ ws		[ \t]
 and|"&&"		{ return AND; }
 or|"||"			{ return OR; }
 not|"!"			{ return NOT; }
+bitand|"&"		{ return BITAND; }
+
 "="|"=="|eq		{ return EQ; }
 ">"|gt			{ return GT; }
 "<"|lt			{ return LT; }
-"("				{ return LP; }
-")"				{ return RP; }
+"("			{ return LP; }
+")"			{ return RP; }
 
 "src"{ws}+"ip"	{
 					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
@@ -67,7 +69,7 @@ not|"!"			{ return NOT; }
 					strncpy(yylval->string, yytext, FF_MAX_STRING - 1);
 					return STRING;
 				}
-#.*             { ; }	//comments
+#.*			{ ; }	//comments
 {ws}+			{ ; }	//whitespace 
 [\n]			{ ; }	//end of line 
 
