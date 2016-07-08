@@ -23,6 +23,7 @@
 
 #include "ffilter_internal.h"
 #include "ffilter_gram.h"
+#include "ffilter.h"
 
 /*
  * \brief Convert unit character to positive power of 10
@@ -281,6 +282,7 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 		case FF_TYPE_INT8:
 				if (str_to_int(valstr, node->type, &node->value, &node->vsize) == 0) {
 					ff_set_error(filter, "Can't convert '%s' into numeric value", valstr);
+
 					return NULL;
 				}
 				break;
@@ -295,8 +297,11 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 			/* unsigned with undefined data size (internally mapped to uint64_t in network order) */
 		case FF_TYPE_UNSIGNED:
 				if (str_to_uint(valstr, FF_TYPE_UINT64, &node->value, &node->vsize) == 0) {
-					ff_set_error(filter, "Can't convert '%s' into numeric value", valstr);
-					return NULL;
+					node->value = malloc(sizeof(uint64_t));
+					if(node->value == NULL || filter->options.ff_translate_func(filter, valstr, &lvalue, node->value) != FF_OK) {
+						ff_set_error(filter, "Can't convert '%s' into numeric value", valstr);
+						return NULL;
+					}
 				}
 //				*(uint64_t *)node->value = htonll(*(uint64_t *)node->value);
 				break;
@@ -332,6 +337,8 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 		nodeR->field = lvalue.id2;
 
 		nodeR->value = malloc(nodeR->vsize);
+		memcpy(nodeR->value, node->value, nodeR->vsize);
+
 		if (nodeR->value == NULL) {
 			goto err_free3;
 		}
@@ -410,6 +417,44 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		return -1;
 	}
 
+	/* Equailty of tcpControlBits must be handled differently */
+	if (node->field.index == 6 && node->oper == FF_OP_EQ) {
+
+		switch (node->type) {
+		case FF_TYPE_UNSIGNED_BIG:
+			switch (size) {
+				case sizeof(uint16_t):
+					res = (ntohs(*(uint16_t *) buf) & *(uint16_t *)node->value) ^
+					      *(uint16_t *) node->value;
+					break;
+				case sizeof(uint8_t):
+					res = ((*(uint8_t *) buf) & *(uint8_t *)node->value) ^
+					      *(uint8_t *)node->value;
+					break;
+				default:
+					return -1;
+			}
+			break;
+		case FF_TYPE_UNSIGNED:
+			switch (size) {
+				case sizeof(uint16_t):
+					res = ((*(uint16_t *) buf) & *(uint16_t *) node->value) ^
+					      *(uint16_t *) node->value;
+					break;
+				case sizeof(uint8_t):
+					res = ((*(uint8_t *) buf) & *(uint8_t *) node->value) ^
+					      *(uint8_t *) node->value;
+					break;
+				default:
+					return -1;
+			}
+			break;
+
+			default: return -1;
+		}
+		return res == 0 ;
+	}
+
 	switch (node->type) {
 		case FF_TYPE_UINT64: res = *(uint64_t *)&buf - *(uint64_t *)node->value; break;
 		case FF_TYPE_UINT32: res = *(uint32_t *)&buf - *(uint32_t *)node->value; break;
@@ -465,6 +510,7 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 
 			break;
 		}
+
 		case FF_TYPE_SIGNED_BIG: {
 
 			if (size > node->vsize) { return -1; }		/* too big integer */

@@ -19,7 +19,6 @@
 
 */
 
-%option outfile="lex.yy.c"
 %option prefix="ff2_"
 %option reentrant bison-bridge
 %option noyywrap 
@@ -45,13 +44,16 @@ ws	[ \t]
 and|"&&"		{ return AND; }
 or|"||"			{ return OR; }
 not|"!"			{ return NOT; }
-bitand|"&"		{ return BITAND; }
+
+in              { return IN; }
 
 "="|"=="|eq		{ return EQ; }
 ">"|gt			{ return GT; }
-"<"|lt			{ return LT; }
-"("			{ return LP; }
-")"			{ return RP; }
+"<"|lt		    { return LT; }
+"("			    { return LP; }
+")"			    { return RP; }
+"["			    { return LPS; }
+"]"			    { return RPS; }
 
 "src"{ws}+"ip"	{
 					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
@@ -69,9 +71,9 @@ bitand|"&"		{ return BITAND; }
 					strncpy(yylval->string, yytext, FF_MAX_STRING - 1);
 					return STRING;
 				}
-#.*			{ ; }	//comments
-{ws}+			{ ; }	//whitespace 
-[\n]			{ ; }	//end of line 
+#.*         { ; }	//comments
+{ws}+       { ; }	//whitespace
+[\n]        { ; }	//end of line
 
 .			//	v2_error(yyscanner, NULL, "invalid character");
 

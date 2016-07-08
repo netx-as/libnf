@@ -21,10 +21,10 @@
 
 %defines
 %pure-parser
-%lex-param   { yyscan_t scanner }
-%lex-param	 { ff_t *filter }
-%parse-param { yyscan_t scanner }
-%parse-param { ff_t *filter }
+%lex-param   	{ yyscan_t scanner }
+%lex-param	{ ff_t *filter }
+%parse-param 	{ yyscan_t scanner }
+%parse-param 	{ ff_t *filter }
 %name-prefix = "ff2_"
 
 %{
@@ -51,15 +51,16 @@
 	void		*node;
 };
 
-%token AND OR NOT BITAND
-%token EQ LT GT  
+%token AND OR NOT
+%token EQ LT GT
 %token LP RP
+%token LPS RPS IN
 %token <string> STRING
-%type <node> expr filter 
+
+%type <node> expr filter list
 
 %left	OR
 %left	AND
-%left	BITAND
 %left	NOT
 
 %%
@@ -70,15 +71,22 @@ filter:
 	;
 
 expr:
-	NOT expr	 	{ $$ = ff_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
+	NOT expr		{ $$ = ff_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
 	| expr AND expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
-	| expr BITAND expr	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_BITAND, $3); if ($$ == NULL) { YYABORT; }; }
 	| expr OR expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
-	| LP expr RP 		{ $$ = $2; }
+	| LP expr RP		{ $$ = $2; }
 	| STRING STRING		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
 	| STRING EQ STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
 	| STRING LT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
 	| STRING GT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
+
+	| STRING IN LPS list	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_IN, $4); if ($$ == NULL) { YYABORT; } }
+	;
+
+
+list:
+	STRING list			{ $$ = ff_new_node(scanner, filter, $1, FF_OP_IN, $2); if ($$ == NULL) { YYABORT; } }
+	| STRING RPS		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_IN, NULL); if ($$ == NULL) { YYABORT; } }
 	;
 
 %%
