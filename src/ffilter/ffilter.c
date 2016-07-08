@@ -1,4 +1,3 @@
-
 #include "config.h"
 
 #include <stdio.h>
@@ -22,13 +21,64 @@
 #include <stdint.h>
 #endif
 
-#include "ffilter_internal.h" 
+#include "ffilter_internal.h"
 #include "ffilter_gram.h"
 
+/*
+ * \brief Convert unit character to positive power of 10
+ * \param[in] unit Suffix of number
+ * \return Scale eg. (1k -> 1000) etc.
+ */
+uint64_t get_unit(char *unit)
+{
+	if (strlen(unit) > 1) return 0;
+
+	switch (*unit) {
+		case 'k':
+		case 'K':
+			return 1000;
+		case 'M':
+			return 1000*1000;
+		case 'g':
+		case 'G':
+			return 1000*1000*1000;
+		case 'T':
+			return 1000*1000*1000*1000;
+		case 'E':
+			return 1000*1000*1000*1000*1000;
+		default:
+			return 0;
+	}
+
+}
+
+/*
+ * \brief Function adds support for k/M/G/T/E suffixes to strtoll
+ * \param[in] num Literal number
+ * \param endptr Place to store an address where conversion finised
+ */
+int64_t strtoll_unit(char *num, char**endptr)
+{
+	int64_t tmp64;
+	int64_t mult = 0;
+
+	tmp64 = strtoll(num, endptr, 10);
+	if (!**endptr) {
+		return tmp64;
+	} else if (!*(*endptr+1)) {
+		mult = get_unit(*endptr);
+		if (mult != 0) {
+			/*Move conversion end potinter by one*/
+			*endptr = (*endptr + 1);
+		}
+	}
+	return tmp64*mult;
+}
 
 /* convert string into uint64_t */
-/* FIXME: also converst string with units (64k -> 64000) */
-int str_to_uint(char *str, int type, char **res, int *vsize) {
+/* also converts string with units (64k -> 64000) */
+int str_to_uint(char *str, int type, char **res, int *vsize)
+{
 
 	uint64_t tmp64;
 	uint32_t tmp32;
@@ -36,28 +86,32 @@ int str_to_uint(char *str, int type, char **res, int *vsize) {
 	uint32_t tmp8;
 	void *tmp, *ptr;
 
-	tmp64 = atol(str);
+	char* endptr;
+	tmp64 = strtoll_unit(str, &endptr);
+	if (*endptr){
+		return 0;
+	}
 
 	switch (type) {
 		case FF_TYPE_UINT64:
-				*vsize = sizeof(uint64_t);
-				tmp = &tmp64;
-				break;
+			*vsize = sizeof(uint64_t);
+			tmp = &tmp64;
+			break;
 		case FF_TYPE_UINT32:
-				*vsize = sizeof(uint32_t);
-				tmp32 = tmp64;
-				tmp = &tmp32;
-				break;
+			*vsize = sizeof(uint32_t);
+			tmp32 = tmp64;
+			tmp = &tmp32;
+			break;
 		case FF_TYPE_UINT16:
-				*vsize = sizeof(uint16_t);
-				tmp16 = tmp64;
-				tmp = &tmp16;
-				break;
+			*vsize = sizeof(uint16_t);
+			tmp16 = tmp64;
+			tmp = &tmp16;
+			break;
 		case FF_TYPE_UINT8:
-				*vsize = sizeof(uint16_t);
-				tmp8 = tmp64;
-				tmp = &tmp8;
-				break;
+			*vsize = sizeof(uint8_t);
+			tmp8 = tmp64;
+			tmp = &tmp8;
+			break;
 		default: return 0;
 	}
 
@@ -71,12 +125,13 @@ int str_to_uint(char *str, int type, char **res, int *vsize) {
 
 	*res = ptr;
 
-	return 1;	
+	return 1;
 }
 
-/* convert string into uint64_t */
-/* FIXME: also converst string with units (64k -> 64000) */
-int str_to_int(char *str, int type, char **res, int *vsize) {
+/* convert string into int64_t */
+/* also converts string with units (64k -> 64000) */
+int str_to_int(char *str, int type, char **res, int *vsize)
+{
 
 	int64_t tmp64;
 	int32_t tmp32;
@@ -84,28 +139,32 @@ int str_to_int(char *str, int type, char **res, int *vsize) {
 	int32_t tmp8;
 	void *tmp, *ptr;
 
-	tmp64 = atol(str);
+	char *endptr;
+	tmp64 = strtoll_unit(str, &endptr);
+	if (*endptr){
+		return 0;
+	}
 
 	switch (type) {
 		case FF_TYPE_INT64:
-				*vsize = sizeof(int64_t);
-				tmp = &tmp64;
-				break;
+			*vsize = sizeof(int64_t);
+			tmp = &tmp64;
+			break;
 		case FF_TYPE_INT32:
-				*vsize = sizeof(int32_t);
-				tmp32 = tmp64;
-				tmp = &tmp32;
-				break;
+			*vsize = sizeof(int32_t);
+			tmp32 = tmp64;
+			tmp = &tmp32;
+			break;
 		case FF_TYPE_INT16:
-				*vsize = sizeof(int16_t);
-				tmp16 = tmp64;
-				tmp = &tmp16;
-				break;
+			*vsize = sizeof(int16_t);
+			tmp16 = tmp64;
+			tmp = &tmp16;
+			break;
 		case FF_TYPE_INT8:
-				*vsize = sizeof(int16_t);
-				tmp8 = tmp64;
-				tmp = &tmp8;
-				break;
+			*vsize = sizeof(int8_t);
+			tmp8 = tmp64;
+			tmp = &tmp8;
+			break;
 		default: return 0;
 	}
 
@@ -119,12 +178,13 @@ int str_to_int(char *str, int type, char **res, int *vsize) {
 
 	*res = ptr;
 
-	return 1;	
+	return 1;
 }
 
 /* convert string into lnf_ip_t */
-/* FIXME: also converst string with units (64k -> 64000) */
-int str_to_addr(ff_t *filter, char *str, char **res, int *numbits) {
+//TODO: Solve masked addresses (maybe add one more ip addr as mask so eval wold be & together ip and mask then eval
+int str_to_addr(ff_t *filter, char *str, char **res, int *numbits)
+{
 
 	ff_ip_t *ptr;
 
@@ -134,7 +194,7 @@ int str_to_addr(ff_t *filter, char *str, char **res, int *numbits) {
 	if (ptr == NULL) {
 		return 0;
 	}
-	
+
 	memset(ptr, 0x0, sizeof(ff_ip_t));
 
 	*numbits = 0;
@@ -173,6 +233,7 @@ const char* ff_error(ff_t *filter, const char *buf, int buflen) {
 }
 
 
+
 /* add leaf entry into expr tree */
 ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t oper, char *valstr) {
 	//int field;
@@ -193,16 +254,6 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 		return NULL;
 	}
 
-	/* fieldstr is set - trie to find field id and relevant _fget function */
-	//if ( fieldstr != NULL ) {
-	//	field = lnf_fld_parse(fieldstr, NULL, NULL);
-	//	if (field == LNF_FLD_ZERO_) {
-	//		lnf_seterror("Unknown or unsupported field %s", fieldstr);
-	//		return NULL;
-	//	}
-	//}
-
-
 	node = ff_new_node(scanner, filter, NULL, oper, NULL);
 	if (node == NULL) {
 		return NULL;
@@ -212,7 +263,6 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 	node->field = lvalue.id;
 
 	/* determine field type and assign data to lvalue */
-
 	switch (node->type) {
 	//switch (lnf_fld_type(field)) {
 
@@ -240,8 +290,9 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 				}
 				node->vsize = sizeof(ff_ip_t);
 				break;
-		/* unsigned with undefined data size (internally mapped to uint64_t in network order) */
+
 		case FF_TYPE_UNSIGNED_BIG:
+			/* unsigned with undefined data size (internally mapped to uint64_t in network order) */
 		case FF_TYPE_UNSIGNED:
 				if (str_to_uint(valstr, FF_TYPE_UINT64, &node->value, &node->vsize) == 0) {
 					ff_set_error(filter, "Can't convert '%s' into numeric value", valstr);
@@ -273,7 +324,7 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 			goto err_free1;
 		}
 		root = ff_new_node(scanner, filter, node, FF_OP_OR, nodeR);
-		if (nodeR == NULL){
+		if (root == NULL){
 			goto err_free2;
 		}
 
@@ -332,8 +383,8 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 	left = 0;
 
 	/* go deeper into tree */
-	if (node->left != NULL ) { 
-		left = ff_eval_node(filter, node->left, rec); 
+	if (node->left != NULL ) {
+		left = ff_eval_node(filter, node->left, rec);
 
 		/* do not evaluate if the result is obvious */
 		if (node->oper == FF_OP_NOT)              { return !left; };
@@ -341,8 +392,8 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		if (node->oper == FF_OP_AND && left == 0) { return 0; };
 	}
 
-	if (node->right != NULL ) { 
-		right = ff_eval_node(filter, node->right, rec); 
+	if (node->right != NULL ) {
+		right = ff_eval_node(filter, node->right, rec);
 
 		switch (node->oper) {
 			case FF_OP_NOT: return !right; break;
@@ -359,32 +410,17 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		return -1;
 	}
 
-//	lnf_rec_fget((lnf_rec_t *)rec, node->field, &buf);
-
 	switch (node->type) {
 		case FF_TYPE_UINT64: res = *(uint64_t *)&buf - *(uint64_t *)node->value; break;
 		case FF_TYPE_UINT32: res = *(uint32_t *)&buf - *(uint32_t *)node->value; break;
-		case FF_TYPE_UINT16: res = *(uint16_t *)&buf - *(uint16_t *)node->value; break; 
+		case FF_TYPE_UINT16: res = *(uint16_t *)&buf - *(uint16_t *)node->value; break;
 		case FF_TYPE_UINT8:  res = *(uint8_t *)&buf - *(uint8_t *)node->value; break;
 		case FF_TYPE_DOUBLE: res = *(double *)&buf - *(double *)node->value; break;
 		case FF_TYPE_STRING: res = strcmp((char *)&buf, node->value); break;
-//		case FF_TYPE_UNSIGNED_BIG: {
-					/* for FF_TYPE_UNSIGED firt convert into uint64_t and then compare */
-//					uint64_t tmp = 0; 
-
-//					if (size > node->vsize) { return -1; }		/* too big integer */
-
-					/* copy size bytes of the value to the top of tmp */
-//					memcpy(&tmp, buf + (size - node->vsize), size);
-
-//					res = memcmp(&tmp, node->value, size); 
-				
-//					break;
-//				}
 		case FF_TYPE_UNSIGNED_BIG: {
-	
+
 			if (size > node->vsize) { return -1; }		/* too big integer */
-	
+
 			switch (size) {
 			case sizeof(uint8_t):
 				res = *(uint8_t*)buf - *(uint64_t*)(node->value);
@@ -406,9 +442,9 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		}
 
 		case FF_TYPE_UNSIGNED: {
-	
+
 			if (size > node->vsize) { return -1; }		/* too big integer */
-	
+
 			switch (size) {
 			case sizeof(uint8_t):
 				res = *(uint8_t*)buf - *(uint64_t*)(node->value);
@@ -426,13 +462,13 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 				res = -1;
 				break;
 			}
-	
+
 			break;
 		}
 		case FF_TYPE_SIGNED_BIG: {
-	
+
 			if (size > node->vsize) { return -1; }		/* too big integer */
-	
+
 			/* copy size bytes of the value to the top of tmp */
 			switch (size) {
 			case sizeof(int8_t):
@@ -455,9 +491,9 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		}
 
 		case FF_TYPE_SIGNED: {
-	
+
 			if (size > node->vsize) { return -1; }		/* too big integer */
-	
+
 			/* copy size bytes of the value to the top of tmp */
 			switch (size) {
 			case sizeof(int8_t):
@@ -476,23 +512,22 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 				res = -1;
 				break;
 			}
-	
+
 			break;
 		}
-	
+		/*Compare 32bit ip to 128bit encapsulated ip*/
 		case FF_TYPE_ADDR: {
-	
+
 			switch (size) {
 			case sizeof(ff_ip_t):
 				res = memcmp(buf, node->value, node->vsize);
 				break;
-			/*Gives ability to compatre IPv4 as 32bit number */
 			case sizeof(ff_ip_t)/4:
 				res = memcmp(buf, &(((ff_ip_t *)node->value)->data[3]), node->vsize/4);
 				break;
 			default: return -1;
 			}
-			
+
 			break;
 		}
 	default: res = memcmp(buf, node->value, node->vsize); break;
@@ -500,13 +535,13 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 
 	/* simple comparsion */
 	switch (node->oper) {
-		case FF_OP_NOT: 
-		case FF_OP_OR:  
-		case FF_OP_AND: return -1 ; break; 
-		case FF_OP_EQ:  return res == 0; break;
-		case FF_OP_NE:  return res != 0; break;
-		case FF_OP_GT:  return res > 0; break;
-		case FF_OP_LT:  return res < 0; break;
+	case FF_OP_NOT:
+	case FF_OP_OR:
+	case FF_OP_AND: return -1 ; break;
+	case FF_OP_EQ:  return res == 0; break;
+	case FF_OP_NE:  return res != 0; break;
+	case FF_OP_GT:  return res > 0; break;
+	case FF_OP_LT:  return res < 0; break;
 	}
 
 	return -1;
@@ -524,7 +559,7 @@ ff_error_t ff_options_init(ff_options_t **poptions) {
 	}
 
 	*poptions = options;
-	
+
 	return FF_OK;
 
 }
@@ -540,12 +575,10 @@ ff_error_t ff_options_free(ff_options_t *options) {
 }
 
 
-
 ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 
-//    lnf_filter_t *filter;
 	yyscan_t scanner;
-	//YY_BUFFER_STATE buf;
+	YY_BUFFER_STATE buf;
 	int parse_ret;
 	ff_t *filter;
 
@@ -562,20 +595,16 @@ ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 	if (options == NULL) {
 		free(filter);
 		return FF_ERR_OTHER;
-		
+
 	}
 	memcpy(&filter->options, options, sizeof(ff_options_t));
 
 	ff_set_error(filter, "No Error.");
 
 	ff2_lex_init(&scanner);
-    //buf = ff2__scan_string(expr, scanner);
-    ff2__scan_string(expr, scanner);
-    parse_ret = ff2_parse(scanner, filter);
+	buf = ff2__scan_string(expr, scanner);
+	parse_ret = ff2_parse(scanner, filter);
 
-//   if (buf != NULL) {
-//        v2__delete_buffer(buf, scanner);
-//    }
 
 	ff2_lex_destroy(scanner);
 
@@ -587,7 +616,7 @@ ff_error_t ff_init(ff_t **pfilter, const char *expr, ff_options_t *options) {
 
 	*pfilter = filter;
 
-    return FF_OK;
+	return FF_OK;
 }
 
 /* matches the record agains filter */
@@ -598,6 +627,7 @@ int ff_eval(ff_t *filter, void *rec) {
 	return ff_eval_node(filter, filter->root, rec);
 
 }
+
 
 void ff_free_node(ff_node_t* node) {
 
@@ -629,3 +659,4 @@ ff_error_t ff_free(ff_t *filter) {
 	return FF_OK;
 
 }
+
