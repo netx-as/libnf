@@ -637,11 +637,12 @@ void ff_free_node(ff_node_t* node) {
 		ff_free_node(node->left);
 	}
 	if (node->right != NULL) {
-		ff_free_node(node->left);
+		ff_free_node(node->right);
 	}
 
 	free(node->value);
 	free(node);
+
 }
 
 /* release all resources allocated by filter */
