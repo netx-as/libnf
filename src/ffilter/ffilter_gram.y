@@ -55,7 +55,7 @@
 %token EQ LT GT  
 %token LP RP
 %token <string> STRING 
-%type <string> field
+%type <string> field value
 %type <node> expr filter 
 
 %left	OR
@@ -74,16 +74,20 @@ field:
 	| STRING 			{ strncpy($$, $1, FF_MAX_STRING - 1); }
 	;
 
+value:
+	| STRING 			{ strncpy($$, $1, FF_MAX_STRING - 1); }
+	;
+
 expr:
 	NOT expr	 		{ $$ = ff_new_node(scanner, filter, NULL, FF_OP_NOT, $2); if ($$ == NULL) { YYABORT; }; }
 	| expr AND expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_AND, $3); if ($$ == NULL) { YYABORT; }; }
 	| expr BITAND expr	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_BITAND, $3); if ($$ == NULL) { YYABORT; }; }
 	| expr OR expr	 	{ $$ = ff_new_node(scanner, filter, $1, FF_OP_OR, $3); if ($$ == NULL) { YYABORT; }; }
 	| LP expr RP 		{ $$ = $2; }
-	| field STRING		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
-	| field EQ STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
-	| field LT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
-	| field GT STRING	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
+	| field value		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $2); if ($$ == NULL) { YYABORT; } }
+	| field EQ value	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_EQ, $3); if ($$ == NULL) { YYABORT; } }
+	| field LT value	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_LT, $3); if ($$ == NULL) { YYABORT; } }
+	| field GT value	{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_GT, $3); if ($$ == NULL) { YYABORT; } }
 	;
 
 %%
