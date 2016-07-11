@@ -64,9 +64,12 @@ int ff_yyparse(yyscan_t yyscanner, ff_t *filter);
 void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 
 /* conversion from string to numeric/bit value */
+uint64_t get_unit(char *unit);
+int64_t strtoll_unit(char *num, char**endptr);
 int str_to_uint(char *str, int type, char **res, int *vsize);
 int str_to_int(char *str, int type, char **res, int *vsize);
 int str_to_addr(ff_t *filter, char *str, char **res, int *numbits);
+
 
 /* add new node into parse tree */
 ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter, char *fieldstr, ff_oper_t oper, char *valstr);

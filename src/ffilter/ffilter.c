@@ -36,16 +36,16 @@ uint64_t get_unit(char *unit)
 	switch (*unit) {
 		case 'k':
 		case 'K':
-			return 1000;
+			return FF_SCALING_FACTOR;
 		case 'M':
-			return 1000*1000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'g':
 		case 'G':
-			return 1000*1000*1000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'T':
-			return 1000*1000*1000*1000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'E':
-			return 1000*1000*1000*1000*1000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		default:
 			return 0;
 	}
@@ -542,6 +542,8 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 	case FF_OP_NE:  return res != 0; break;
 	case FF_OP_GT:  return res > 0; break;
 	case FF_OP_LT:  return res < 0; break;
+	case FF_OP_BITAND:  break;
+	case FF_OP_IN:  break;
 	}
 
 	return -1;
