@@ -9,6 +9,7 @@ typedef enum {
 	FF_OP_NOT,
 	FF_OP_OR,
 	FF_OP_AND,
+	FF_OP_BITAND,
 	FF_OP_EQ,
 	FF_OP_NE,
 	FF_OP_LT,
