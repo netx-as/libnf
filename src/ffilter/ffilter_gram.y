@@ -31,6 +31,7 @@
 	#include <stdio.h>
 	#include "ffilter.h"
 	#include "ffilter_internal.h"
+	#include <string.h>
 
 	#define YY_EXTRA_TYPE ff_t
 
@@ -71,11 +72,12 @@ filter:
 	;
 
 field:
-	| STRING 			{ strncpy($$, $1, FF_MAX_STRING - 1); }
+	STRING 				{ strncpy($$, $1, FF_MAX_STRING - 1); }
 	;
 
 value:
-	| STRING 			{ strncpy($$, $1, FF_MAX_STRING - 1); }
+	STRING 				{ strncpy($$, $1, FF_MAX_STRING - 1); }
+	| STRING STRING		{ snprintf($$, FF_MAX_STRING - 1, "%s %s", $1, $2); }
 	;
 
 expr:
