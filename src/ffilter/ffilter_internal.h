@@ -68,6 +68,7 @@ int str_to_int(char *str, int type, char **res, int *vsize);
 int str_to_addr(ff_t *filter, char *str, char **res, int *numbits);
 
 /* add new node into parse tree */
+ff_node_t* ff_new_mval(yyscan_t scanner, ff_t *filter, char *valstr, ff_oper_t oper,  ff_node_t* nextptr);
 ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter, char *fieldstr, ff_oper_t oper, char *valstr);
 ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_t oper, ff_node_t* right);
 

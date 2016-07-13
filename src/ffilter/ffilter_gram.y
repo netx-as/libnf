@@ -85,8 +85,8 @@ expr:
 
 
 list:
-	STRING list			{ $$ = ff_new_node(scanner, filter, $1, FF_OP_IN, $2); if ($$ == NULL) { YYABORT; } }
-	| STRING RPS		{ $$ = ff_new_leaf(scanner, filter, $1, FF_OP_IN, NULL); if ($$ == NULL) { YYABORT; } }
+	STRING list		{ $$ = ff_new_mval(scanner, filter, $1, FF_OP_OR, $2); if ($$ == NULL) { YYABORT; } }
+	| STRING RPS		{ $$ = ff_new_mval(scanner, filter, $1, FF_OP_OR, NULL); if ($$ == NULL) { YYABORT; } }
 	;
 
 %%

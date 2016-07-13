@@ -39,14 +39,14 @@ uint64_t get_unit(char *unit)
 		case 'K':
 			return 1000;
 		case 'M':
-			return 1000*1000;
+			return 1000000;
 		case 'g':
 		case 'G':
-			return 1000*1000*1000;
+			return 1000000000;
 		case 'T':
-			return 1000*1000*1000*1000;
+			return 1000000000000UL;
 		case 'E':
-			return 1000*1000*1000*1000*1000;
+			return 1000000000000000UL;
 		default:
 			return 0;
 	}
@@ -186,15 +186,18 @@ int str_to_int(char *str, int type, char **res, int *vsize)
 //TODO: Solve masked addresses (maybe add one more ip addr as mask so eval wold be & together ip and mask then eval
 int str_to_addr(ff_t *filter, char *str, char **res, int *numbits)
 {
-
 	ff_ip_t *ptr;
 
 	ptr = malloc(sizeof(ff_ip_t));
 
-
 	if (ptr == NULL) {
 		return 0;
 	}
+
+	char *saveptr;
+	char *ip_str = strdup(str);
+	char *ip;
+	char *mask;
 
 	memset(ptr, 0x0, sizeof(ff_ip_t));
 
@@ -202,16 +205,55 @@ int str_to_addr(ff_t *filter, char *str, char **res, int *numbits)
 
 	*res = (char *)ptr;
 
-	if (inet_pton(AF_INET, str, &((*ptr).data[3]))) {
+	ip = strtok_r(ip_str, "\\/", &saveptr);
+	mask = strtok_r(NULL, "\\/", &saveptr);
+
+	/* IPv4 only */
+	if (mask != NULL) {
+		*numbits = strtoul(mask, &saveptr, 10);
+		if (*saveptr){
+			return 1;
+		}
+
+		int req_oct = (*numbits - 1) / 8 + 1;
+
+		/* If string passes this filter, it has enough octets, rest ist concatenated */
+		char *ip_dup = strdup(ip_str);
+		int octet = 0;
+		for (ip = strtok_r(ip_dup, ".", &saveptr); octet < req_oct; octet++ ) {
+			if (ip == NULL) {
+				free(ip_str);
+				free(ip_dup);
+				return 0;
+			}
+
+			ip = strtok_r(NULL, ".", &saveptr);
+		}
+		free(ip_dup);
+
+		char *suffix = malloc(8);
+		suffix[0] = 0;
+		for (; req_oct < 4; req_oct++) {
+			strcat(suffix, ".0");
+		}
+		ip = realloc(ip_str, strlen(ip_str)+8);
+		strcat(ip, suffix);
+
+	}
+
+	if (inet_pton(AF_INET, ip, &((*ptr).data[3]))) {
+		free(ip);
 		return 1;
 	}
 
-	if (inet_pton(AF_INET6, str, ptr)) {
+	if (inet_pton(AF_INET6, ip, ptr)) {
+		free(ip);
 		return 1;
 	}
 
 	ff_set_error(filter, "Can't convert '%s' into IP address", str);
 
+	free(ip_str);
 	return 0;
 }
 
@@ -245,7 +287,7 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 
 	/* callback to fetch field type and additional info */
 	if (filter->options.ff_lookup_func == NULL) {
-		ff_set_error(filter, "Filter lookup function not defined for %s", fieldstr);
+		ff_set_error(filter, "Filter lookup function not defined");
 		return NULL;
 	}
 
@@ -262,6 +304,13 @@ ff_node_t* ff_new_leaf(yyscan_t scanner, ff_t *filter,char *fieldstr, ff_oper_t 
 
 	node->type = lvalue.type;
 	node->field = lvalue.id;
+
+	if (oper == FF_OP_IN) {
+		//Htab nieje moc dobre riesenie
+		//node->value = ff_htab_from_node(node, (ff_node_t*)valstr);
+		node->value = valstr;
+		return node;
+	}
 
 	/* determine field type and assign data to lvalue */
 	switch (node->type) {
@@ -376,6 +425,28 @@ ff_node_t* ff_new_node(yyscan_t scanner, ff_t *filter, ff_node_t* left, ff_oper_
 	return node;
 }
 
+/* add new item to tree */
+ff_node_t* ff_new_mval(yyscan_t scanner, ff_t *filter, char *valstr, ff_oper_t oper, ff_node_t* nptr) {
+
+	ff_node_t *node;
+
+	node = malloc(sizeof(ff_node_t));
+
+	if (node == NULL) {
+		return NULL;
+	}
+
+	node->vsize = strlen(valstr);
+	node->value = strdup(valstr);
+	node->type = FF_TYPE_STRING;
+	node->oper = oper;
+
+	node->left = NULL;
+	node->right = nptr;
+
+	return node;
+}
+
 /* evaluate node in tree or proces subtree */
 /* return 0 - false; 1 - true; -1 - error  */
 int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
@@ -417,7 +488,7 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 		return -1;
 	}
 
-	/* Equailty of tcpControlBits must be handled differently */
+	/* Equality of tcpControlBits must be handled differently */
 	if (node->field.index == 6 && node->oper == FF_OP_EQ) {
 
 		switch (node->type) {
@@ -561,21 +632,48 @@ int ff_eval_node(ff_t *filter, ff_node_t *node, void *rec) {
 
 			break;
 		}
-		/*Compare 32bit ip to 128bit encapsulated ip*/
+		/* Compare 32bit ip to 128bit encapsulated ip */
 		case FF_TYPE_ADDR: {
 
-			switch (size) {
-			case sizeof(ff_ip_t):
-				res = memcmp(buf, node->value, node->vsize);
-				break;
-			case sizeof(ff_ip_t)/4:
-				res = memcmp(buf, &(((ff_ip_t *)node->value)->data[3]), node->vsize/4);
-				break;
-			default: return -1;
-			}
+			/* Compare ip addresses by full length comparation*/
+			char *node_data;
+			int cmp_bytes_n;
+			uint8_t mask = ~0;
 
+			if (!node->numbits) {
+				switch (size) {
+					case sizeof(ff_ip_t):
+						res = memcmp(buf, node->value, node->vsize);
+						break;
+					case sizeof(ff_ip_t) >> 2:
+						res = memcmp(buf, &(((ff_ip_t *) node->value)->data[3]), node->vsize >> 2);
+						break;
+					default:
+						return -1;
+				}
+			/* Compare masked ip addresses or ranges of addresses */
+			} else if (node->oper == FF_OP_EQ){
+				switch (size) {
+					case sizeof(ff_ip_t):
+						node_data = node->value;
+						break;
+					case sizeof(ff_ip_t) >> 2:
+						node_data = &(((ff_ip_t *) node->value)->data[3]);
+						break;
+					default:
+						return -1;
+				}
+
+				cmp_bytes_n = node->numbits >> 3; // div 8
+				mask = ~(mask >> (node->numbits & 0b111));
+
+				res = memcmp(node_data, buf, cmp_bytes_n);
+
+				res += (node_data[cmp_bytes_n] & mask) ^ (buf[cmp_bytes_n] & mask);
+			}
 			break;
 		}
+
 	default: res = memcmp(buf, node->value, node->vsize); break;
 	}
 
@@ -613,7 +711,7 @@ ff_error_t ff_options_init(ff_options_t **poptions) {
 /* release all resources allocated by filter */
 ff_error_t ff_options_free(ff_options_t *options) {
 
-	/* !!! memory clenaup */
+	/* !!! memory cleanup */
 	free(options);
 
 	return FF_OK;
@@ -677,28 +775,26 @@ int ff_eval(ff_t *filter, void *rec) {
 
 void ff_free_node(ff_node_t* node) {
 
-	if (node->left != NULL) {
-		ff_free_node(node->left);
-	}
-	if (node->right != NULL) {
-		ff_free_node(node->left);
+	if (node == NULL) {
+		return;
 	}
 
+	ff_free_node(node->left);
+	ff_free_node(node->left);
+
 	free(node->value);
+
 	free(node);
 }
 
 /* release all resources allocated by filter */
+/* This is causing double free for some reason */
 ff_error_t ff_free(ff_t *filter) {
 
-	/* !!! memory clenaup */
+	/* !!! memory cleanup */
 
 	if (filter != NULL) {
-
-		if (filter->root != NULL) {
-			ff_free_node(filter->root);
-		}
-
+		ff_free_node(filter->root);
 		free(filter);
 	}
 

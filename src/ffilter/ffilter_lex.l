@@ -27,6 +27,7 @@
 
 digit 	[0-9]
 letter	[A-Za-z.:/]
+
 ws	[ \t]
 
 
@@ -55,6 +56,18 @@ in              { return IN; }
 "["			    { return LPS; }
 "]"			    { return RPS; }
 
+"dst"{ws}+"ip"	{
+					strncpy(yylval->string, "dstip", FF_MAX_STRING - 1);
+					return STRING;
+				}
+"dst"{ws}+"net"	{
+					strncpy(yylval->string, "dstip", FF_MAX_STRING - 1);
+					return STRING;
+				}
+"dst"{ws}+"port" {
+					strncpy(yylval->string, "dstport", FF_MAX_STRING - 1);
+					return STRING;
+				}
 "src"{ws}+"ip"	{
 					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
 					return STRING;
@@ -67,6 +80,7 @@ in              { return IN; }
 					strncpy(yylval->string, "srcport", FF_MAX_STRING - 1);
 					return STRING;
 				}
+
 ({letter}|{digit})+	{
 					strncpy(yylval->string, yytext, FF_MAX_STRING - 1);
 					return STRING;
