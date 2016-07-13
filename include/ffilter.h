@@ -29,6 +29,7 @@
 #include <stddef.h>
 
 #define FF_MAX_STRING  1024
+#define FF_SCALING_FACTOR  1000LL
 
 
 typedef struct ff_ip_s { uint32_t data[4]; } ff_ip_t; /*!< IPv4/IPv6 address */

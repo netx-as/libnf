@@ -37,16 +37,17 @@ uint64_t get_unit(char *unit)
 	switch (*unit) {
 		case 'k':
 		case 'K':
-			return 1000;
+			return FF_SCALING_FACTOR;
+		case 'm':
 		case 'M':
-			return 1000000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'g':
 		case 'G':
-			return 1000000000;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'T':
-			return 1000000000000UL;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		case 'E':
-			return 1000000000000000UL;
+			return FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR * FF_SCALING_FACTOR;
 		default:
 			return 0;
 	}
@@ -785,10 +786,10 @@ void ff_free_node(ff_node_t* node) {
 	free(node->value);
 
 	free(node);
+
 }
 
 /* release all resources allocated by filter */
-/* This is causing double free for some reason */
 ff_error_t ff_free(ff_t *filter) {
 
 	/* !!! memory cleanup */
