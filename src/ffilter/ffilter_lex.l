@@ -26,10 +26,9 @@
 %option noinput
 
 digit 	[0-9]
-letter	[A-Za-z.:/]
+letter	[A-Za-z:/\.\-]
 
 ws	[ \t]
-
 
 %{
 	#include <stdlib.h>
@@ -46,7 +45,7 @@ and|"&&"		{ return AND; }
 or|"||"			{ return OR; }
 not|"!"			{ return NOT; }
 
-in              { return IN; }
+"in ["             { return IN; }
 
 "="|"=="|eq		{ return EQ; }
 ">"|gt			{ return GT; }
@@ -56,35 +55,31 @@ in              { return IN; }
 "["			    { return LPS; }
 "]"			    { return RPS; }
 
-"dst"{ws}+"ip"	{
-					strncpy(yylval->string, "dstip", FF_MAX_STRING - 1);
+"next"{ws}+"ip"	{
+                    // Grammar exceptions
+					strncpy(yylval->string, "next ip", FF_MAX_STRING - 1);
 					return STRING;
 				}
-"dst"{ws}+"net"	{
-					strncpy(yylval->string, "dstip", FF_MAX_STRING - 1);
+"bgpnext"{ws}+"ip"	{
+					strncpy(yylval->string, "bgpnext ip", FF_MAX_STRING - 1);
 					return STRING;
 				}
-"dst"{ws}+"port" {
-					strncpy(yylval->string, "dstport", FF_MAX_STRING - 1);
+"router"{ws}+"ip"	{
+					strncpy(yylval->string, "router ip", FF_MAX_STRING - 1);
 					return STRING;
 				}
-"src"{ws}+"ip"	{
-					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
-					return STRING;
-				}
-"src"{ws}+"net"	{
-					strncpy(yylval->string, "srcip", FF_MAX_STRING - 1);
-					return STRING;
-				}
-"src"{ws}+"port" {
-					strncpy(yylval->string, "srcport", FF_MAX_STRING - 1);
-					return STRING;
-				}
+
+"src and dst"|"dst and src"         { strncpy(yylval->string, yytext, FF_MAX_STRING - 1); return BIDIR_AND; }
+"src or dst"|"dst or src"           { strncpy(yylval->string, yytext, FF_MAX_STRING - 1); return BIDIR_OR; }
+"in src"|"in dst"|"out src"|"out dst"  { strncpy(yylval->string, yytext, FF_MAX_STRING - 1); return DIR_DIR_MAC; }
+src|prev|in                         { strncpy(yylval->string, yytext, FF_MAX_STRING - 1); return DIR; }
+dst|next|out                        { strncpy(yylval->string, yytext, FF_MAX_STRING - 1); return DIR; }
 
 ({letter}|{digit})+	{
 					strncpy(yylval->string, yytext, FF_MAX_STRING - 1);
 					return STRING;
 				}
+
 #.*         { ; }	//comments
 {ws}+       { ; }	//whitespace
 [\n]        { ; }	//end of line

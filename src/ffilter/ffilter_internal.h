@@ -6,7 +6,7 @@
 
 /* supported operations */
 typedef enum {
-	FF_OP_NOT,
+	FF_OP_NOT = 1,
 	FF_OP_OR,
 	FF_OP_AND,
 	FF_OP_BITAND,
