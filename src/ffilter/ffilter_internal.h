@@ -18,18 +18,18 @@ typedef enum {
 	FF_OP_ISSET,
 	FF_OP_IN,
 	FF_OP_YES,
+	FF_OP_EXIST
 } ff_oper_t;
 
 
 /* node of syntax tree */
 typedef struct ff_node_s {
-	//int field;                  /* field ID */
-	ff_extern_id_t field;        /* field ID */
-	char *value;                /*buffer allocated for data */
-	size_t vsize;                  /* size of data in lvalue */
-	int type;                   /* data type for lvalue */
-	int numbits;                /* number of bits for IP adres */
-	ff_oper_t oper;            /* operation */
+	ff_extern_id_t field;         /* field ID */
+	char *value;                  /*buffer allocated for data */
+	size_t vsize;                 /* size of data in lvalue */
+	int type;                     /* data type for lvalue */
+	int numbits;                  /* number of bits for IP adres */
+	ff_oper_t oper;               /* operation */
 
 	struct ff_node_s *left;
 	struct ff_node_s *right;
@@ -71,10 +71,11 @@ void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 int64_t get_unit(char *unit);
 int64_t strtoll_unit(char *num, char**endptr);
 uint64_t strtoul_unit(char *num, char**endptr);
-int str_to_uint(char *str, int type, char **res, int *vsize);
-int str_to_int(char *str, int type, char **res, int *vsize);
-int str_to_mac(char *str, char **res, int *vsize);
-int str_to_addr(ff_t *filter, char *str, char **res, int *numbits);
+int str_to_uint(char *str, int type, char **res, size_t *vsize);
+int str_to_int(char *str, int type, char **res, size_t *vsize);
+int str_to_mac(char *str, char **res, size_t *vsize);
+int str_to_addr(ff_t *filter, char *str, char **res, int *numbits, size_t *vsize);
+int str_to_timestamp(char *str, char **res, size_t *vsize);
 
 /* add new node into parse tree */
 ff_node_t* ff_duplicate_node(ff_node_t* original);
