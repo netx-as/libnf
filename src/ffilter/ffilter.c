@@ -469,7 +469,7 @@ ff_error_t ff_type_cast(yyscan_t *scanner, ff_t *filter, char *valstr, ff_node_t
 		}
 		break;
 	case FF_TYPE_TIMESTAMP:
-		if (str_to_time(valstr, &node->value, &node->vsize)) {
+		if (str_to_timestamp(valstr, &node->value, &node->vsize)) {
 			ff_set_error(filter, "Can't convert '%s' to time", valstr);
 			return FF_ERR_OTHER_MSG;
 		}
