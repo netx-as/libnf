@@ -147,6 +147,7 @@ int main(int argc, char **argv) {
 
 	lnf_mem_free(memp);
 	lnf_rec_free(recp);
+	lnf_rec_free(recp2);
 	lnf_close(filep);
 
 	return 0;

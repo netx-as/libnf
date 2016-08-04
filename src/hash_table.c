@@ -121,7 +121,6 @@ char * hash_table_insert_hash(hash_table_t *t, char *key, char *val) {
 		return NULL;
 	}
 
-
 	phdr = (hash_table_row_hdr_t *)prow;
 	pkey = prow + sizeof(hash_table_row_hdr_t);
 	pval = prow + sizeof(hash_table_row_hdr_t) + t->keylen;
@@ -336,15 +335,19 @@ hash_table_t * hash_table_merge(hash_table_t *td, hash_table_t *ts) {
 	free(ts->buckets);
 	ts->buckets = NULL;
 
+	ts->numentries = 0; 
+	ts->sfirst = NULL;
+	ts->slast = NULL;
+
 	return td;
 }
 
-void hash_table_free(hash_table_t *t) {
+void hash_table_clean(hash_table_t *t) {
 
 	unsigned long index;
+	hash_table_row_hdr_t *tmp, *tmp2;
 
-
-	/* if has was sorted remove all items */
+	/* if hash was sorted by heap sort remove all items */
 	if (t->sort_array != NULL) {
 		for (index = 0 ; index < t->numentries; index++) {
 			if (t->sort_array[index] != NULL) {
@@ -353,6 +356,31 @@ void hash_table_free(hash_table_t *t) {
 		}
 		free(t->sort_array);
 	}
+
+
+	tmp = t->sfirst;
+
+	/* remove linked list of elements */
+	while (tmp != NULL) {
+		tmp2 = tmp;
+		tmp = (hash_table_row_hdr_t *)tmp->snext;
+		free(tmp2);
+	}
+
+	t->numentries = 0; 
+	t->sfirst = NULL;
+	t->slast = NULL;
+
+	if (t->buckets != NULL ) {
+		memset(t->buckets, 0x0, sizeof(void *) * t->numbuckets);	
+	}
+}
+
+void hash_table_free(hash_table_t *t) {
+
+	unsigned long index;
+
+	hash_table_clean(t);
 
 	/* remove buckets structure */
 	if (t->buckets != NULL) {

@@ -20,6 +20,7 @@
 #define NUM_THREADS_FACTOR 0.7		/* defalt number of threads = real number of thread * THREADS_FACTOR */
 #define LLUI long long unsigned int
 #define MAX_FILTER_LEN 1024
+#define MAX_ERRBUF_LEN 1024
 
 /* global variable */
 //lnf_mem_t *memp;
@@ -151,6 +152,7 @@ int main(int argc, char **argv) {
 	int c, o;
 	int numaflags = 0;
 	output_t *outputp;
+	char errbuf[MAX_ERRBUF_LEN];
 //	lnf_filter_t *filterp;
 	
 
@@ -268,7 +270,7 @@ int main(int argc, char **argv) {
 			} 
 			strcat(filter, argv[optind]);
 			strcat(filter, " ");
-			printf("filter: %s \n", filter);
+			//printf("filter: %s \n", filter);
 		}
 
 		filterp = NULL;
@@ -289,7 +291,8 @@ int main(int argc, char **argv) {
 		}
 					
 		if (filterp == NULL) {
-			fprintf(stderr, "Can not compile filter: %s\n", filter);
+			lnf_error(errbuf, sizeof(errbuf) - 1);
+			fprintf(stderr, "Can not compile filter: %s\n%s\n", filter, errbuf);
 			exit(1);
 		}
 //		lnf_filter_free(filterp);

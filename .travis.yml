@@ -1,0 +1,10 @@
+
+language: c
+
+install: true
+
+script:
+	autoreconf -if
+	./configure
+	make
+

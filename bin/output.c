@@ -28,6 +28,7 @@ void output_init(output_t *output) {
 	output->recp = NULL;
 	output->memp = NULL;
 	output->sortfield = 0;
+	pthread_mutex_init(&output->write_lock, NULL);
 
 }
 
@@ -117,6 +118,7 @@ int output_start(output_t *output) {
     /* default fields on the ond of the list */
     output_field_add(output, LNF_FLD_DPKTS);
     output_field_add(output, LNF_FLD_DOCTETS);
+    output_field_add(output, LNF_FLD_CALC_PPS);
     output_field_add(output, LNF_FLD_CALC_BPS);
     output_field_add(output, LNF_FLD_CALC_BPP);
     output_field_add(output, LNF_FLD_AGGR_FLOWS);
@@ -176,7 +178,7 @@ int output_output_rows(output_t *output) {
 			output->outputflows++;
 			output_row(output, output->recp);
 
-			/* if the limit of output files is set */
+			/* if the limit of output rows is set */
 			if (output->limit > 0 && output->outputflows >= output->limit) {
 				break;
 			}

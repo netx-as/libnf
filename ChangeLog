@@ -1,7 +1,29 @@
 Revision history for C and Perl extension of nfdump.
 
-1.20 2016-03-xx
+1.25 2016-07-xx
+	-c: some leaks in memheap removed
+	-c: added new API function lnf_mem_clean(lnf_mem_t *lnf_mem)
+	-c: added exmaple lnf_ex11_memclean.c
+	-perl: added new test 53-libnf-filter.t
+	-nfdumpp: handles properly error messages for libnf filter
+
+1.24 2016-06-21
+	-perl: better thread testing (with more detailed results)
+
+1.23 2016-06-20
+	-c: fixed build on FreeBSD
+
+1.22 2016-06-18
+	-c: adjusted to nfdump-1.6.15
+
+1.21 2016-05-28
+	-nffdump: invalid mutex initialisation 
+
+1.20 2016-05-09
 	-removed several warnings 
+	-c: new field LNF_FLD_INET_FAMILY containing either AF_INET or AF_INET6
+	-perl: new field inetfamily 
+	-perl: new function family2txt and txt2family 
 	-nfdumpp: removed bug where nfdumpp produces corupted output file 
 	-nfdumpp: added -n option to limit aggregated outputs 
 

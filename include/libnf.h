@@ -173,6 +173,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_FW_EVENT		0x41
 #define LNF_FLD_INGRESS_ACL		0x42
 #define LNF_FLD_EGRESS_ACL		0x43
+#define LNF_FLD_INET_FAMILY		0x44
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */
@@ -801,6 +802,15 @@ This function is deprecated and might be removed in the future version.
 Use lnf_mem_first_c instead. 
 */
 void lnf_mem_read_reset(lnf_mem_t *lnf_mem);
+
+/*!	\ingroup memheap
+\brief Clean all data in memheap. 
+
+The memheap will be in the same state as it was after the initialisation. 
+
+\param *lnf_mem 	pointer to lnf_mem_t structure 
+*/
+void lnf_mem_clean(lnf_mem_t *lnf_mem);
 
 /*!	\ingroup memheap
 \brief Close memheap and release resources.

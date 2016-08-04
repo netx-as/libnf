@@ -2,9 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 1.20, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.25, tpoder@cis.vutbr.cz)
 
-AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.14, phaag@users.sourceforge.net"],[nfdump])
+AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.15, peter@people.ops-trust.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
 #AC_CONFIG_SRCDIR([grammar.y])
 AC_CONFIG_HEADER([config.h])
@@ -15,6 +15,7 @@ LT_INIT()
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_PROG_CC_STDC
 
 dnl get the flags
 CFLAGS="${CFLAGS=}"
