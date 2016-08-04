@@ -53,13 +53,13 @@ ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *l
 	/* fieldstr is set - trie to find field id and relevant _fget function */
 	if ( fieldstr != NULL ) {
 
-		lvalue->id.index = lnf_fld_parse(fieldstr, NULL, NULL);
+		lvalue->id[0].index = lnf_fld_parse(fieldstr, NULL, NULL);
 
-		if (lvalue->id.index == LNF_FLD_ZERO_) {
+		if (lvalue->id[0].index == LNF_FLD_ZERO_) {
 			return FF_ERR_UNKN;
 		}
 
-		switch (lnf_fld_type(lvalue->id.index)) {
+		switch (lnf_fld_type(lvalue->id[0].index)) {
 			case LNF_UINT8: 
 					lvalue->type = FF_TYPE_UINT8;
 					break;
