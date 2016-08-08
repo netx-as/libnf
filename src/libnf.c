@@ -460,6 +460,54 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			*((uint64_t *)buf) = s->numpackets;
 			reqsize = sizeof(uint64_t);
 			break;
+		case LNF_INFO_FLOWS_TCP:
+			*((uint64_t *)buf) = s->numflows_tcp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_FLOWS_UDP:
+			*((uint64_t *)buf) = s->numflows_udp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_FLOWS_ICMP:
+			*((uint64_t *)buf) = s->numflows_icmp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_FLOWS_OTHER:
+			*((uint64_t *)buf) = s->numflows_other;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BYTES_TCP:
+			*((uint64_t *)buf) = s->numbytes_tcp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BYTES_UDP:
+			*((uint64_t *)buf) = s->numbytes_udp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BYTES_ICMP:
+			*((uint64_t *)buf) = s->numbytes_icmp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_BYTES_OTHER:
+			*((uint64_t *)buf) = s->numbytes_other;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_PACKETS_TCP:
+			*((uint64_t *)buf) = s->numpackets_tcp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_PACKETS_UDP:
+			*((uint64_t *)buf) = s->numpackets_udp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_PACKETS_ICMP:
+			*((uint64_t *)buf) = s->numpackets_icmp;
+			reqsize = sizeof(uint64_t);
+			break;
+		case LNF_INFO_PACKETS_OTHER:
+			*((uint64_t *)buf) = s->numpackets_other;
+			reqsize = sizeof(uint64_t);
+			break;
 	}
 
 	if ( reqsize != 0 ) {

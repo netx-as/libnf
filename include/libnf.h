@@ -265,6 +265,18 @@ typedef void lnf_mem_cursor_t;
 #define LNF_INFO_BYTES			0x1A	/* summary of stored bytes - uint64_t */
 #define LNF_INFO_PACKETS		0x1C	/* summary of stored packets - uint64_t */
 #define LNF_INFO_PROC_BLOCKS	0x1E	/* number of processed blocks - uint64_t */
+#define LNF_INFO_FLOWS_TCP		0x20	/* number of stored TCP flows - uint64_t */
+#define LNF_INFO_FLOWS_UDP		0x22	/* number of stored UDP flows - uint64_t */
+#define LNF_INFO_FLOWS_ICMP		0x24	/* number of stored ICMP flows - uint64_t */
+#define LNF_INFO_FLOWS_OTHER	0x26	/* number of stored other flows - uint64_t */
+#define LNF_INFO_BYTES_TCP		0x28	/* number of stored TCP bytes - uint64_t */
+#define LNF_INFO_BYTES_UDP		0x2A	/* number of stored UDP bytes - uint64_t */
+#define LNF_INFO_BYTES_ICMP		0x2C	/* number of stored ICMP bytes - uint64_t */
+#define LNF_INFO_BYTES_OTHER	0x2E	/* number of stored other bytes - uint64_t */
+#define LNF_INFO_PACKETS_TCP	0x30	/* number of stored TCP packets - uint64_t */
+#define LNF_INFO_PACKETS_UDP	0x32	/* number of stored UDP packets - uint64_t */
+#define LNF_INFO_PACKETS_ICMP	0x34	/* number of stored ICMP packets - uint64_t */
+#define LNF_INFO_PACKETS_OTHER	0x36	/* number of stored other packets - uint64_t */
 
 
 /*! 
@@ -368,6 +380,18 @@ Get detailed information and statistics related to the open file.
 	LNF_INFO_BYTES - summary of stored bytes (uint64_t) \n
 	LNF_INFO_PACKETS - summary of stored packets (uint64_t) \n
 	LNF_INFO_PROC_BLOCKS - number of processed blocks (uint64_t) \n
+	LNF_INFO_FLOWS_TCP - number of stored TCP flows (uint64_t) \n
+	LNF_INFO_FLOWS_UDP - number of stored UDP flows (uint64_t) \n
+	LNF_INFO_FLOWS_ICMP - number of stored ICMP flows (uint64_t) \n
+	LNF_INFO_FLOWS_OTHER - number of stored other flows (uint64_t) \n
+	LNF_INFO_BYTES_TCP - number of stored TCP bytes (uint64_t) \n
+	LNF_INFO_BYTES_UDP - number of stored UDP bytes (uint64_t) \n
+	LNF_INFO_BYTES_ICMP - number of stored ICMP bytes (uint64_t) \n
+	LNF_INFO_BYTES_OTHER - number of stored other bytes (uint64_t) \n
+	LNF_INFO_PACKETS_TCP - number of stored TCP packets (uint64_t) \n
+	LNF_INFO_PACKETS_UDP - number of stored UDP packets (uint64_t) \n
+	LNF_INFO_PACKETS_ICMP - number of stored ICMP packets (uint64_t) \n
+	LNF_INFO_PACKETS_OTHER - number of stored other packets (uint64_t) \n
 \param *data 		pointer initialized and zeroed data structure
 \param size			maximum size allocated for *data structure
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER
