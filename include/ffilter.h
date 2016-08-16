@@ -32,6 +32,17 @@
 #define FF_SCALING_FACTOR  1000LL
 #define FF_MULTINODE_MAX 4
 
+#ifndef HAVE_HTONLL
+#ifdef WORDS_BIGENDIAN
+#   define ntohll(n)    (n)
+#   define htonll(n)    (n)
+#else
+#   define ntohll(n)    ((((uint64_t)ntohl(n)) << 32) | ntohl(((uint64_t)(n)) >> 32))
+#   define htonll(n)    ((((uint64_t)htonl(n)) << 32) | htonl(((uint64_t)(n)) >> 32))
+#endif
+#define HAVE_HTONLL 1
+#endif
+
 typedef struct ff_ip_s { uint32_t data[4]; } ff_ip_t; /*!< IPv4/IPv6 address */
 
 /*! \brief Supported data types */
@@ -54,10 +65,9 @@ typedef enum {
 	FF_TYPE_MAC,
 	FF_TYPE_STRING,
 	FF_TYPE_MPLS,
-	FF_TYPE_TIMESTAMP     //TODO: jaky format + implementacia
+	FF_TYPE_TIMESTAMP      //uint64_t bit timestamp
 } ff_type_t;
 
-//TODO: Nebol by lepsi typedef ? Alebo mienene pouzite bolo len pre sizeof()
 #define FF_TYPE_UNSUPPORTED_T void
 #define FF_TYPE_UNSIGNED_T char*
 #define FF_TYPE_UNSIGNED_BIG_T char*
@@ -79,6 +89,7 @@ typedef enum {
 #define FF_TYPE_MPLS_T unit32_t[10]
 #define FF_TYPE_TIMESTAMP_T unit64_t
 
+//Some of the types here are useless - why define another fixed size types ?
 typedef void ff_unsupported_t;
 typedef char* ff_uint_t;
 typedef char* ff_int_t;
