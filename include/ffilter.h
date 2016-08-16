@@ -49,12 +49,12 @@ typedef enum {
 	FF_TYPE_INT16,
 	FF_TYPE_INT32,
 	FF_TYPE_INT64,
-	FF_TYPE_DOUBLE,        // TODO: muzeme si byt jisti, ze se bude pouzivat format IEEE 754? Podla standardu C vraj ano
+	FF_TYPE_DOUBLE,        //muzeme si byt jisti, ze se bude pouzivat format IEEE 754
 	FF_TYPE_ADDR,
 	FF_TYPE_MAC,
 	FF_TYPE_STRING,
 	FF_TYPE_MPLS,
-	FF_TYPE_TIMESTAMP     // TODO: jaky format??
+	FF_TYPE_TIMESTAMP     //TODO: jaky format + implementacia
 } ff_type_t;
 
 //TODO: Nebol by lepsi typedef ? Alebo mienene pouzite bolo len pre sizeof()

@@ -472,8 +472,8 @@ ff_error_t ff_type_cast(yyscan_t *scanner, ff_t *filter, char *valstr, ff_node_t
 			return FF_ERR_OTHER_MSG;
 		}
 	default:
-		ff_set_error(filter, "Can't convert '%s' type unsupported", valstr);
-		return FF_ERR_OTHER;
+		ff_set_error(filter, "Can't convert '%s' type is unsupported", valstr);
+		return FF_ERR_OTHER_MSG;
 	}
 	return FF_OK;
 }
@@ -534,7 +534,6 @@ ff_node_t* ff_branch_node(ff_node_t *node, ff_oper_t oper, ff_lvalue_t* lvalue) 
 
 	return dup[0];
 }
-
 
 ff_node_t* ff_duplicate_node(ff_node_t* original) {
 

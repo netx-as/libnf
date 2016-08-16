@@ -131,7 +131,7 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 	/* set callback functions */
 	ff_options->ff_lookup_func = lnf_ff_lookup_func;
 	ff_options->ff_data_func = lnf_ff_data_func;
-
+	ff_options->ff_rval_map_func = NULL;
 
 	ff_ret = ff_init(&filter->ff_filter, expr, ff_options);
 
