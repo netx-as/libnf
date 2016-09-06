@@ -7,6 +7,9 @@ EXTRA_DIST = bootstrap nfdump bzip2
 
 SUBDIRS = src include bin examples 
 
+CLEANFILES = bzip2/*.o bzip2/*.lo nfdump/bin/*.o nfdump/bin/*.lo 
+DISTCLEANFILES = bzip2/*.o bzip2/*.lo nfdump/bin/*.o nfdump/bin/*.lo 
+
 #main_SOURCES = nfdump
 
 .PHONY: rpm
