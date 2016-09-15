@@ -1,6 +1,7 @@
 Revision history for C and Perl extension of nfdump.
 
 1.25 2016-07-xx
+	- libnf and modules moved to separate repositories
 	-c: some leaks in memheap removed
 	-c: added new API function lnf_mem_clean(lnf_mem_t *lnf_mem)
 	-c: added exmaple lnf_ex11_memclean.c
