@@ -1,0 +1,3 @@
+[submodule "src/ffilter"]
+	path = src/ffilter
+	url = https://github.com/VUTBR/libnf-ffilter.git
