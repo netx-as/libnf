@@ -50,7 +50,7 @@ INSTALLATION FROM GIT REPOSITORY
 
 1. Get nf-tools git repository 
 
-	# git clone https://github.com/VUTBR/libnf
+	# git clone --recursive https://github.com/VUTBR/libnf
 
 2. Go into libnf source directory 
 
