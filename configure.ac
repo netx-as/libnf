@@ -232,7 +232,7 @@ fi
 #sometimes needed on 32bit systems
 AC_SYS_LARGEFILE
 
-AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile bin/Makefile examples/Makefile)
+AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile src/ffilter/Makefile bin/Makefile examples/Makefile)
 
 if test "${enable_threads}" = "no" ; then
 echo ""

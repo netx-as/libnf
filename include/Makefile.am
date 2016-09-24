@@ -1,5 +1,5 @@
 
-EXTRA_DIST = libnf.h ffilter.h
+EXTRA_DIST = libnf.h 
 
-include_HEADERS = libnf.h ffilter.h
+include_HEADERS = libnf.h 
 

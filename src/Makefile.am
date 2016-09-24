@@ -8,7 +8,7 @@ LDADD = $(DEPS_LIBS)
 #AM_LDFLAGS=-pthread
 
 #Add extra debug info for gdb and nfdump includes
-AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/ffilter
+AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/src/ffilter
 
 if LNF_BZ2STATIC
 AM_CFLAGS += -I$(top_srcdir)/bzip2 
