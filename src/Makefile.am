@@ -17,7 +17,7 @@ endif
 #SUBDIRS = ffilter
 
 EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h list_sort.h xxhash.h fields.h lnf_filter.h 
-#util.h
+
 
 CLEANFILES = lex.yy.c 
 #grammar.c grammar.h scanner.c scanner.h
@@ -33,9 +33,10 @@ EXTRA_DIST += scanner.c grammar.c
 libnf_la_SOURCES += nftree.c grammar.y scanner.l 
 
 # Libnf flow filter sources 
-EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h
+EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h ffilter/ffilter.h
 BUILT_SOURCES += ffilter/ffilter_gram.h 
 libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c
+include_HEADERS = ffilter/ffilter.h
 
 # if the bz2 is staticaly linked to libnf 
 if LNF_BZ2STATIC

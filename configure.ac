@@ -65,6 +65,8 @@ else
 fi
 
 # check ffilter heders 
+OLD_CFLAGS=$CFLAGS;
+CFLAGS="$AM_CFLAGS $CFLAGS -Isrc/ffilter -Iffilter"
 AC_CHECK_HEADERS([ffilter.h])
 if test "$ac_cv_header_ffilter_h" = no; then
 	AC_MSG_ERROR([!! Required ffilter.h header file not found
@@ -72,6 +74,9 @@ if test "$ac_cv_header_ffilter_h" = no; then
 	!! that you cloned slources with --recursive option 
 	!! E.g. git clone --recursive https://github.com/VUTBR/libnf])
 fi
+# reset original CXXFLAGS
+CFLAGS=$OLD_CFLAGS
+
 
 CFLAGS="$CFLAGS -DNSEL"
 
