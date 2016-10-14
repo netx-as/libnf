@@ -64,6 +64,14 @@ else
 	AM_CONDITIONAL(LNF_BZ2STATIC, true)
 fi
 
+# check ffilter heders 
+AC_CHECK_HEADERS([ffilter.h])
+if test "$ac_cv_header_ffilter_h" = no; then
+	AC_MSG_ERROR([!! Required ffilter.h header file not found
+	!! If you are using sources from git, please make sure 
+	!! that you cloned slources with --recursive option 
+	!! E.g. git clone --recursive https://github.com/VUTBR/libnf])
+fi
 
 CFLAGS="$CFLAGS -DNSEL"
 
@@ -232,7 +240,8 @@ fi
 #sometimes needed on 32bit systems
 AC_SYS_LARGEFILE
 
-AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile src/ffilter/Makefile bin/Makefile examples/Makefile)
+#AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile src/ffilter/Makefile bin/Makefile examples/Makefile)
+AC_OUTPUT(Makefile libnf.spec libnf.doxygen include/Makefile src/Makefile bin/Makefile examples/Makefile)
 
 if test "${enable_threads}" = "no" ; then
 echo ""
