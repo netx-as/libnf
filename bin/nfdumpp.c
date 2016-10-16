@@ -62,10 +62,17 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 
 	tid = (int)pthread_self();
 
+	if (strcmp(filename, "-") == 0) {
+		if (lnf_open(&filep, NULL, LNF_READ, NULL) != LNF_OK) {
+			fprintf(stderr, "[#%x] Can not open stdin\n", tid);
+			return 0;
+		}
+	} else {
+		if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
+			fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
+			return 0;
+		}
 
-	if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
-		fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
-		return 0;
 	}
 
 	lnf_rec_init(&recp);

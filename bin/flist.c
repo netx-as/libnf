@@ -30,14 +30,25 @@ int flist_push(flist_t **l, char *name) {
 		return 0;
 	}
 
-	node->name = malloc(strlen(name) + 1);
+	/* null name */
+	if (name == NULL) {
 
-	if (node->name == NULL) {
-		free(node);
-		return 0;
+		node->name = NULL;
+
+	} else {
+
+		/* nut null name */
+		node->name = malloc(strlen(name) + 1);
+
+		if (node->name == NULL) {
+			free(node);
+			return 0;
+		}
+
+		strcpy(node->name, name);
+
 	}
 
-	strcpy(node->name, name);
 	node->next = *l;
 
 	*l = node;
@@ -84,6 +95,11 @@ int flist_lookup_dir(flist_t **l, char *path) {
 	char new_path[PATH_MAX] = {};
 	int ret;
 
+
+	if (strcmp(path, "-") == 0)  {
+		/* stdin file */
+		return flist_push(l, path);
+	}
 
 	/* detect file type */
 	if ( stat(path, &fs_buff) != 0 ) {
