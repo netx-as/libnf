@@ -12,6 +12,9 @@ DISTCLEANFILES = bzip2/*.o bzip2/*.lo nfdump/bin/*.o nfdump/bin/*.lo
 
 #main_SOURCES = nfdump
 
+dist-hook:
+	make clean 
+
 .PHONY: rpm
 rpm:
 	make dist; \
@@ -20,4 +23,6 @@ rpm:
 	cp libnf.spec RPMBUILD/SPECS; \
 	mv libnf-@VERSION@.tar.gz RPMBUILD/SOURCES; \
 	rpmbuild -ba RPMBUILD/SPECS/libnf.spec -D "_topdir `pwd`/RPMBUILD"
+
+
 
