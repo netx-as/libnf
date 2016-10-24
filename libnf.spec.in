@@ -44,7 +44,7 @@ Nfdumpp is implementation of parallel nfdump based on libnf.net library.
 
 
 %build
-%configure
+%configure CFLAGS=-fPIC
 make %{?_smp_mflags}
 
 

@@ -66,7 +66,7 @@ fi
 
 # check ffilter heders 
 OLD_CFLAGS=$CFLAGS;
-CFLAGS="$AM_CFLAGS $CFLAGS -Isrc/ffilter -Iffilter"
+CFLAGS="$AM_CFLAGS $CFLAGS -I$(dirname $0)/src/ffilter"
 AC_CHECK_HEADERS([ffilter.h])
 if test "$ac_cv_header_ffilter_h" = no; then
 	AC_MSG_ERROR([!! Required ffilter.h header file not found
