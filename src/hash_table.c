@@ -358,7 +358,7 @@ void hash_table_clean(hash_table_t *t) {
 	}
 
 
-	tmp = t->sfirst;
+	tmp = (hash_table_row_hdr_t *)t->sfirst;
 
 	/* remove linked list of elements */
 	while (tmp != NULL) {
@@ -377,8 +377,6 @@ void hash_table_clean(hash_table_t *t) {
 }
 
 void hash_table_free(hash_table_t *t) {
-
-	unsigned long index;
 
 	hash_table_clean(t);
 
