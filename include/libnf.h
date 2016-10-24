@@ -533,6 +533,21 @@ See comment in lnf_filter_init function for more information.
 int	lnf_filter_init_v2(lnf_filter_t **filterp, char *expr);
 
 /*!	\ingroup filter
+\brief Returns pointer to libnf-ffilter (ff_t) internal structure.
+
+In cases when the internal strcture of ffilter must be accessed
+from the outside of the library (index optimalisation etc.).
+
+The pointer is returned onlu if filter was properly initialised as
+libnv v2 filter {via. lnf_filter_init_v2). For other cases the NULL
+pointer is returned.
+
+\param *filter		double pointer to lnf_filter_t structure 
+\return 			void ponter to ffilter internal structute (ff_t).
+*/
+void *lnf_filter_ffilter_ptr(lnf_filter_t *filter);
+
+/*!	\ingroup filter
 \brief Match record object against filter.
 
 Match the record object. If the record object matched the 

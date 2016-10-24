@@ -158,6 +158,17 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
     return LNF_OK;
 }
 
+/* returns pointer to internal ffilter (ff_t) structure */
+void *lnf_filter_ffilter_ptr(lnf_filter_t *filter) {
+
+	if (filter->v2filter == 1) {
+		return filter->ff_filter;
+	} 
+
+	return NULL;
+
+}
+
 /* matches the record agains filter */
 /* returns 1 - record was matched, 0 - record wasn't matched */
 int lnf_filter_match(lnf_filter_t *filter, lnf_rec_t *rec) {
