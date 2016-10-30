@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 		i++;
 
 		if (lnf_rec_get_raw(recp_in, LNF_REC_RAW_TLV, buf, sizeof(buf), &size) == LNF_OK) {
-			printf("RAW_TLV_RECORD size: %zu bytes\n", size);
+			printf("Raw record size: %zu bytes\n", size);
 
 			/* now, the data in buf cen be transfered somwhere else */
 

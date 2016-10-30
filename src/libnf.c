@@ -969,6 +969,18 @@ int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *re
 
 			data_size = __lnf_fld_size(i);
 
+			switch ( __lnf_fld_type(i) ) {
+				case LNF_UINT16:  
+					*(uint16_t *)data = htons(*(uint16_t *)data);
+					break;
+				case LNF_UINT32:  
+					*(uint32_t *)data = htonl(*(uint32_t *)data);
+					break;
+				case LNF_UINT64:  
+					*(uint64_t *)data = htonll(*(uint64_t *)data);
+					break;
+			}
+
 			current_entry = (lnf_rec_raw_entry_t *)(buf + offset);
 			
 			current_entry->field = i;
@@ -993,6 +1005,7 @@ int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *re
 int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
 
 	int offset;
+	char data[LNF_MAX_FIELD_LEN];
 
 	lnf_rec_raw_t *raw = (lnf_rec_raw_t *)buf;			/* map buffer to lnf_rec_raw_t */
 	lnf_rec_raw_entry_t *current_entry;
@@ -1026,7 +1039,25 @@ int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
 
 		current_entry = (lnf_rec_raw_entry_t *)(buf + offset);
 
-		lnf_rec_fset(rec, current_entry->field, current_entry->data); 
+		if ( current_entry->data_size >= LNF_MAX_FIELD_LEN ) {
+			return LNF_ERR_NOMEM;
+		}
+
+		memcpy(data, current_entry->data, current_entry->data_size);
+
+		switch ( lnf_fld_type(current_entry->field) ) {
+			case LNF_UINT16:  
+				*(uint16_t *)data = ntohs(*(uint16_t *)data);
+				break;
+			case LNF_UINT32:  
+				*(uint32_t *)data = ntohl(*(uint32_t *)data);
+				break;
+			case LNF_UINT64:  
+				*(uint64_t *)data = ntohll(*(uint64_t *)data);
+				break;
+		}
+
+		lnf_rec_fset(rec, current_entry->field, data); 
 
 		offset += sizeof(lnf_rec_raw_entry_t) + current_entry->data_size;
 
