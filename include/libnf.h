@@ -64,6 +64,7 @@ typedef struct lnf_brec1_s {
 
 #define LNF_MAX_STRING		512
 #define LNF_MAX_RAW_LEN 	1024
+#define LNF_MAX_FIELD_LEN 	512		/* maximum length of data */
 
 /* type of fields */
 /* note: if the fields type allows two kind of data type  */
@@ -454,6 +455,49 @@ int lnf_rec_fset(lnf_rec_t *rec, int field, void *data);
 */
 int lnf_rec_fget(lnf_rec_t *rec, int field, void *data);
 
+#define LNF_REC_RAW_TLV 1				/* TLV version identification */
+#define LNF_REC_RAW_TLV_BUFSIZE 1024	/* recomended size of the buffer */
+/*!	\ingroup record
+\brief Fill buffer with binnary representation of record.
+
+Returns binnary representation of the record. The format of data 
+depend on the type of the record. The data cen be converted 
+back to the lnf_rec_t by the lnf_rec_set_raw function. 
+
+Currently on LNF_REC_RAW_TLV records are supported. This formats 
+encodes set fields in TLV (Type-Lenght-Value) format. The format 
+is platform independens so it can be used to transfer data between 
+differend platforms. 
+
+The data are filled to the pre-prepared buffer. If there is not enough 
+space in the buffer the LNF_ERR_NOMEM error code is returned. The recomended 
+size of the buffer is defined in LNF_REC_RAW_TLV_BUFSIZE 
+
+The example of use of lnf_rec_get_raw and lnf_rec_set_raw can be 
+found in examples/lnf_ex12_rec_raw.c.
+
+\param *rec 	pointer to lnf_rec_t structure 
+\param type 	currently only LNF_REC_RAW_TLV is suported
+\param *buf 	pointer to allocated buffer 
+\param size 	size of the buffer 
+\param ret_size the size of returned data in buffer 
+\return 			LNF_OK, LNF_ERR_OTHER, LNF_ERR_NOMEM
+*/
+int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *ret_size);
+
+/*!	\ingroup record
+\brief Fill lnf_rec_t withe data from buffer gotten by lnf_rec_get_raw.
+
+The opposite function to lnf_rec_get_raw. For more information see lnf_rec_get_raw.
+
+\param *rec 	pointer to lnf_rec_t structure 
+\param *buf 	pointer to buffer with raw data
+\param size 	size of the data/buffer
+\return 			LNF_OK, LNF_ERR_OTHER, LNF_ERR_NOMEM
+*/
+int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size);
+
+
 /*!	\ingroup record
 \brief Close file and release resources.
 
@@ -462,6 +506,8 @@ Close previously record object and release all relevant resources.
 \param *rec 	pointer to lnf_rec_t structure 
 */
 void lnf_rec_free(lnf_rec_t *rec);
+
+
 
 /*!	\ingroup filter
 \brief Initialize empty filter object.

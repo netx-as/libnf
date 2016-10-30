@@ -71,10 +71,16 @@ static int inline __lnf_rec_fset(lnf_rec_t *rec, int field, void * p) {
 //    return  lnf_fields_def[field].fset_func(rec->master_record, p, rec->extensions_arr);
 }
 
-/* return field type - smae as lnf_fld_type but no checks */
+/* return field type - saae as lnf_fld_type but no checks */
 static int inline __lnf_fld_type(int field) {
 
     return  lnf_fields_def[field].type;
+}
+
+/* return field size */
+static int inline __lnf_fld_size(int field) {
+
+    return  lnf_fields_def[field].size;
 }
 
 /* return field ID for field set 1 - first field id, 2 - second field id */

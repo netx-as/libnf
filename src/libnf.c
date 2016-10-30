@@ -939,6 +939,102 @@ int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src) {
 	}
 }
 
+/* get data from the record in binnary representation */
+int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *ret_size) {
+
+	int i, offset, data_size;
+	char data[LNF_MAX_FIELD_LEN];
+
+	lnf_rec_raw_t *raw = (lnf_rec_raw_t *)buf;			/* map buffer to lnf_rec_raw_t */
+	lnf_rec_raw_entry_t *current_entry;
+
+
+	if (rec == NULL) {
+		return LNF_ERR_OTHER;
+	}
+
+	if (type != LNF_REC_RAW_TLV) {
+		return LNF_ERR_OTHER;
+	}
+
+	raw->version = LNF_REC_RAW_TLV;
+	raw->size = 0;
+	offset = sizeof(lnf_rec_raw_t);
+	*ret_size = 0;
+
+	/* walk via all items */
+	for (i = LNF_FLD_ZERO_; i < LNF_FLD_TERM_; i++) {
+
+		if ( lnf_rec_fget(rec, i, data) == LNF_OK ) {
+
+			data_size = __lnf_fld_size(i);
+
+			current_entry = (lnf_rec_raw_entry_t *)(buf + offset);
+			
+			current_entry->field = i;
+			current_entry->data_size = data_size;
+
+			memcpy(&buf[offset + sizeof(lnf_rec_raw_entry_t)], data, data_size);
+
+			offset += sizeof(lnf_rec_raw_entry_t) + data_size;
+			raw->size += sizeof(lnf_rec_raw_entry_t) + data_size;
+
+			if (offset > size) {
+				return LNF_ERR_NOMEM;
+			}
+		}
+	}
+
+	*ret_size = offset;
+	return LNF_OK;
+}
+
+/* get data from the record in binnary representation */
+int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
+
+	int offset;
+
+	lnf_rec_raw_t *raw = (lnf_rec_raw_t *)buf;			/* map buffer to lnf_rec_raw_t */
+	lnf_rec_raw_entry_t *current_entry;
+
+
+	if (rec == NULL) {
+		return LNF_ERR_OTHER;
+	}
+
+	/* check size in buffer */
+	if (size < sizeof(lnf_rec_raw_t)) {
+		return LNF_ERR_OTHER;
+	}
+
+	/* check version */
+	if (raw->version != LNF_REC_RAW_TLV) {
+		return LNF_ERR_OTHER;
+	}
+
+	/* check if we have all data in buffer */
+	if (raw->size + sizeof(lnf_rec_raw_t) < size) {
+		return LNF_ERR_OTHER;
+	}
+
+	lnf_rec_clear(rec);
+
+	offset = sizeof(lnf_rec_raw_t);
+
+	/* walk via all entiries in buffer */	
+	while(offset < raw->size) {
+
+		current_entry = (lnf_rec_raw_entry_t *)(buf + offset);
+
+		lnf_rec_fset(rec, current_entry->field, current_entry->data); 
+
+		offset += sizeof(lnf_rec_raw_entry_t) + current_entry->data_size;
+
+	}
+
+	return LNF_OK;
+}
+
 /* free record */
 void lnf_rec_free(lnf_rec_t *rec) {
 

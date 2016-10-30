@@ -83,7 +83,7 @@ typedef struct lnf_filter_s {
 
 
 /* structure representing single record */
-/* it contains two fields. Nfdump'ps master record */
+/* it contains two fields. Nfdump's master record */
 /* and bit array representing set of fields that are activated in the master ricord */
 /* master record or bit array SHOULD NEVER be used in the direct form */
 /* the structure of the field might change across versions and there is */
@@ -95,6 +95,24 @@ typedef struct lnf_rec_s {
 										/* data field is represented by pointer */
 										/* field_data[field] */
 } lnf_rec_t;
+
+
+/* representation of the one element for raw/binnary represenataion of the record */
+typedef struct lnf_rec_raw_entry_s {
+	uint16_t field;			/* field ID */
+	uint16_t data_size;		/* size of data section */
+	char 	 data[0];		/* data with variable length */
+} lnf_rec_raw_entry_t;
+
+
+
+/* Raw/binnary TLV representation of the record. Platform independend format */
+/* for transfering records across non compatible platforms */
+typedef struct lnf_rec_raw_s {
+	uint8_t version;			/* version of the raw record for future extension */
+	uint16_t size;				/* size of data section */
+	lnf_rec_raw_entry_t entires[0];	/* data enties */
+} lnf_rec_raw_t;
 
 
 /* structure representing single nfdump file */
