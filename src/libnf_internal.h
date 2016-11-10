@@ -60,6 +60,7 @@
 #define HAVE_HTONLL 1
 #endif
 
+
 /* list of maps used in file taht we create */
 typedef struct lnf_map_list_s {
 	bit_array_t				 bit_array;
