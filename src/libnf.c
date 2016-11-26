@@ -954,7 +954,8 @@ int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *re
 	}
 
 	if (type != LNF_REC_RAW_TLV) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: unsupported version in TLV (0x%x)", __func__, type);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	raw->version = LNF_REC_RAW_TLV;
@@ -1017,17 +1018,20 @@ int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
 
 	/* check size in buffer */
 	if (size < sizeof(lnf_rec_raw_t)) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: invalid buffer size");
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	/* check version */
 	if (raw->version != LNF_REC_RAW_TLV) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: unsupported version in TLV (0x%x)", __func__, raw->version);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	/* check if we have all data in buffer */
-	if (raw->size + sizeof(lnf_rec_raw_t) < size) {
-		return LNF_ERR_OTHER;
+	if (raw->size + sizeof(lnf_rec_raw_t) > size) {
+		lnf_seterror("%s: the size of data (%dB) is slaller than buffer size (%dB)", __func__, raw->size + sizeof(lnf_rec_raw_t), size);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	lnf_rec_clear(rec);

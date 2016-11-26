@@ -246,5 +246,62 @@ typedef struct lnf_fastaggr_s {
 ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *lvalue);
 ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *data, size_t *size);
 
+
+/****************************************************************/
+/* Ring buffer section                                          */
+/****************************************************************/
+
+#define LNF_MAX_RAW_LEN	1024	/* duplicated in libnf.h */
+#define LNF_MAX_STRING 512
+#define LNF_RINGBUF_SIZE 1024	/* number of items in ring buffer */
+#define LNF_RING_BLOCK_USLEEP 1000	/* nuimber of usesc to wait for next record when read is blocked */
+
+/* status of entry in ring buffer */
+typedef enum { 
+	LNF_RING_ENT_EMPTY = 0x0,	/* entry is empty */
+	LNF_RING_ENT_WRITE = 0x1,	/* data is being written to entry */
+	LNF_RING_ENT_READ = 0x2,	/* data is ready to read  */
+} lnf_ring_entry_status_t;
+
+
+/* representation of one entry in ring buffer */
+typedef struct lnf_ring_entry_s {
+
+	lnf_ring_entry_status_t status; 
+	int num_readers; 
+	long sequence; 
+	char* data[LNF_MAX_RAW_LEN + 1];
+	
+} lnf_ring_entry_t;
+
+
+/* structures in sharred memmory */
+typedef struct lnf_ring_shm_s {
+
+	pthread_mutex_t lock;			/* shm mutex */
+	long last_write_sequence;		/* last sequence number of written record */
+	int size;						/* number of record in ring buffer */
+	int conn_count;					/* number of connected instances */
+	int write_pos;					/* reference to first written record */
+	lnf_ring_entry_t entries[];		/* entires of ring buffer */
+
+} lnf_ring_shm_t;
+
+
+typedef struct lnf_ring_s {
+
+	long last_read_sequence; 		/* sequence of last read record */
+	int read_pos;			 		/* position of last read entry */
+	int fd;							/* file descriptor to shared file */
+	int blocking;					/* read is in blocking/ non blocking mode */
+	int force_release;				/* unlink shared mmerory - no matter how many process reads it */
+	char shm_name[LNF_MAX_STRING];	/* pointer to shared memmory area */
+	lnf_ring_shm_t *shm;			/* pointer to shared memmory area */
+	 		
+} lnf_ring_t;
+
+int lnf_ring_next(lnf_ring_t *ring, int index);
+
 #endif /* _LIBNF_INTERNAL_H */
+
 

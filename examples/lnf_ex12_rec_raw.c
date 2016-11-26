@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
 	lnf_rec_t *recp_in;
 	lnf_rec_t *recp_out;
 	char buf[LNF_REC_RAW_TLV_BUFSIZE];
+	char errbuf[LNF_MAX_STRING];
 	size_t size;
 
     char *filename_in = FILENAME_IN;
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
 	int i = 0;
 	int j = 0;
 	int c;
+	int ret;
 	
 
 	while ((c = getopt (argc, argv, "fF:?")) != -1) {
@@ -85,9 +87,16 @@ int main(int argc, char **argv) {
 
 			/* now, the data in buf cen be transfered somwhere else */
 
-			if ( lnf_rec_set_raw(recp_out, buf, size) == LNF_OK) {
+			if ( (ret = lnf_rec_set_raw(recp_out, buf, size)) == LNF_OK) {
 				if ( lnf_write(filep_out, recp_out) == LNF_OK) {
 					j++;
+				}
+			} else {
+				  if (ret == LNF_ERR_OTHER_MSG) {
+					lnf_error((char *)&errbuf, LNF_MAX_STRING);
+					printf("ERROR: %s\n", errbuf);
+				} else {
+					printf("ERROR: other\n");
 				}
 			}
 		}

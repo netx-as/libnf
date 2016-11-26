@@ -213,6 +213,7 @@ typedef void lnf_rec_t;
 typedef void lnf_filter_t;
 typedef void lnf_mem_t;
 typedef void lnf_mem_cursor_t;
+typedef void lnf_ring_t;
 #endif
 
  
@@ -295,6 +296,7 @@ typedef void lnf_mem_cursor_t;
 
 Fills error buf with message of the last error. The error 
 buffer is only set when a function returns LNF_ERR_OTHER_MSG. 
+The recomended size of buffer is defined as LNF_MAX_STRING 
 
 \param buf	 	buffer where the message will be copied 
 \param buflen	available space in the buffer 
@@ -903,6 +905,75 @@ void lnf_mem_clean(lnf_mem_t *lnf_mem);
 \param *lnf_mem 	pointer to lnf_mem_t structure 
 */
 void lnf_mem_free(lnf_mem_t *lnf_mem);
+
+/*!	\ingroup ringbuf
+\brief Initialize empty ring buffer object 
+
+Ring bugger object is designed for exchanging libnf records between differend 
+processes. There is function that adds (writes) record to the ring buffer and 
+read runction thet retreives record from ring buffer. The data between 
+processes are handled via shared memmory that is allocated initialised when the 
+first instance is initialised and removed when the last instance freed. This behaviour 
+can be modified via LNF_RING_FORCE_INIT and LNF_RING_FORCE_RELEASE during the 
+initialisation.  
+
+NOTE: If process is ended without calling lnf_ring_free then the shared memmory 
+remains allocated forever or until some process is called with one of 
+LNF_RING_FORCE_* option. It is recomended to use LNF_RING_FORCE_* ate leas in one 
+process (typically the main writer process). 
+
+The ringbuf supports sharing between multiple writers and readers taht can be 
+in separate process or separate threads. 
+
+\param **ringp 		double pointer to lnf_ring_t structure 
+\param *filename 	pointer to string representing filename of the shared memory segment (eg. libnf-shm)
+\param flags 		additional flags 
+	LNF_RING_FORCE_INIT	- reinitialise shared buffer during initialisation 
+	LNF_RING_FORCE_RELEASE - remove shared buffer during lnf_ring_free
+	LNF_RING_NO_BLOCK - perform non blocking reading 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER, LNF_ERR_OTHER_MSG
+*/
+#define LNF_RING_FORCE_INIT 0x01
+#define LNF_RING_FORCE_RELEASE 0x02
+#define LNF_RING_NO_BLOCK 0x04
+int lnf_ring_init(lnf_ring_t **ringp, char *filename, int flags);
+
+/*!	\ingroup ringbuf
+\brief Read record from ring buffer
+
+The function reds record from ring buffer and moves internal cursor to next 
+position. The function has following behaviour: 
+- Multiple readers can retreive data from one shared ring buffer. In that case 
+all readers will retreive all data.
+- If there is no more records in ring buffer to read the function returns 
+LNF_EOF. Is up to your code to wait for propper data in ring buffer. 
+- If the reader don't read data too fast the data are lost. The amount of lost 
+records during the ring buffer initialisation can be retreived by 
+lnf_ring_info(... LNF_RING_LOST) function.
+
+\param *ringp 		pointer to lnf_ring_t structure 
+\param *recp 		pointer to lnf_rec_t structure 
+\return 			LNF_OK, LNF_EOF, LNF_ERR_OTHER,
+*/
+int lnf_ring_read(lnf_ring_t *ring, lnf_rec_t *rec);
+
+/*!	\ingroup ringbuf
+\brief Write (add) record to ring buffer
+
+Teh function writes / adds record into ring buffer. 
+
+\param *ringp 		pointer to lnf_ring_t structure 
+\param *recp 		pointer to lnf_rec_t structure 
+\return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER,
+*/
+int lnf_ring_write(lnf_ring_t *ring, lnf_rec_t *rec);
+
+/*!	\ingroup ringbuf
+\brief Close ring buffer and release resources.
+
+\param *lnf_ring 	pointer to lnf_ringt structure 
+*/
+void lnf_ring_free(lnf_ring_t *ring);
 
 
 /* fields management */
