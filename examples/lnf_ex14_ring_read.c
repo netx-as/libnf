@@ -43,12 +43,15 @@ int main(int argc, char **argv) {
     char *filename_in = FILENAME_IN;
     char *shm = SHM;
 	int i = 0;
+	int j = 0;
 	int c;
 	int ret;
 	int print = 1;
+	int statistics = 0;
+	int ts1,ts2;
 	
 
-	while ((c = getopt (argc, argv, "f:S:?")) != -1) {
+	while ((c = getopt (argc, argv, "Psf:S:?")) != -1) {
 		switch (c) {
 			case 'f':
 				filename_in = optarg;
@@ -59,15 +62,19 @@ int main(int argc, char **argv) {
 			case 'P':
 				print = 0;
 				break;
+			case 's':
+				statistics = 1;
+				break;
 			case '?':
-				printf("Usage: %s [ -P ] [ -f <output file name> ] [ -S <shared memory file> ]\n", argv[0]);
+				printf("Usage: %s [ -P ] [ -s ] [ -f <output file name> ] [ -S <shared memory name> ]\n", argv[0]);
 				printf("   -P do not print information about received records\n");
+				printf("   -s do statistics only\n");
 				exit(1);
 		}
 	}
 
 	
-	if (lnf_open(&filep, filename_in, LNF_WRITE, NULL) != LNF_OK) {
+	if (!statistics && lnf_open(&filep, filename_in, LNF_WRITE, NULL) != LNF_OK) {
 		fprintf(stderr, "Can not open file %s\n", filename_in);
 		exit(1);
 	}
@@ -81,16 +88,28 @@ int main(int argc, char **argv) {
 	}
 
 	printf("waiting for data...\n");
+	ts1 = time(NULL);
 	for (;;) {
 
 		if ((ret = lnf_ring_read(ringp, recp)) == LNF_OK) {
 			i++;
+			j++;
 			if (print) {
 				printf("Received record #%d\n", i);
 			}
-			if (lnf_write(filep, recp) != LNF_OK) {
-				printf("Can't write record to file\n");
-			} 
+			if (!statistics) {
+				if (lnf_write(filep, recp) != LNF_OK) {
+					printf("Can't write record to file\n");
+				}
+			} else {
+				ts2 = time(NULL);
+				if (ts2 > ts1) {
+					printf("Received %d recs in %d secs \n", j, ts2 - ts1);
+					j = 0;
+				}
+
+				ts1 = ts2;
+			}
 		} else {
 			if (ret == LNF_ERR_OTHER_MSG) {
 				lnf_error((char *)&errbuf, LNF_MAX_STRING);

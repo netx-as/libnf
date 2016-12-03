@@ -251,10 +251,11 @@ ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *da
 /* Ring buffer section                                          */
 /****************************************************************/
 
-#define LNF_MAX_RAW_LEN	1024	/* duplicated in libnf.h */
+#define LNF_MAX_RAW_LEN	1024			/* duplicated in libnf.h */
 #define LNF_MAX_STRING 512
-#define LNF_RINGBUF_SIZE 1024	/* number of items in ring buffer */
-#define LNF_RING_BLOCK_USLEEP 1000	/* nuimber of usesc to wait for next record when read is blocked */
+#define LNF_RINGBUF_SIZE 4096			/* number of items in ring buffer */
+#define LNF_RING_BLOCK_USLEEP 1			/* number of usesc to wait for next record when read is blocked */
+#define LNF_RING_STUCK_LIMIT  1000*1000	/* wait for N cycles of LNF_RING_BLOCK_USLEEP to detect dead reader (1s) */
 
 /* status of entry in ring buffer */
 typedef enum { 
@@ -295,12 +296,16 @@ typedef struct lnf_ring_s {
 	int fd;							/* file descriptor to shared file */
 	int blocking;					/* read is in blocking/ non blocking mode */
 	int force_release;				/* unlink shared mmerory - no matter how many process reads it */
+	int stuck_counter;				/* counter of stuck states */
+	int lost_counter;				/* counter of lost records */
+	int total_counter;				/* counter of total records */
 	char shm_name[LNF_MAX_STRING];	/* pointer to shared memmory area */
 	lnf_ring_shm_t *shm;			/* pointer to shared memmory area */
 	 		
 } lnf_ring_t;
 
 int lnf_ring_next(lnf_ring_t *ring, int index);
+int lnf_ring_lock(lnf_ring_t *ring);
 
 #endif /* _LIBNF_INTERNAL_H */
 
