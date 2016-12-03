@@ -1,13 +1,17 @@
 Revision history for C and Perl extension of nfdump.
 
-1.25 2016-07-xx
+1.25 2016-12-03
 	- libnf and modules moved to separate repositories (libnf, libnf-ffilter, libnf-perl)
+	  command git submodule update --remote --merge must be used to update to latest 
+	  submodule reference
 	-c: some leaks in memheap removed
+	-c: versioning of libnf.so added (issue #5, thanks to Tomas Cejka)
 	-c: added new API function lnf_mem_clean(lnf_mem_t *lnf_mem)
 	-c: added exmaple lnf_ex11_memclean.c
 	-c: new finction lnf_rec_get_raw/lnf_rec_set_raw
 	-c: new example examples/lnf_ex12_rec_raw.c 
 	-c: new function lnf_filter_ffilter_ptr
+	-c: fix of RPM build (issue #5, thanks to Tomas Cejka)
 	-perl: added new test 53-libnf-filter.t
 	-nfdumpp: handles properly error messages for libnf filter
 	-nfdumpp: ability ro read binnary format from stdin (nfdumpp -r -)
