@@ -296,9 +296,9 @@ typedef struct lnf_ring_s {
 	int fd;							/* file descriptor to shared file */
 	int blocking;					/* read is in blocking/ non blocking mode */
 	int force_release;				/* unlink shared mmerory - no matter how many process reads it */
-	int stuck_counter;				/* counter of stuck states */
-	int lost_counter;				/* counter of lost records */
-	int total_counter;				/* counter of total records */
+	uint64_t stuck_counter;				/* counter of stuck states */
+	uint64_t lost_counter;				/* counter of lost records */
+	uint64_t total_counter;				/* counter of total records */
 	char shm_name[LNF_MAX_STRING];	/* pointer to shared memmory area */
 	lnf_ring_shm_t *shm;			/* pointer to shared memmory area */
 	 		

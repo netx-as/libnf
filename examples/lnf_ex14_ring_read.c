@@ -26,6 +26,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
 
 #define FILENAME_IN "./ringbuf-out.tmp"
 #define SHM "libnf-shm"
@@ -49,6 +50,8 @@ int main(int argc, char **argv) {
 	int print = 1;
 	int statistics = 0;
 	int ts1,ts2;
+	uint64_t lost1 = 0;
+	uint64_t lost2 = 0;
 	
 
 	while ((c = getopt (argc, argv, "Psf:S:?")) != -1) {
@@ -104,8 +107,10 @@ int main(int argc, char **argv) {
 			} else {
 				ts2 = time(NULL);
 				if (ts2 > ts1) {
-					printf("Received %d recs in %d secs \n", j, ts2 - ts1);
+					lnf_ring_info(ringp, LNF_RING_LOST, &lost1, sizeof(lost1));	
+					printf("Received %d recs in %d secs (lost: %llu recs)\n", j, ts2 - ts1, lost1 - lost2);
 					j = 0;
+					lost2 = lost1;
 				}
 
 				ts1 = ts2;

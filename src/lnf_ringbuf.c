@@ -241,6 +241,51 @@ WAIT_READERS:
 	return LNF_OK;
 }
 
+/* get ring info */
+int lnf_ring_info(lnf_ring_t *ring, int info, void *data, size_t size) {
+
+	size_t reqsize;
+	char buf[LNF_INFO_BUFSIZE];
+
+	/* for NULL lnf_mem */
+	switch (info) {
+		case LNF_RING_TOTAL:
+			*((uint64_t *)buf) = ring->total_counter;
+            reqsize = sizeof(uint64_t);
+			break;
+		case LNF_RING_LOST:
+			*((uint64_t *)buf) = ring->lost_counter;
+            reqsize = sizeof(uint64_t);
+			break;
+		case LNF_RING_STUCK:
+			*((uint64_t *)buf) = ring->stuck_counter;
+            reqsize = sizeof(uint64_t);
+			break;
+	}
+
+	/* the requested item was one of the above */
+	if ( reqsize != 0 ) {
+		if ( reqsize <= size ) {
+			memcpy(data, buf, reqsize);
+			return LNF_OK;
+		} else {
+			return LNF_ERR_NOMEM;
+		}
+	}
+
+
+	if ( reqsize != 0 ) {
+		if ( reqsize <= size ) {
+			memcpy(data, buf, reqsize);
+			return LNF_OK;
+		} else {
+			return LNF_ERR_NOMEM;
+		}
+	} else {
+		return LNF_ERR_OTHER;
+	}
+}
+
 
 /* release all resources allocated by ring buffer */
 void lnf_ring_free(lnf_ring_t *ring) {

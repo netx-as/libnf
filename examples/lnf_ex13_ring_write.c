@@ -26,6 +26,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
 
 #define FILENAME_IN "./test-file.tmp"
 #define SHM "libnf-shm"
@@ -45,9 +46,11 @@ int main(int argc, char **argv) {
 	int j = 0;
 	int flags = 0;
 	int c;
+	struct timespec ts;
+	int recs_per_sec = 100000;
 	
 
-	while ((c = getopt (argc, argv, "f:S:?F")) != -1) {
+	while ((c = getopt (argc, argv, "f:S:?Fp:")) != -1) {
 		switch (c) {
 			case 'f':
 				filename_in = optarg;
@@ -58,13 +61,22 @@ int main(int argc, char **argv) {
 			case 'F':
 				flags = LNF_RING_FORCE_RELEASE|LNF_RING_FORCE_INIT;
 				break;
+			case 'p':
+				recs_per_sec = atoi(optarg);
+				break;
 			case '?':
-				printf("Usage: %s [ -f <input file name> ] [ -S <shared memory file> ]\n", argv[0]);
+				printf("Usage: %s [ -f <input file name> ] [ -S <shared memory file> ] [ -p <rec per second> ]\n", argv[0]);
 				printf(" -F : use LNF_RING_FORCE_RELEASE|LNF_RING_FORCE_INIT \n");
+				printf(" -p : rec per second (default: 100000) \n");
 				exit(1);
 		}
 	}
 
+
+	/* compute delays between sends */
+	if (recs_per_sec > 0) {
+		ts.tv_nsec = 1000000 / recs_per_sec;
+	}
 	
 	if (lnf_open(&filep, filename_in, LNF_READ, NULL) != LNF_OK) {
 		fprintf(stderr, "Can not open file %s\n", filename_in);
@@ -86,6 +98,10 @@ int main(int argc, char **argv) {
 			printf("Can't write record to ring buffer\n");
 		} else {
 			j++;
+		}
+
+		if (recs_per_sec > 0) {
+			nanosleep(&ts, NULL);
 		}
 
 	}

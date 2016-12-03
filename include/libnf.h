@@ -939,6 +939,25 @@ in separate process or separate threads.
 int lnf_ring_init(lnf_ring_t **ringp, char *filename, int flags);
 
 /*!	\ingroup ringbuf
+\brief Get various information about ring buffer internal status
+
+The function returns internal information about ring buffer. 
+
+\param *ringp 		pointer to lnf_ring_t structure 
+\param info 		additional flags 
+	LNF_RING_TOTAL	- total records properly received since initialisation (uint64_t)
+	LNF_RING_LOST   - number of records that couldn't be read due to ringif overflow (uint64_t)
+	LNF_RING_STUCK  - couner of lock stuck states (uint64_t)
+\param *data 		pointer initialized and zeroed data structure
+\param size			maximum size allocated for *data structure
+\return 			LNF_OK, LNF_ERR_OTHER
+*/
+#define LNF_RING_TOTAL 0x01
+#define LNF_RING_LOST  0x02
+#define LNF_RING_STUCK 0x03
+int lnf_ring_info(lnf_ring_t *ring, int info, void *data, size_t size);
+
+/*!	\ingroup ringbuf
 \brief Read record from ring buffer
 
 The function reds record from ring buffer and moves internal cursor to next 
