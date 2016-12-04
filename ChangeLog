@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.25 2016-12-03
+1.25 2016-12-04
 	- libnf and modules moved to separate repositories (libnf, libnf-ffilter, libnf-perl)
 	  command git submodule update --remote --merge must be used to update to latest 
 	  submodule reference
