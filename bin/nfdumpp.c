@@ -45,7 +45,7 @@ int filter_type =  NFDUMPP_FILTER_DEFAULT;			/* filter to use */
 struct option longopts[] = {
 	{ "num-threads",		required_argument,	NULL,	1 },
 	{ "filter-type",		required_argument,	NULL,	2 },
-	{ "loop-read",			required_argument,	NULL,	3 },
+	{ "loop-read",			no_argument,		NULL,	3 },
 	{ 0, 0, 0, 0 }
 };
 
