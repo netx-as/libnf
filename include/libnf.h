@@ -228,6 +228,7 @@ typedef void lnf_ring_t;
 #define LNF_COMP_LZO		0x04
 #define LNF_COMP_BZ2		0x20
 #define LNF_WEAKERR			0x08
+#define LNF_READ_LOOP		0x40
 
 #define LNF_ERR_UNKBLOCK	-0x0001	/* weak error: unknown block type */
 #define LNF_ERR_UNKREC		-0x0002	/* weak error: unknown record type */
@@ -322,11 +323,20 @@ void lnf_error(const char *buf, int buflen);
 After file is open the lnf_read/lnf_write operations can read/write records 
 structure (see record operations).
 
+The special mode LNF_READ_LOOP is available since libnf > 1.26. When this 
+mode is used the file is read in the endless loop. Is is usefull for 
+real time reading of files that are being written - for exaple open nfcapd.nnnn
+files produced by nfcapd. This mode also detects whether the original file was 
+replaced by a new one and if so it reopens file handle on the new 
+file. The LNF_READ_LOOP ends (means lnf_read return LNF_EOF) when the 
+file in the file system is permanently deleted. 
+
 \param **lnf_filep 	double pointer to lnf_filep_t structure 
 \param *filename 	path and file name to open 
 \param flags 		flags, described above \n
 	LNF_READ - open file for reading  \n
-	LNF_APPEND - open file for reading in append mode \n
+	LNF_READ_LOOP - open for reading in endless loop (see note above)\n
+	LNF_APPEND - open file for reading in append mode (!not implemented yet)\n
 	LNF_WRITE - open file for for writing  \n
 	LNF_ANON - set anon flag on the file (only for write mode) \n
 	LNF_COMP - set the output file to be compressed (using LZO)\n

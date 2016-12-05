@@ -133,10 +133,13 @@ typedef struct lnf_file_s {
 	uint64_t                processed_blocks;
 	uint64_t                skipped_blocks;
 	uint64_t                processed_bytes;
+	char					*filename;				/* name of open file (for LOOP mode) */
+	ino_t					inode;					/* inode of open file (for LOOP mode) */
 } lnf_file_t;
 
 
 extension_map_t * lnf_lookup_map(lnf_file_t *lnf_file, bit_array_t *ext );
+int lnf_read_record(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 
 /* nfdump uses LogError - we map it to lnf_seterror */
 void lnf_seterror(char *format, ...);

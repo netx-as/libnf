@@ -33,6 +33,7 @@ progress_t *progressp;
 lnf_filter_t *filterp;
 output_t output[MAX_OUTPUTS];
 int numoutputs;
+int loopread = 0;
 char filter[1024];
 
 #define NFDUMPP_FILTER_DEFAULT 0
@@ -42,8 +43,9 @@ int filter_type =  NFDUMPP_FILTER_DEFAULT;			/* filter to use */
 
 
 struct option longopts[] = {
-	{ "num-threads",		required_argument,	NULL,	1},
+	{ "num-threads",		required_argument,	NULL,	1 },
 	{ "filter-type",		required_argument,	NULL,	2 },
+	{ "loop-read",			required_argument,	NULL,	3 },
 	{ 0, 0, 0, 0 }
 };
 
@@ -68,7 +70,7 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 			return 0;
 		}
 	} else {
-		if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
+		if (lnf_open(&filep, filename, LNF_READ | loopread ? LNF_READ_LOOP : 0, NULL) != LNF_OK) {
 			fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
 			return 0;
 		}
@@ -206,6 +208,9 @@ int main(int argc, char **argv) {
 					exit(1);
 				}
 				break;
+			case 3:  /* loop read */
+				loopread = 1;
+				break;
 			case 'r':
 			case 'R':
 				flist_lookup_dir(&flist, optarg);
@@ -263,6 +268,7 @@ int main(int argc, char **argv) {
 				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
 							NUM_THREADS_FACTOR * 100, numthreads);
 				printf(" --filter-type = nfdump|libnf : use original nfdump filter or new libnf implementation \n");
+				printf(" --loop-read : read input files in endless loop \n");
 				printf("\n");
 				exit(1);
 		}
