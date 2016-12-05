@@ -303,6 +303,22 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 								flags & LNF_ANON, (char *)ident);
 
 	} else {
+		/* set file name in LOOP mode */
+		if (flags & LNF_READ_LOOP) {
+			if (filename == NULL) {
+				free(lnf_file);
+				return LNF_ERR_OTHER;;
+			}
+
+			lnf_file->filename = malloc(strlen(filename) + 1);
+			if (lnf_file->filename == NULL) {
+				free(lnf_file);
+				return LNF_ERR_OTHER;;
+			}
+
+			strcpy(lnf_file->filename, filename);
+		
+		}
 
 		lnf_file->nffile = OpenFile((char *)filename, NULL);
 
@@ -336,6 +352,7 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 #ifdef LNF_THREADS
     pthread_mutex_unlock(&lnf_nfdump_filter_mutex);
 #endif
+
 
 	*lnf_filep = lnf_file;
 
@@ -571,7 +588,7 @@ void lnf_close(lnf_file_t *lnf_file) {
 
 /* return next record in file */
 /* status of read and fill pre-prepared structure lnf_rec */
-int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
+int lnf_read_record(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 //master_record_t	*master_record;
 int ret;
@@ -727,6 +744,54 @@ begin:
 
 } /* end of _readfnction */
 
+/* return next record in file */
+int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
+
+	int ret;
+	
+	if (lnf_file->flags & LNF_READ_LOOP) {
+NEW_READ:
+		ret = lnf_read_record(lnf_file, lnf_rec);
+
+		/* we are at the end of the file, we will wait for new records or inode change */
+		if (ret == LNF_EOF) {
+			struct stat stat_buf;
+			/* wait for while */
+			sleep(1);
+
+			/* check inode change -> indicastes new file */
+			if (stat(lnf_file->filename, &stat_buf) != 0) {
+				return LNF_EOF;
+			}
+
+			/* inode change - close odl file and open a new one */
+			if (lnf_file->inode != 0 && lnf_file->inode != stat_buf.st_ino) {
+
+				if (lnf_file->nffile != NULL) {
+					CloseFile(lnf_file->nffile);
+				}
+
+				lnf_file->nffile = OpenFile((char *)lnf_file->filename, NULL);
+
+				if (lnf_file->nffile == NULL) {
+					return LNF_ERR_OTHER;
+				}
+			}
+
+			lnf_file->inode = stat_buf.st_ino;
+
+			/* sleep for while and try to read again */
+			goto NEW_READ;
+
+		} else {
+			return ret;
+		}
+
+	} else {
+		/* normal read -> map function to lnf_read_file */
+		return lnf_read_record(lnf_file, lnf_rec);
+	}
+}
 
 extension_map_t * lnf_lookup_map(lnf_file_t *lnf_file, bit_array_t *ext ) {
 extension_map_t *map; 
@@ -954,7 +1019,8 @@ int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *re
 	}
 
 	if (type != LNF_REC_RAW_TLV) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: unsupported version in TLV (0x%x)", __func__, type);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	raw->version = LNF_REC_RAW_TLV;
@@ -1017,17 +1083,20 @@ int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
 
 	/* check size in buffer */
 	if (size < sizeof(lnf_rec_raw_t)) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: invalid buffer size");
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	/* check version */
 	if (raw->version != LNF_REC_RAW_TLV) {
-		return LNF_ERR_OTHER;
+		lnf_seterror("%s: unsupported version in TLV (0x%x)", __func__, raw->version);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	/* check if we have all data in buffer */
-	if (raw->size + sizeof(lnf_rec_raw_t) < size) {
-		return LNF_ERR_OTHER;
+	if (raw->size + sizeof(lnf_rec_raw_t) > size) {
+		lnf_seterror("%s: the size of data (%dB) is slaller than buffer size (%dB)", __func__, raw->size + sizeof(lnf_rec_raw_t), size);
+		return LNF_ERR_OTHER_MSG;
 	}
 
 	lnf_rec_clear(rec);

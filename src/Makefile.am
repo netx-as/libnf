@@ -41,6 +41,10 @@ BUILT_SOURCES += ffilter/ffilter_gram.h
 libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c
 include_HEADERS = ffilter/ffilter.h
 
+# rinbuffer code
+EXTRA_DIST += lnf_ringbuf.h
+libnf_la_SOURCES += lnf_ringbuf.c
+
 # if the bz2 is staticaly linked to libnf 
 if LNF_BZ2STATIC
 libnf_la_SOURCES += ../bzip2/bzlib.c ../bzip2/bzip2.c ../bzip2/blocksort.c ../bzip2/huffman.c \
