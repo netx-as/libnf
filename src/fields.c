@@ -1241,7 +1241,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_OR,	LNF_SORT_ASC,	
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
-		"tcpflags",		"TCP flags",
+		"flags",		"TCP flags",
 		"tcpControlBits", 0, 6,
 		NULL, 0, 0, 
 		lnf_field_fget_TCP_FLAGS,
@@ -1963,7 +1963,6 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL, 
 		NULL}
 };
-
 
 /* return info information for fiels 
 */

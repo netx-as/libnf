@@ -39,9 +39,11 @@
 #include "flist.h"
 #include "util.h"
 
+
 #include "lnf_filter.h"
 #include "libnf_internal.h"
-#include "libnf.h" 
+#include "libnf.h"
+#include "fields.h"
 #include "ffilter.h" 
 //#include "lnf_filter_gram.h"
 
@@ -53,10 +55,19 @@ ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *l
 	/* fieldstr is set - trie to find field id and relevant _fget function */
 	if ( fieldstr != NULL ) {
 
-		lvalue->id[0].index = lnf_fld_parse(fieldstr, NULL, NULL);
+		int x = lvalue->id[0].index = lnf_fld_parse(fieldstr, NULL, NULL);
 
 		if (lvalue->id[0].index == LNF_FLD_ZERO_) {
 			return FF_ERR_UNKN;
+		}
+
+		if (x == LNF_FLD_TCP_FLAGS) {
+			lvalue->options = FF_OPTS_FLAGS;
+		}
+
+		if (lnf_fields_def[x].pair_field[0] != LNF_FLD_ZERO_) {
+			lvalue->id[0].index = lnf_fields_def[x].pair_field[0];
+			lvalue->id[1].index = lnf_fields_def[x].pair_field[1];
 		}
 
 		switch (lnf_fld_type(lvalue->id[0].index)) {
