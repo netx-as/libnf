@@ -257,8 +257,8 @@ ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *da
 #define LNF_MAX_RAW_LEN	1024			/* duplicated in libnf.h */
 #define LNF_MAX_STRING 512
 #define LNF_RINGBUF_SIZE 4096			/* number of items in ring buffer */
-#define LNF_RING_BLOCK_USLEEP 1			/* number of usesc to wait for next record when read is blocked */
-#define LNF_RING_STUCK_LIMIT  1000*1000	/* wait for N cycles of LNF_RING_BLOCK_USLEEP to detect dead reader (1s) */
+#define LNF_RING_BLOCK_USLEEP 10		/* number of usesc to wait for next record when read is blocked */
+#define LNF_RING_STUCK_LIMIT  10000		/* wait for N cycles of LNF_RING_BLOCK_USLEEP to detect dead reader (100ms) */
 
 /* status of entry in ring buffer */
 typedef enum { 

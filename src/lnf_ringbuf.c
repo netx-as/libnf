@@ -40,7 +40,10 @@ int lnf_ring_lock(lnf_ring_t *ring) {
 			ring->stuck_counter++;
 			return retcode;
 		}
-
+	
+		if (counter > 10 && counter % 100) {	
+			printf("XXX STUCK %d\n", counter);
+		}
 		usleep(LNF_RING_BLOCK_USLEEP);
 
 	}
@@ -189,7 +192,6 @@ int lnf_ring_write(lnf_ring_t *ring, lnf_rec_t *rec) {
 	size_t size;
 	int ret;
 	int stuck_counter = 0;
-
 
 WAIT_READERS:
 	lnf_ring_lock(ring);

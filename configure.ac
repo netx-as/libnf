@@ -17,6 +17,8 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_STDC
 
+LIBS="$LIBS -lrt"
+
 dnl get the flags
 CFLAGS="${CFLAGS=}"
 if test $ac_cv_prog_gcc = yes -a "x$CFLAGS" = "x-g -O2"; then
@@ -120,6 +122,12 @@ AC_CHECK_FUNCS(setsockopt,,[AC_CHECK_LIB(socket,setsockopt)])
 
 dnl checks for fpurge or __fpurge
 AC_CHECK_FUNCS(fpurge __fpurge)
+
+#shmem 
+AC_CHECK_FUNCS(shm_unlink)
+AC_CHECK_FUNCS(shm_open)
+AC_CHECK_FUNCS(mmap)
+
 
 AC_MSG_CHECKING([if htonll is defined])
 
