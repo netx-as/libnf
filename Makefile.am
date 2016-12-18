@@ -14,6 +14,7 @@ DISTCLEANFILES = bzip2/*.o bzip2/*.lo nfdump/bin/*.o nfdump/bin/*.lo
 
 dist-hook:
 	make clean 
+	(cd $(distdir) && rm -rf $(DISTCLEANFILES))
 
 .PHONY: rpm
 rpm:
