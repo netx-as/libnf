@@ -226,6 +226,8 @@ int main(int argc, char **argv) {
 					output_set_fmt(outputp, OFMT_RAW, NULL);			
 				} else if (strcmp(optarg, "line") == 0) {
 					output_set_fmt(outputp, OFMT_LINE, NULL);			
+				} else if (strcmp(optarg, "shm") == 0) {
+					output_set_fmt(outputp, OFMT_BIN_RINGBUF, NULL);			
 				} else {
 					fprintf(stderr, "Unknown output format \"%s\".\n", optarg);
 					exit(1);
@@ -262,7 +264,7 @@ int main(int argc, char **argv) {
 				printf(" -R : Input file or directory  (multiple -r -R options is allowed)\n");
 				printf(" -A : aggregation\n");
 				printf(" -O : sort order\n");
-				printf(" -o : output format: line, raw, nfdump (default: line or nfdump with -w option)\n");
+				printf(" -o : output format: line, raw, nfdump, shm (default: line or nfdump with -w option)\n");
 				printf(" -w : output file\n");
 				printf(" -n : number of output records\n");
 				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 

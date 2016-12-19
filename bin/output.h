@@ -3,9 +3,11 @@
 #define MAX_STR 100			/* max length of format string */
 #define MAX_STR_LONG 1000   /* max length of format string */
 
+#define RINGBUF_NAME "libnf-shm"	/* default ringbuf/shared memory name */
 
 /* output formats */
 typedef enum output_fmt_s {
+	OFMT_BIN_RINGBUF,
 	OFMT_BIN_NFDUMP,
 	OFMT_LINE,
 	OFMT_RAW
@@ -36,6 +38,7 @@ typedef struct field_ent_s {
 typedef struct output_s {
 	output_fmt_t output_fmt;
 	char *filename;
+	char *ringname;
 	field_ent_t fields[LNF_FLD_TERM_];
 	int numfields;
 	int sortbits4;
@@ -48,6 +51,7 @@ typedef struct output_s {
 	unsigned long int outputflows;
 
 	lnf_file_t *filep;
+	lnf_ring_t *ringp;
 
 	output_start_func_t output_start_func;
 	output_row_func_t output_row_func;
