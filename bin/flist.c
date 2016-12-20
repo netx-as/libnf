@@ -71,6 +71,16 @@ int flist_pop(flist_t **l, char *buff) {
 	return 0;
 }
 
+int flist_is_empty(flist_t **l) {
+
+	if (*l == NULL) {
+		return 1;
+	} else {
+		return 0;
+	}
+
+}
+
 int flist_count(flist_t **l) {
 
 	flist_t *node;
