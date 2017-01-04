@@ -119,9 +119,9 @@ int process_file(char *name, lnf_filter_t *filterp) {
 	}
 
 	if (shmread) { 
-		lnf_close(filep);
-	} else {
 		lnf_ring_free(ringp);
+	} else {
+		lnf_close(filep);
 	}
 
 
@@ -379,6 +379,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+
 
 	for (o = 0; o < numoutputs; o++) {
 		if (o > 0 ) { 

@@ -40,10 +40,12 @@ int lnf_ring_lock(lnf_ring_t *ring) {
 			ring->stuck_counter++;
 			return retcode;
 		}
-	
+
+/*	
 		if (counter > 10 && counter % 100) {	
 			printf("XXX STUCK %d\n", counter);
 		}
+*/
 		usleep(LNF_RING_BLOCK_USLEEP);
 
 	}
