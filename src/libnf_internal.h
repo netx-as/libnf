@@ -42,6 +42,9 @@
 #include <rbtree.h>
 #include <nftree.h>
 #include <nfx.h>
+#include <nfxstat.h>
+#include <bookkeeper.h>
+#include <collector.h>
 #ifdef LNF_THREADS
 #include <pthread.h>
 #endif
@@ -92,6 +95,8 @@ typedef struct lnf_filter_s {
 typedef struct lnf_rec_s {
 	master_record_t *master_record;		/* reference to master record */
 	bit_array_t *extensions_arr;		/* list of extensions available in the record */
+	generic_exporter_t *exporter;		/* exporter information */
+	generic_sampler_t *sampler;			/* sampler information */
 	void **field_data;					/* list of pointers to data field */
 										/* data field is represented by pointer */
 										/* field_data[field] */
@@ -135,6 +140,8 @@ typedef struct lnf_file_s {
 	uint64_t                processed_bytes;
 	char					*filename;				/* name of open file (for LOOP mode) */
 	ino_t					inode;					/* inode of open file (for LOOP mode) */
+	generic_exporter_t		*exporters;				/* linked list of exporters */
+	generic_sampler_t		*samplers;				/* linked list of samplers */
 } lnf_file_t;
 
 

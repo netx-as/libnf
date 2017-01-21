@@ -939,6 +939,20 @@ int lnf_rec_init(lnf_rec_t **recp) {
 	}
 
 
+	/* exporter and sampler structure initialisation */
+	rec->exporter = malloc(sizeof(generic_exporter_t));
+	rec->sampler = malloc(sizeof(generic_sampler_t));
+
+	if (rec->exporter == NULL || rec->sampler == NULL) {
+		lnf_rec_free(rec);
+		*recp = NULL;
+		return LNF_ERR_NOMEM;
+	}
+
+	memset(rec->exporter, 0x0, sizeof(generic_exporter_t));
+	memset(rec->sampler, 0x0, sizeof(generic_sampler_t));
+
+
 	/* initialise nfdump extension list */
 	i = 1;
 	numext = 0;
@@ -1151,6 +1165,14 @@ void lnf_rec_free(lnf_rec_t *rec) {
 
 	if (rec->master_record != NULL) {
 		free(rec->master_record);
+	}
+
+	if (rec->exporter != NULL) {
+		free(rec->exporter);
+	}
+
+	if (rec->sampler != NULL) {
+		free(rec->sampler);
 	}
 
 	if (rec->field_data != NULL) {
