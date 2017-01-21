@@ -97,6 +97,9 @@ typedef struct lnf_rec_s {
 	bit_array_t *extensions_arr;		/* list of extensions available in the record */
 	generic_exporter_t *exporter;		/* exporter information */
 	generic_sampler_t *sampler;			/* sampler information */
+#define LNF_REC_EXPORTER 0x1			/* is exporter set? */
+#define LNF_REC_SAMPLER 0x2				/* is sampler set ? */
+	int flags;
 	void **field_data;					/* list of pointers to data field */
 										/* data field is represented by pointer */
 										/* field_data[field] */
