@@ -100,6 +100,7 @@ typedef struct lnf_rec_s {
 #define LNF_REC_EXPORTER 0x1			/* is exporter set? */
 #define LNF_REC_SAMPLER 0x2				/* is sampler set ? */
 	int flags;
+	uint32_t sequence_failures;			/* sequence faulures for exporter information */
 	void **field_data;					/* list of pointers to data field */
 										/* data field is represented by pointer */
 										/* field_data[field] */

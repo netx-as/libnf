@@ -1049,12 +1049,20 @@ static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
-	memcpy(p, &rec->exporter->info.ip, sizeof(lnf_ip_t));
+	ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
+	
+	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
+	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+
 	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
-	memcpy(&rec->exporter->info.ip, p, sizeof(lnf_ip_t));
+	ip_addr_t *d = &rec->exporter->info.ip;
+
+	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
+	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+
 	rec->flags |= LNF_REC_EXPORTER;
 	return LNF_OK;
 }

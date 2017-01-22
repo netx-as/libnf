@@ -343,6 +343,8 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 
 	lnf_file->v1convert_buffer = NULL;
 	lnf_file->lnf_map_list = NULL;
+	lnf_file->exporters = NULL;
+	lnf_file->samplers = NULL;
 
 	i = 1;
 	lnf_file->max_num_extensions = 0;
@@ -880,14 +882,87 @@ int map_id = 0;
 	return map;
 }
 
+/* lookup exporter ID by exporter ID an eporter IP 
+fileds: LNF_FLD_EXPORTER_ID LNF_FLD_EXPORTER_IP 
+returns - internal exporter ID (sysid)
+
+Exporters are organizes in linked lst. If the ID and IP is not 
+found in the list the new entry is created */
+generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
+
+	generic_exporter_t *exporter;
+	generic_exporter_t *tmp;
+	uint32_t sysid = 1; /* exporters are numbered from 1 */
+	ip_addr_t ip;
+
+	/* no exporter set in the record */
+	if ((lnf_rec->flags & LNF_REC_EXPORTER) == 0) {
+		return NULL;
+	}
+
+	exporter = lnf_file->exporters;
+
+	/* walk via all exporters */
+	while (exporter != NULL) {
+
+		if (lnf_rec->exporter->info.id == exporter->info.id && memcmp(&lnf_rec->exporter->info.ip, &exporter->info.ip, sizeof(ip_addr_t)) == 0) {
+			return exporter;
+		}
+
+		exporter = exporter->next;
+		sysid++;
+
+	}
+
+	exporter = calloc(sizeof(generic_exporter_t), 1);
+
+	if (exporter == NULL) {
+		return NULL;
+	}
+
+	/* add new exporter into linked list */
+	tmp = lnf_file->exporters;
+	lnf_file->exporters = exporter;
+	exporter->next = tmp;
+
+	/* copy exporter info data */
+	exporter->info.id = lnf_rec->exporter->info.id;
+	memcpy(&exporter->info.ip, &lnf_rec->exporter->info.ip, sizeof(ip_addr_t));
+
+	/* assign sysid */
+	exporter->info.sysid = sysid;
+
+	/* additional exporter_info_record_t fields */
+	exporter->info.version = 9; 	/* XXX ! FIX IT */
+
+	ip.v6[0] = htonll(exporter->info.ip.v6[0]);
+	ip.v6[1] = htonll(exporter->info.ip.v6[1]);
+
+	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)&ip)) {
+		exporter->info.sa_family = AF_INET;
+	} else {
+		exporter->info.sa_family = AF_INET6;
+	}
+
+	exporter->info.header.size = sizeof(exporter_info_record_t);
+	exporter->info.header.type =  ExporterInfoRecordType;
+
+	AppendToBuffer(lnf_file->nffile, (void *)&exporter->info, exporter->info.header.size);
+
+
+	return exporter;
+}
+
 
 
 /* return next record in file */
 /* status of read and fill pre-prepared structure lnf_rec */
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
-extension_map_t *map;
 
-	/* lookup and add map into file it it is nescessary */
+	extension_map_t *map;
+	generic_exporter_t *exporter;
+
+	/* lookup and add map into file if it it is nescessary */
 	map = lnf_lookup_map(lnf_file, lnf_rec->extensions_arr);
 
 	if (map == NULL) {
@@ -897,6 +972,18 @@ extension_map_t *map;
 	lnf_rec->master_record->map_ref = map;
 	lnf_rec->master_record->ext_map = map->map_id;
 	lnf_rec->master_record->type = CommonRecordType;
+
+	/* lookup and add exporter record into file if it is nescessary */
+	exporter = lnf_lookup_exporter(lnf_file, lnf_rec);
+
+	/* assign exporter sysid and update statistics */
+	if (exporter != NULL) {
+		lnf_rec->master_record->exporter_sysid = exporter->info.sysid;
+		exporter->packets += lnf_rec->master_record->dPkts;
+		exporter->flows += lnf_rec->master_record->aggr_flows;
+		exporter->sequence_failure += lnf_rec->sequence_failures;
+	}
+
 
 	UpdateStat(lnf_file->nffile->stat_record, lnf_rec->master_record);
 
@@ -1000,6 +1087,7 @@ void lnf_rec_clear(lnf_rec_t *rec) {
 	if (rec != NULL) {
 		bit_array_clear(rec->extensions_arr);
 		memset(rec->master_record, 0x0, sizeof(master_record_t));
+		rec->sequence_failures = 0;
 	}
 }
 
