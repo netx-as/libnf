@@ -63,6 +63,8 @@
 #define HAVE_HTONLL 1
 #endif
 
+#define LNF_DEFAULT_EXPORTER_VERSION 9
+
 
 /* list of maps used in file taht we create */
 typedef struct lnf_map_list_s {
@@ -146,6 +148,7 @@ typedef struct lnf_file_s {
 	ino_t					inode;					/* inode of open file (for LOOP mode) */
 	generic_exporter_t		*exporters;				/* linked list of exporters */
 	generic_sampler_t		*samplers;				/* linked list of samplers */
+	uint32_t				num_exporters;
 } lnf_file_t;
 
 

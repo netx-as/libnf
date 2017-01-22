@@ -1080,6 +1080,30 @@ static int inline lnf_field_fset_EXPORTER_ID(lnf_rec_t *rec, void *p) {
 }
 
 /* ----------------------- */
+static int inline lnf_field_fget_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->exporter->info.version;
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
+	rec->exporter->info.version = *((uint32_t *)p);
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_SEQUENCE_FAILURES(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->sequence_failures;
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_SEQUENCE_FAILURES(lnf_rec_t *rec, void *p) { 
+	rec->sequence_failures = *((uint32_t *)p);
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
 static int inline lnf_field_fget_SAMPLER_MODE(lnf_rec_t *rec, void *p) { 
 	*((uint16_t *)p) = rec->sampler->info.mode;
 	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
@@ -1929,6 +1953,24 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL, 0, 0, 
 		lnf_field_fget_EXPORTER_ID,
 		lnf_field_fset_EXPORTER_ID},
+	[LNF_FLD_EXPORTER_VERSION] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterversion",	"Version of exporter",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_EXPORTER_VERSION,
+		lnf_field_fset_EXPORTER_VERSION},
+	[LNF_FLD_SEQUENCE_FAILURES] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_SUM,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterversion",	"Naumber of sequence failures of data received from exporter",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_SEQUENCE_FAILURES,
+		lnf_field_fset_SEQUENCE_FAILURES},
 	[LNF_FLD_SAMPLER_MODE] = {
 		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},

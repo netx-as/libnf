@@ -177,9 +177,11 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_INET_FAMILY		0x44
 #define LNF_FLD_EXPORTER_IP		0x45
 #define LNF_FLD_EXPORTER_ID		0x46
-#define LNF_FLD_SAMPLER_MODE	0x47
-#define LNF_FLD_SAMPLER_INTERVAL	0x48
-#define LNF_FLD_SAMPLER_ID		0x49
+#define LNF_FLD_EXPORTER_VERSION	0x47
+#define LNF_FLD_SEQUENCE_FAILURES	0x48
+#define LNF_FLD_SAMPLER_MODE		0x49
+#define LNF_FLD_SAMPLER_INTERVAL	0x4a
+#define LNF_FLD_SAMPLER_ID			0x4b
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */

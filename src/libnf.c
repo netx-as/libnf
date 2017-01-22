@@ -346,6 +346,8 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 	lnf_file->exporters = NULL;
 	lnf_file->samplers = NULL;
 
+	lnf_file->num_exporters = 0; 
+
 	i = 1;
 	lnf_file->max_num_extensions = 0;
 	while ( extension_descriptor[i++].id )
@@ -542,16 +544,63 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 }
 
 
+/* XXX should be redesigned */
+void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile) {
+
+	generic_exporter_t *exporter; 
+	exporter_stats_record_t *estats;
+	size_t size;
+	int i = 0;
+
+	size = sizeof(exporter_stats_record_t) + (lnf_file->num_exporters - 1 ) * sizeof(struct exporter_stat_s);
+	estats = malloc(size);
+
+	if (estats == NULL) {
+		return; 
+	}
+
+	memset(estats, 0x0, size); 
+
+	/* prepare header */
+	estats->header.type = ExporterStatRecordType;
+	estats->header.size = size;
+	estats->stat_count = lnf_file->num_exporters;
+
+	/* fill statistics */
+	exporter = lnf_file->exporters; 
+	while (exporter != NULL) {
+	
+		estats->stat[i].sysid = exporter->info.sysid; 	
+		estats->stat[i].sequence_failure = exporter->sequence_failure; 	
+		estats->stat[i].packets = exporter->packets; 	
+		estats->stat[i].flows = exporter->flows; 	
+		i++;
+
+		exporter = exporter->next;
+	}
+
+	AppendToBuffer(lnf_file->nffile, (void *)&estats, estats->header.size);
+
+	free(estats);
+
+}
+
 /* close file handler and release related structures */
 void lnf_close(lnf_file_t *lnf_file) {
 
 	lnf_map_list_t *map_list, *tmp_map_list;
+	generic_exporter_t *exporter; 
+	generic_sampler_t *sampler;
+	void *tmp; 
 
 	if (lnf_file == NULL || lnf_file->nffile == NULL) {
 		return ;
 	}
 
 	if (lnf_file->flags & LNF_WRITE) {
+
+		/* append exporter statistics into file */
+		lnf_update_exporter_stats(lnf_file, lnf_file->nffile);
 
 		// write the last records in buffer
 		if (lnf_file->nffile->block_header->NumRecords ) {
@@ -583,6 +632,22 @@ void lnf_close(lnf_file_t *lnf_file) {
 
 	if (lnf_file->v1convert_buffer != NULL) {
 		free(lnf_file->v1convert_buffer);
+	}
+
+	/* free exporter list */
+	exporter = lnf_file->exporters;
+	while (exporter != NULL) {
+		tmp = exporter;
+		exporter = exporter->next;	
+		free(tmp);
+	}
+
+	/* free sampler list */
+	sampler = lnf_file->samplers;
+	while (sampler != NULL) {
+		tmp = sampler;
+		sampler = sampler->next;	
+		free(tmp);
 	}
 
 	free(lnf_file);
@@ -892,7 +957,6 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 
 	generic_exporter_t *exporter;
 	generic_exporter_t *tmp;
-	uint32_t sysid = 1; /* exporters are numbered from 1 */
 	ip_addr_t ip;
 
 	/* no exporter set in the record */
@@ -910,8 +974,6 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 		}
 
 		exporter = exporter->next;
-		sysid++;
-
 	}
 
 	exporter = calloc(sizeof(generic_exporter_t), 1);
@@ -930,10 +992,11 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 	memcpy(&exporter->info.ip, &lnf_rec->exporter->info.ip, sizeof(ip_addr_t));
 
 	/* assign sysid */
-	exporter->info.sysid = sysid;
+	lnf_file->num_exporters++;
+	exporter->info.sysid = lnf_file->num_exporters;
 
 	/* additional exporter_info_record_t fields */
-	exporter->info.version = 9; 	/* XXX ! FIX IT */
+	exporter->info.version = lnf_rec->exporter->info.version; 
 
 	ip.v6[0] = htonll(exporter->info.ip.v6[0]);
 	ip.v6[1] = htonll(exporter->info.ip.v6[1]);
@@ -1039,6 +1102,8 @@ int lnf_rec_init(lnf_rec_t **recp) {
 	memset(rec->exporter, 0x0, sizeof(generic_exporter_t));
 	memset(rec->sampler, 0x0, sizeof(generic_sampler_t));
 
+	rec->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
+
 
 	/* initialise nfdump extension list */
 	i = 1;
@@ -1089,6 +1154,11 @@ void lnf_rec_clear(lnf_rec_t *rec) {
 		memset(rec->master_record, 0x0, sizeof(master_record_t));
 		rec->sequence_failures = 0;
 	}
+
+	memset(rec->exporter, 0x0, sizeof(generic_exporter_t));
+	memset(rec->sampler, 0x0, sizeof(generic_sampler_t));
+
+	rec->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
 }
 
 /* copy record */
@@ -1099,6 +1169,14 @@ int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src) {
 	}
 
 	memcpy(dst->master_record, src->master_record, sizeof(master_record_t));
+	memcpy(dst->exporter, src->exporter, sizeof(generic_exporter_t));
+	memcpy(dst->sampler, src->sampler, sizeof(generic_sampler_t));
+
+	dst->sequence_failures = src->sequence_failures;
+	dst->flags = src->flags;
+
+	dst->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
+
 	if ( bit_array_copy(dst->extensions_arr, src->extensions_arr)) {
 		return LNF_OK;
 	} else {

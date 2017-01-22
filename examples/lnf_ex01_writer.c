@@ -73,7 +73,12 @@ int main (int argc, char **argv) {
 				aggip = atoi(optarg); 
 				break;
 			case 'e':
-				inet_pton(AF_INET6, optarg, &exporter_ip); 
+				if (!inet_pton(AF_INET6, optarg, &exporter_ip)) {
+
+					if (!inet_pton(AF_INET, optarg, &exporter_ip.data[3])) {
+						fprintf(stderr, "Can't convert address %s\n", optarg);
+					}
+				} 
 				set_exporter = 1;
 				break;
 			case '?': 
