@@ -219,7 +219,6 @@ WAIT_READERS:
 
 	/* write data to buffer */
 	ret = lnf_rec_get_raw(rec, LNF_REC_RAW_TLV, (char *)&ent->data, LNF_MAX_RAW_LEN, &size);
-	ret = LNF_OK;
 
 	if (ret != LNF_OK) {
 
