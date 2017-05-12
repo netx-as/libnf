@@ -27,6 +27,7 @@
 #include <stdlib.h>
 
 #define FILENAME "./test-file.tmp"
+#define EXPORTER_ID 666
 
 
 int main (int argc, char **argv) {
@@ -41,11 +42,14 @@ int main (int argc, char **argv) {
 	int compress = LNF_COMP_LZO;
 	int aggip = 1;
 	int append = 0;
+	int set_exporter = 0;
 	char *filename = FILENAME;
 	int c;
 	char errbuf[1024];
+	lnf_ip_t exporter_ip;
+	int exporter_id = EXPORTER_ID;
 
-	while ((c = getopt (argc, argv, "acbzn:f:r:?")) != -1) {
+	while ((c = getopt (argc, argv, "acbzn:f:r:e:?")) != -1) {
 		switch (c) {
 			case 'n':
 				nrecs = atoi(optarg);
@@ -68,6 +72,15 @@ int main (int argc, char **argv) {
 			case 'r':
 				aggip = atoi(optarg); 
 				break;
+			case 'e':
+				if (!inet_pton(AF_INET6, optarg, &exporter_ip)) {
+
+					if (!inet_pton(AF_INET, optarg, &exporter_ip.data[3])) {
+						fprintf(stderr, "Can't convert address %s\n", optarg);
+					}
+				} 
+				set_exporter = 1;
+				break;
 			case '?': 
 				printf("Usage: %s [ -ac ] [ -r <step > ] [ -n <number of records to write> ] [ -f <output file name> ]\n", argv[0]);	
 				printf(" -r  <n> : rotate src IP addess (for aggregation testing)\n\n");
@@ -75,6 +88,7 @@ int main (int argc, char **argv) {
 				printf(" -z      : compress with LZO (default)\n");
 				printf(" -b      : compress with BZ2\n");
 				printf(" -c      : do not compressed file\n");
+				printf(" -e <ip> : add exporter info to the file\n");
 				exit(1);
 		}
 	}
@@ -120,6 +134,12 @@ int main (int argc, char **argv) {
 		/* set input and output interface */
 		lnf_rec_fset(recp, LNF_FLD_INPUT, &input);
 		lnf_rec_fset(recp, LNF_FLD_OUTPUT, &output);
+
+		/* set exporter info */
+		if (set_exporter) {
+			lnf_rec_fset(recp, LNF_FLD_EXPORTER_IP, &exporter_ip);
+			lnf_rec_fset(recp, LNF_FLD_EXPORTER_ID, &exporter_id);
+		}
 
 		/* write record to file */
 		if (lnf_write(filep, recp) != LNF_OK) {

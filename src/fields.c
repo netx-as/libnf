@@ -1048,6 +1048,98 @@ static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) {
 }
 
 /* ----------------------- */
+static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
+	ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
+	
+	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
+	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
+	ip_addr_t *d = &rec->exporter->info.ip;
+
+	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
+	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_EXPORTER_ID(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->exporter->info.id;
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_EXPORTER_ID(lnf_rec_t *rec, void *p) { 
+	rec->exporter->info.id = *((uint32_t *)p);
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->exporter->info.version;
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
+	rec->exporter->info.version = *((uint32_t *)p);
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_SEQUENCE_FAILURES(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->sequence_failures;
+	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_SEQUENCE_FAILURES(lnf_rec_t *rec, void *p) { 
+	rec->sequence_failures = *((uint32_t *)p);
+	rec->flags |= LNF_REC_EXPORTER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_SAMPLER_MODE(lnf_rec_t *rec, void *p) { 
+	*((uint16_t *)p) = rec->sampler->info.mode;
+	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_SAMPLER_MODE(lnf_rec_t *rec, void *p) { 
+	rec->sampler->info.mode = *((uint16_t *)p);
+	rec->flags |= LNF_REC_SAMPLER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_SAMPLER_INTERVAL(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->sampler->info.interval;
+	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_SAMPLER_INTERVAL(lnf_rec_t *rec, void *p) { 
+	rec->sampler->info.interval = *((uint32_t *)p);
+	rec->flags |= LNF_REC_SAMPLER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
+static int inline lnf_field_fget_SAMPLER_ID(lnf_rec_t *rec, void *p) { 
+	*((uint32_t *)p) = rec->sampler->info.id;
+	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
+}
+
+static int inline lnf_field_fset_SAMPLER_ID(lnf_rec_t *rec, void *p) { 
+	rec->sampler->info.id = *((uint32_t *)p);
+	rec->flags |= LNF_REC_SAMPLER;
+	return LNF_OK;
+}
+
+/* ----------------------- */
 static int inline lnf_field_fset_EMPTY_(lnf_rec_t *rec, void *p) { 
 	return LNF_OK;
 }
@@ -1843,6 +1935,69 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL, 0, 0, 
 		lnf_field_fget_INET_FAMILY,
 		lnf_field_fset_INET_FAMILY},
+	[LNF_FLD_EXPORTER_IP] = {
+		LNF_ADDR, sizeof(LNF_ADDR_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterid",	"Exporter IP address",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_EXPORTER_IP,
+		lnf_field_fset_EXPORTER_IP},
+	[LNF_FLD_EXPORTER_ID] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterid",	"Exporter Observation Domain ID",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_EXPORTER_ID,
+		lnf_field_fset_EXPORTER_ID},
+	[LNF_FLD_EXPORTER_VERSION] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterversion",	"Version of exporter",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_EXPORTER_VERSION,
+		lnf_field_fset_EXPORTER_VERSION},
+	[LNF_FLD_SEQUENCE_FAILURES] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_SUM,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"exporterversion",	"Naumber of sequence failures of data received from exporter",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_SEQUENCE_FAILURES,
+		lnf_field_fset_SEQUENCE_FAILURES},
+	[LNF_FLD_SAMPLER_MODE] = {
+		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"samplermode",	"Sampling mode",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_SAMPLER_MODE,
+		lnf_field_fset_SAMPLER_MODE},
+	[LNF_FLD_SAMPLER_INTERVAL] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"sampleinterval",	"Ssampling interval",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_SAMPLER_INTERVAL,
+		lnf_field_fset_SAMPLER_INTERVAL},
+	[LNF_FLD_SAMPLER_ID] = {
+		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+		"samplerid",	"Sampler ID assigned by exporting device",
+		NULL, 0, 0, 
+		NULL, 0, 0, 
+		lnf_field_fget_SAMPLER_ID,
+		lnf_field_fset_SAMPLER_ID},
 // pod:
 // pod:  Calculated items
 // pod:  =====================

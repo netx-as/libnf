@@ -75,7 +75,8 @@ int main(int argc, char **argv) {
 
 	/* compute delays between sends */
 	if (recs_per_sec > 0) {
-		ts.tv_nsec = 1000000 / recs_per_sec;
+		ts.tv_sec = 0;
+		ts.tv_nsec = 1000000000 / recs_per_sec;
 	}
 	
 	if (lnf_open(&filep, filename_in, LNF_READ, NULL) != LNF_OK) {

@@ -15,6 +15,7 @@
 #include "output.h"
 #include "output_line.h"
 #include "output_nfdump.h"
+#include "output_ringbuf.h"
 
 
 void output_init(output_t *output) {
@@ -39,6 +40,12 @@ void output_set_fmt(output_t *output, output_fmt_t output_fmt, char *filename) {
 
 	switch (output_fmt) {
 
+		case OFMT_BIN_RINGBUF:
+				output->output_start_func = output_start_ringbuf;
+				output->output_row_func = output_row_ringbuf;
+				output->output_finish_func = output_finish_ringbuf;
+				output->ringname = RINGBUF_NAME;
+				break;
 		case OFMT_BIN_NFDUMP:
 				output->output_start_func = output_start_nfdump;
 				output->output_row_func = output_row_nfdump;

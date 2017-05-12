@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(libnf, 1.25, tpoder@cis.vutbr.cz)
+AC_INIT(libnf, 1.26, tpoder@vut.cz)
 
 AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.15, peter@people.ops-trust.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
@@ -16,6 +16,8 @@ LT_INIT()
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_STDC
+
+#LIBS="$LIBS -lrt"
 
 dnl get the flags
 CFLAGS="${CFLAGS=}"
@@ -120,6 +122,12 @@ AC_CHECK_FUNCS(setsockopt,,[AC_CHECK_LIB(socket,setsockopt)])
 
 dnl checks for fpurge or __fpurge
 AC_CHECK_FUNCS(fpurge __fpurge)
+
+#shmem 
+AC_CHECK_FUNCS(shm_unlink)
+AC_CHECK_FUNCS(shm_open)
+AC_CHECK_FUNCS(mmap)
+
 
 AC_MSG_CHECKING([if htonll is defined])
 

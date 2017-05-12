@@ -42,6 +42,9 @@
 #include <rbtree.h>
 #include <nftree.h>
 #include <nfx.h>
+#include <nfxstat.h>
+#include <bookkeeper.h>
+#include <collector.h>
 #ifdef LNF_THREADS
 #include <pthread.h>
 #endif
@@ -59,6 +62,8 @@
 #endif
 #define HAVE_HTONLL 1
 #endif
+
+#define LNF_DEFAULT_EXPORTER_VERSION 9
 
 
 /* list of maps used in file taht we create */
@@ -92,6 +97,12 @@ typedef struct lnf_filter_s {
 typedef struct lnf_rec_s {
 	master_record_t *master_record;		/* reference to master record */
 	bit_array_t *extensions_arr;		/* list of extensions available in the record */
+	generic_exporter_t *exporter;		/* exporter information */
+	generic_sampler_t *sampler;			/* sampler information */
+#define LNF_REC_EXPORTER 0x1			/* is exporter set? */
+#define LNF_REC_SAMPLER 0x2				/* is sampler set ? */
+	int flags;
+	uint32_t sequence_failures;			/* sequence faulures for exporter information */
 	void **field_data;					/* list of pointers to data field */
 										/* data field is represented by pointer */
 										/* field_data[field] */
@@ -135,6 +146,9 @@ typedef struct lnf_file_s {
 	uint64_t                processed_bytes;
 	char					*filename;				/* name of open file (for LOOP mode) */
 	ino_t					inode;					/* inode of open file (for LOOP mode) */
+	generic_exporter_t		*exporters;				/* linked list of exporters */
+	generic_sampler_t		*samplers;				/* linked list of samplers */
+	uint32_t				num_exporters;
 } lnf_file_t;
 
 
@@ -257,8 +271,8 @@ ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *da
 #define LNF_MAX_RAW_LEN	1024			/* duplicated in libnf.h */
 #define LNF_MAX_STRING 512
 #define LNF_RINGBUF_SIZE 4096			/* number of items in ring buffer */
-#define LNF_RING_BLOCK_USLEEP 1			/* number of usesc to wait for next record when read is blocked */
-#define LNF_RING_STUCK_LIMIT  1000*1000	/* wait for N cycles of LNF_RING_BLOCK_USLEEP to detect dead reader (1s) */
+#define LNF_RING_BLOCK_USLEEP 10		/* number of usesc to wait for next record when read is blocked */
+#define LNF_RING_STUCK_LIMIT  10000		/* wait for N cycles of LNF_RING_BLOCK_USLEEP to detect dead reader (100ms) */
 
 /* status of entry in ring buffer */
 typedef enum { 

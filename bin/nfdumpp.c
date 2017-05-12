@@ -34,6 +34,7 @@ lnf_filter_t *filterp;
 output_t output[MAX_OUTPUTS];
 int numoutputs;
 int loopread = 0;
+int shmread = 0;
 char filter[1024];
 
 #define NFDUMPP_FILTER_DEFAULT 0
@@ -46,40 +47,60 @@ struct option longopts[] = {
 	{ "num-threads",		required_argument,	NULL,	1 },
 	{ "filter-type",		required_argument,	NULL,	2 },
 	{ "loop-read",			no_argument,		NULL,	3 },
+	{ "shm-read",			no_argument,		NULL,	4 },
 	{ 0, 0, 0, 0 }
 };
 
 
 /* process one file */
-int process_file(char *filename, lnf_filter_t *filterp);
-int process_file(char *filename, lnf_filter_t *filterp) {
+int process_file(char *name, lnf_filter_t *filterp);
+int process_file(char *name, lnf_filter_t *filterp) {
 
 	lnf_file_t *filep;
 	lnf_rec_t *recp;
+	lnf_ring_t *ringp;
 //	lnf_brec1_t brec;
 	int i = 0;
 	int tid;
 	int match;
 	int o;
+	int ret;
+	char buf[LNF_MAX_STRING];
 
 	tid = (int)pthread_self();
 
-	if (strcmp(filename, "-") == 0) {
+	/* read data from shm/ringbuf */
+	if (shmread) {
+		if (lnf_ring_init(&ringp, name, 0) != LNF_OK) {
+			fprintf(stderr, "Can not initialise ring buffer %s\n", name);
+			lnf_error(buf, LNF_MAX_STRING);
+			fprintf(stderr, "%s\n", buf);
+			return 0;
+		}
+	/* read data from stdin */
+	} else if (strcmp(name, "-") == 0) {
 		if (lnf_open(&filep, NULL, LNF_READ, NULL) != LNF_OK) {
 			fprintf(stderr, "[#%x] Can not open stdin\n", tid);
 			return 0;
 		}
+	/* read data from regular file */
 	} else {
-		if (lnf_open(&filep, filename, LNF_READ | loopread ? LNF_READ_LOOP : 0, NULL) != LNF_OK) {
-			fprintf(stderr, "[#%x] Can not open file %s\n", tid, filename);
+		if (lnf_open(&filep, name, LNF_READ | loopread ? LNF_READ_LOOP : 0, NULL) != LNF_OK) {
+			fprintf(stderr, "[#%x] Can not open file %s\n", tid, name);
 			return 0;
 		}
-
 	}
 
 	lnf_rec_init(&recp);
 
-	while (lnf_read(filep, recp) != LNF_EOF) {
+	while (1) {
+		if (shmread) {
+			ret = lnf_ring_read(ringp, recp);
+		} else {
+			ret = lnf_read(filep, recp);
+		}
+
+		if (ret == LNF_EOF) { break; } /* exit from while */
 
 		i++;
 
@@ -95,16 +116,19 @@ int process_file(char *filename, lnf_filter_t *filterp) {
 				output_write(&output[o], recp);
 			}
 		}
-
 	}
 
-	lnf_close(filep);
+	if (shmread) { 
+		lnf_ring_free(ringp);
+	} else {
+		lnf_close(filep);
+	}
+
 
 //	printf("[#%x] Total input records in file %s : %d\n", tid, filename, i);
 
 	return i; 
 }
-
 
 /* thread loop */
 void *process_thread(void *p);
@@ -147,6 +171,7 @@ DONE:
 
 	return NULL;
 }
+
 
 
 int main(int argc, char **argv) {
@@ -211,7 +236,13 @@ int main(int argc, char **argv) {
 			case 3:  /* loop read */
 				loopread = 1;
 				break;
+			case 4:  /* shm read */
+				shmread = 1;
+				loopread = 1;	/* shm read is loop read at the same time */
+				break;
 			case 'r':
+				flist_push(&flist, optarg);
+				break;
 			case 'R':
 				flist_lookup_dir(&flist, optarg);
 				break;
@@ -226,6 +257,8 @@ int main(int argc, char **argv) {
 					output_set_fmt(outputp, OFMT_RAW, NULL);			
 				} else if (strcmp(optarg, "line") == 0) {
 					output_set_fmt(outputp, OFMT_LINE, NULL);			
+				} else if (strcmp(optarg, "shm") == 0) {
+					output_set_fmt(outputp, OFMT_BIN_RINGBUF, NULL);			
 				} else {
 					fprintf(stderr, "Unknown output format \"%s\".\n", optarg);
 					exit(1);
@@ -262,13 +295,14 @@ int main(int argc, char **argv) {
 				printf(" -R : Input file or directory  (multiple -r -R options is allowed)\n");
 				printf(" -A : aggregation\n");
 				printf(" -O : sort order\n");
-				printf(" -o : output format: line, raw, nfdump (default: line or nfdump with -w option)\n");
+				printf(" -o : output format: line, raw, nfdump, shm (default: line or nfdump with -w option)\n");
 				printf(" -w : output file\n");
 				printf(" -n : number of output records\n");
 				printf(" --num-threads = <num> : num threads (default: %.0f%% number of CPU cores, %d on this system)\n", 
 							NUM_THREADS_FACTOR * 100, numthreads);
 				printf(" --filter-type = nfdump|libnf : use original nfdump filter or new libnf implementation \n");
 				printf(" --loop-read : read input files in endless loop \n");
+				printf(" --shm-read : read data from shm ring buffer \n");
 				printf("\n");
 				exit(1);
 		}
@@ -311,6 +345,15 @@ int main(int argc, char **argv) {
 //		lnf_filter_free(filterp);
 	}
 
+	/* if there are no files defined switch to shmloop mode and use default shm name */
+	if (flist_is_empty(&flist)) {
+		printf("\n\nXXXX \n\n");
+		flist_push(&flist, RINGBUF_NAME);
+		shmread = 1;
+		numthreads = 1;
+	}
+	
+
 	output_start(&output[0]);
 
 	/* init progress bar */
@@ -321,6 +364,7 @@ int main(int argc, char **argv) {
 	/*  prepare and run threads */
 	pthread_mutex_init(&mutex, NULL);
 
+	/* more tahn one input file -> create thread */
 	for (i = 0 ; i < numthreads ; i++ ) {
 		if ( pthread_create(&th[i], NULL, process_thread, NULL) < 0) {
 			fprintf(stderr, "Can not create thread for %d\n", i);
@@ -335,6 +379,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+
 
 	for (o = 0; o < numoutputs; o++) {
 		if (o > 0 ) { 
