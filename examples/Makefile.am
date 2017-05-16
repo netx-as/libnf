@@ -1,7 +1,7 @@
 
 AM_CFLAGS = -I$(top_srcdir)/include 
 
-bin_PROGRAMS = lnf_ex01_writer lnf_ex02_reader lnf_ex03_aggreg lnf_ex05_memtrans lnf_ex06_readreset \
+bin_PROGRAMS = lnf_ex01_writer lnf_ex02_reader lnf_ex03_aggreg lnf_ex03_coreperf lnf_ex05_memtrans lnf_ex06_readreset \
 			lnf_ex07_filter lnf_ex08_statistics lnf_ex09_memlookup lnf_ex10_listmode lnf_ex11_memclean \
 			lnf_ex12_rec_raw lnf_ex13_ring_write lnf_ex14_ring_read 
 			
@@ -16,6 +16,9 @@ lnf_ex02_reader_LDADD = ../src/.libs/libnf.a
 
 lnf_ex03_aggreg_SOURCES = lnf_ex03_aggreg.c
 lnf_ex03_aggreg_LDADD = ../src/.libs/libnf.a
+
+lnf_ex03_coreperf_SOURCES = lnf_ex03_coreperf.c
+lnf_ex03_coreperf_LDADD = ../src/.libs/libnf.a
 
 if LNF_THREADS
 bin_PROGRAMS += lnf_ex04_threads
@@ -48,8 +51,8 @@ lnf_ex12_rec_raw_SOURCES = lnf_ex12_rec_raw.c
 lnf_ex12_rec_raw_LDADD = ../src/.libs/libnf.a
 
 lnf_ex13_ring_write_SOURCES = lnf_ex13_ring_write.c
-lnf_ex13_ring_write_LDADD = ../src/.libs/libnf.a
+lnf_ex13_ring_write_LDADD = ../src/.libs/libnf.a -lrt
 
 lnf_ex14_ring_read_SOURCES = lnf_ex14_ring_read.c
-lnf_ex14_ring_read_LDADD = ../src/.libs/libnf.a
+lnf_ex14_ring_read_LDADD = ../src/.libs/libnf.a -lrt
 

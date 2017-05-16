@@ -83,13 +83,18 @@ ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *l
 			case LNF_UINT64: 
 					lvalue->type = FF_TYPE_UINT64;
 					break;
-			case LNF_ADDR: 
+			case LNF_DOUBLE:
+					lvalue->type = FF_TYPE_DOUBLE;
+					break;
+			case LNF_ADDR:
 					lvalue->type = FF_TYPE_ADDR;
 					break;
 			case LNF_MAC: 
 					lvalue->type = FF_TYPE_MAC;
 					break;
-			default: 
+			case LNF_MPLS:
+					lvalue->type = FF_TYPE_MPLS; break;
+			default:
 					return FF_ERR_UNSUP;
 		}
 
