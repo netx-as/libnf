@@ -36,9 +36,9 @@ EXTRA_DIST += scanner.c grammar.c
 libnf_la_SOURCES += nftree.c grammar.y scanner.l 
 
 # Libnf flow filter sources 
-EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h ffilter/ffilter.h
+EXTRA_DIST += ffilter/ffilter_gram.c ffilter/ffilter_lex.c ffilter/ffilter_gram.h ffilter/ffilter_internal.h ffilter/ffilter.h ffilter/fcore.h
 BUILT_SOURCES += ffilter/ffilter_gram.h 
-libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c
+libnf_la_SOURCES += ffilter/ffilter_gram.y ffilter/ffilter_lex.l ffilter/ffilter.c ffilter/fcore.c
 include_HEADERS = ffilter/ffilter.h
 
 # rinbuffer code

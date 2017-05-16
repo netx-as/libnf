@@ -110,7 +110,7 @@ ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *da
 		case LNF_OK:
 		case LNF_ERR_NAN:
 				*size = 0; 		/* only for variable length items */
-				*data = &data + sizeof(char*)
+				*((char**)data) = data+sizeof(char*);
 				return FF_OK;
 				break;
 	}
