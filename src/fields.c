@@ -1362,6 +1362,26 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_DSTADDR,
 		lnf_field_fset_DSTADDR},
 
+    [LNF_FLD_SRCNET] = {
+            LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+            {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+            {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+            "srcnet",	"Source IP address",
+            "sourceIPv4Address", 0, 8,
+            "sourceIPv6Address", 0, 27,
+            lnf_field_fget_SRCADDR,
+            lnf_field_fset_SRCADDR},
+
+    [LNF_FLD_DSTNET] = {
+            LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+            {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+            {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+            "dstnet",	"Destination IP address",
+            "destinationIPv4Address", 0, 12,
+            "destinationIPv6Address", 0, 28,
+            lnf_field_fget_DSTADDR,
+            lnf_field_fset_DSTADDR},
+
 	[LNF_FLD_IP_NEXTHOP] = {
 		LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,	
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
@@ -2076,6 +2096,16 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL, 0, 0, 
 		lnf_field_fget_SRCADDR,
 		lnf_field_fset_SRCADDR},
+
+    [LNF_FLD_PAIR_NET] = {
+        LNF_ADDR, sizeof(LNF_ADDR_T),		LNF_AGGR_KEY,	LNF_SORT_NONE,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_SRCADDR, LNF_FLD_DSTADDR},
+        "net",		"Source or destination ip address (pair field)",
+        NULL, 0, 0,
+        NULL, 0, 0,
+        lnf_field_fget_SRCADDR,
+        lnf_field_fset_SRCADDR},
 
 	[LNF_FLD_PAIR_AS] = {
 		LNF_UINT32, sizeof(LNF_UINT32_T),		LNF_AGGR_KEY,	LNF_SORT_NONE,	

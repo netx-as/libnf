@@ -106,18 +106,19 @@ ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *l
 
 
 /* getting data callback */
-// Copy data to buffer, note data are always passed to filter by reference
-// If coping is done no matter what, then copy data to buffer offseted, and as first element
-// save the pointer.
-ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char *data, size_t *size) { 
+/** Copy data to buffer, note data are always passed to filter by reference
+ * If coping is done no matter what, then copy data to buffer offseted, and as first element
+ * save the pointer.
+ */
+ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char **data, size_t *size) {
 
-	switch (lnf_rec_fget((lnf_rec_t *)rec, id.index, data+sizeof(char*)) ) {
+    //TODO WARNING!: not guaranteed that copied data will fit into buffer
+	switch (lnf_rec_fget((lnf_rec_t *)rec, id.index, *data)) {
 		case LNF_OK:
+			return FF_OK;
 		case LNF_ERR_NAN:
-				*size = 0; 		/* only for variable length items */
-				*((char**)data) = data+sizeof(char*);
-				return FF_OK;
-				break;
+			*size = 0; 		/* only for variable length items */
+			break;
 	}
 
  	return FF_ERR_OTHER;

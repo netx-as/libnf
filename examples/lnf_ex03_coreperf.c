@@ -75,9 +75,6 @@ int main(int argc, char **argv)
 		case 'P':
 			print = 0;
 			break;
-		case 'G':
-			fget = 0;
-			break;
 		case 'F':
 			fifname = optarg;
 			break;
@@ -90,8 +87,8 @@ int main(int argc, char **argv)
 		case '?':
 			printf("Usage: %s [ -p ] [ -f <output file name> ] [ -1 <filter1> ]\n", argv[0]);
 			printf(" -P : do not print records to stdout\n");
-			printf(" -F : do not use filters\n");
-			printf(" -G : do not use lng_rec_fget\n");
+			printf(" -F : supply file with filters to test, each line is in form '%%d %%s' - group number and filter\n");
+			printf(" -n : use stock nfdump core\n");
 			exit(1);
 		}
 	}

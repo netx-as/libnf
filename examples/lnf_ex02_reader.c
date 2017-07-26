@@ -130,6 +130,7 @@ int main(int argc, char **argv) {
 
 		match1 = 0;
 		match2 = 0;
+
 		if (filter) {
 			if (lnf_filter_match(filterp1, recp)) {
 				if1++;
