@@ -19,7 +19,8 @@ endif
 
 #SUBDIRS = ffilter
 
-EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h list_sort.h xxhash.h fields.h lnf_filter.h 
+EXTRA_DIST = libnf_internal.h bit_array.h hash_table.h heap_sort.h list_sort.h xxhash.h fields.h \
+    lnf_filter.h literals.h
 
 
 CLEANFILES = lex.yy.c 
@@ -28,7 +29,7 @@ CLEANFILES = lex.yy.c
 # Target for the libnfdump library
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c heap_sort.c list_sort.c hash_table.c xxhash.c memheap.c fields.c \
-	nffile.c nfx.c minilzo.c nf_common.c ipconv.c lnf_filter.c 
+	nffile.c nfx.c minilzo.c nf_common.c ipconv.c lnf_filter.c literals.c
 
 # Nfdump filter sources
 BUILT_SOURCES = grammar.h
