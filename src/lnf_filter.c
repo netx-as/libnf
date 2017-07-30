@@ -44,7 +44,8 @@
 #include "libnf_internal.h"
 #include "libnf.h"
 #include "fields.h"
-#include "ffilter.h" 
+#include "ffilter.h"
+#include "literals.h"
 //#include "lnf_filter_gram.h"
 
 pthread_mutex_t lnf_nfdump_filter_match_mutex;    /* mutex for operations match filter  */
@@ -124,6 +125,80 @@ ff_error_t lnf_ff_data_func(ff_t *filter, void *rec, ff_extern_id_t id, char **d
  	return FF_ERR_OTHER;
 }
 
+ff_error_t lnf_rval_map_func(ff_t *filter, const char *valstr, ff_type_t type, ff_extern_id_t id,
+    char *buf, size_t *size)
+{
+    struct nff_literal_s *dict = NULL;
+    char *tcp_ctl_bits = "FSRPAUECNX";
+    char *hit = NULL;
+    *size = 0;
+
+    id.index;
+
+    if (id.index == LNF_FLD_ZERO_ || valstr == NULL) {
+        return FF_ERR_OTHER;
+    }
+
+    int x;
+
+    *size = sizeof(ff_uint64_t);
+    ff_uint64_t val;
+
+    switch (id.index) {
+
+        /** Protocol */
+    case LNF_FLD_PROT:
+        dict = nff_get_protocol_map();
+        break;
+
+        /** Translate tcpControlFlags */
+    case LNF_FLD_TCP_FLAGS:
+        if (strlen(valstr) > 9) {
+            return FF_ERR_OTHER;
+        }
+
+        for (x = val = 0; x < strlen(valstr); x++) {
+            if ((hit = strchr(tcp_ctl_bits, valstr[x])) == NULL) {
+                return FF_ERR_OTHER;
+            }
+            val |= 1 << (hit - tcp_ctl_bits);
+            /* If X was in string set all flags */
+            if (*hit == 'X') {
+                val = 1 << (hit - tcp_ctl_bits);
+                val--;
+            }
+        }
+        memcpy(buf, &val, sizeof(val));
+        return FF_OK;
+        break;
+
+        /** Src/dst ports */
+    case LNF_FLD_SRCPORT:
+    case LNF_FLD_DSTPORT:
+        dict = nff_get_port_map();
+        break;
+    default:
+        return FF_ERR_UNSUP;
+    }
+
+    // Universal processing for literals
+    nff_literal_t *item = NULL;
+
+    for (int x = 0; dict[x].name != ""; x++) {
+        if (!strcasecmp(valstr, dict[x].name)) {
+            item = &dict[x];
+            break;
+        }
+    }
+
+    if (item != NULL) {
+        memcpy(buf, &item->value, sizeof(item->value));
+        *size = sizeof(item->value);
+        return FF_OK;
+    }
+
+    return FF_ERR_OTHER;
+}
 
 /* initialise filter */
 int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
@@ -150,7 +225,7 @@ int lnf_filter_init_v2(lnf_filter_t **filterp, char *expr) {
 	/* set callback functions */
 	ff_options->ff_lookup_func = lnf_ff_lookup_func;
 	ff_options->ff_data_func = lnf_ff_data_func;
-	ff_options->ff_rval_map_func = NULL;
+	ff_options->ff_rval_map_func = lnf_rval_map_func;
 
 	ff_ret = ff_init(&filter->ff_filter, expr, ff_options);
 
