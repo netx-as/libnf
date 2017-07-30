@@ -80,8 +80,8 @@ int main(int argc, char **argv) {
 		if (res == LNF_ERR_OTHER_MSG) {
 			lnf_error(buf, LNF_MAX_STRING);
 			fprintf(stderr, "RES: %s\n", buf);
-			filterp1 = NULL;
 		}
+		filterp1 = NULL;
 	}
 
 	if ((res = lnf_filter_init_v2(&filterp2, filter)) != LNF_OK) {
@@ -90,8 +90,8 @@ int main(int argc, char **argv) {
 		if (res == LNF_ERR_OTHER_MSG) {
 			lnf_error(buf, LNF_MAX_STRING);
 			fprintf(stderr, "RES: %s\n", buf);
-			filterp2 = NULL;
 		}
+		filterp2 = NULL;
 	}
 
 	lnf_rec_init(&recp);
