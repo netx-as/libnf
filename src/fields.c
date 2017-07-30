@@ -1220,6 +1220,8 @@ static int inline lnf_field_fset_BREC1(lnf_rec_t *rec, void *p) {
 /* ----------------------- */
 
 /* text description of the fields */
+/* WARNING if you change something in here, make sure to also change LNF_FLD_xxx_ALIAS
+   if relevant, otherwise expect some inconsistent behaviour */
 lnf_field_def_t lnf_fields_def[] = {
 // pod:  =====================
 	[LNF_FLD_FIRST] = {
@@ -1275,6 +1277,16 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_DPKTS,
 		lnf_field_fset_DPKTS},
 
+    [LNF_FLD_DPKTS_ALIAS] = {
+        LNF_UINT64, sizeof(LNF_UINT64_T),			LNF_AGGR_SUM,	LNF_SORT_DESC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "pkts",		"The number of packets",
+        "packetDeltaCount", 0, 2,
+        NULL, 0, 0,
+        lnf_field_fget_DPKTS,
+        lnf_field_fset_DPKTS},
+
 	[LNF_FLD_OUT_BYTES] = {
 		LNF_UINT64, sizeof(LNF_UINT64_T),		LNF_AGGR_SUM,	LNF_SORT_DESC,	
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
@@ -1295,8 +1307,18 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_OUT_PKTS,
 		lnf_field_fset_OUT_PKTS},
 
+    [LNF_FLD_OUT_PKTS_ALIAS] = {
+        LNF_UINT64, sizeof(LNF_UINT64_T),		LNF_AGGR_SUM,	LNF_SORT_DESC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "outpkts",	"The number of output packets",
+        "postPacketDeltaCount", 0, 24,
+        NULL, 0, 0,
+        lnf_field_fget_OUT_PKTS,
+        lnf_field_fset_OUT_PKTS},
+
 	[LNF_FLD_AGGR_FLOWS] = {
-		LNF_UINT64, sizeof(LNF_UINT64_T),	LNF_AGGR_SUM,	LNF_SORT_DESC,	
+		LNF_UINT64, sizeof(LNF_UINT64_T),	LNF_AGGR_SUM,	LNF_SORT_DESC,
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"flows",	"The number of flows (aggregated)",
@@ -1339,6 +1361,16 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_TCP_FLAGS,
 		lnf_field_fset_TCP_FLAGS},
 
+    [LNF_FLD_TCP_FLAGS_ALIAS] = {
+        LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_OR,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "tcpflags",		"TCP flags",
+        "tcpControlBits", 0, 6,
+        NULL, 0, 0,
+        lnf_field_fget_TCP_FLAGS,
+        lnf_field_fset_TCP_FLAGS},
+
 // pod}:
 // pod:  Layer 3 information
 // pod:  =====================
@@ -1363,24 +1395,24 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fset_DSTADDR},
 
     [LNF_FLD_SRCNET] = {
-            LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
-            {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
-            {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
-            "srcnet",	"Source IP address",
-            "sourceIPv4Address", 0, 8,
-            "sourceIPv6Address", 0, 27,
-            lnf_field_fget_SRCADDR,
-            lnf_field_fset_SRCADDR},
+        LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "srcnet",	"Source IP address",
+        "sourceIPv4Address", 0, 8,
+        "sourceIPv6Address", 0, 27,
+        lnf_field_fget_SRCADDR,
+        lnf_field_fset_SRCADDR},
 
     [LNF_FLD_DSTNET] = {
-            LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
-            {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
-            {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
-            "dstnet",	"Destination IP address",
-            "destinationIPv4Address", 0, 12,
-            "destinationIPv6Address", 0, 28,
-            lnf_field_fget_DSTADDR,
-            lnf_field_fset_DSTADDR},
+        LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "dstnet",	"Destination IP address",
+        "destinationIPv4Address", 0, 12,
+        "destinationIPv6Address", 0, 28,
+        lnf_field_fget_DSTADDR,
+        lnf_field_fset_DSTADDR},
 
 	[LNF_FLD_IP_NEXTHOP] = {
 		LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,	
@@ -1391,6 +1423,16 @@ lnf_field_def_t lnf_fields_def[] = {
 		"ipNextHopIPv6Address", 0, 62, 
 		lnf_field_fget_IP_NEXTHOP,
 		lnf_field_fset_IP_NEXTHOP},
+
+    [LNF_FLD_IP_NEXTHOP_ALIAS] = {
+        LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "nexthop",		"IP next hop",
+        "ipNextHopIPv4Address", 0, 15,
+        "ipNextHopIPv6Address", 0, 62,
+        lnf_field_fget_IP_NEXTHOP,
+        lnf_field_fset_IP_NEXTHOP},
 
 	[LNF_FLD_SRC_MASK] = {
 		LNF_UINT8, sizeof(LNF_UINT8_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,	
@@ -1621,7 +1663,17 @@ lnf_field_def_t lnf_fields_def[] = {
 		"exporterIPv4Address", 0, 130, 
 		"exporterIPv6Address", 0, 131, 
 		lnf_field_fget_IP_ROUTER, 
-		lnf_field_fset_IP_ROUTER}, 
+		lnf_field_fset_IP_ROUTER},
+
+    [LNF_FLD_IP_ROUTER_ALIAS] = {
+        LNF_ADDR, sizeof(LNF_ADDR_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "router",	"Exporting router IP",
+        "exporterIPv4Address", 0, 130,
+        "exporterIPv6Address", 0, 131,
+        lnf_field_fget_IP_ROUTER,
+        lnf_field_fset_IP_ROUTER},
 
 	[LNF_FLD_ENGINE_TYPE] = {
 		LNF_UINT8, sizeof(LNF_UINT8_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,	
@@ -1642,6 +1694,26 @@ lnf_field_def_t lnf_fields_def[] = {
 		NULL, 0, 0, 
 		lnf_field_fget_ENGINE_ID,
 		lnf_field_fset_ENGINE_ID},
+
+    [LNF_FLD_ENGINE_TYPE_ALIAS] = {
+        LNF_UINT8, sizeof(LNF_UINT8_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "systype",	"Type of exporter",
+        "engineType", 0, 38,
+        NULL, 0, 0,
+        lnf_field_fget_ENGINE_TYPE,
+        lnf_field_fset_ENGINE_TYPE},
+
+    [LNF_FLD_ENGINE_ID_ALIAS] = {
+        LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "sysid",	"Internal SysID of exporter",
+        "engineId", 0, 39,
+        NULL, 0, 0,
+        lnf_field_fget_ENGINE_ID,
+        lnf_field_fset_ENGINE_ID},
 
 // pod:
 // pod:  NSEL fields, see: http://www.cisco.com/en/US/docs/security/asa/asa81/netflow/netflow.html
@@ -1685,6 +1757,26 @@ lnf_field_def_t lnf_fields_def[] = {
 		"icmpTypeIPv6", 0, 178, 
 		lnf_field_fget_ICMP_TYPE,
 		lnf_field_fset_ICMP_TYPE},
+
+    [LNF_FLD_ICMP_CODE_ALIAS] = {
+        LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "icmpcode",		"NSEL ICMP code value",
+        "icmpCodeIPv4", 0, 177,
+        "icmpCodeIPv6", 0, 179,
+        lnf_field_fget_ICMP_CODE,
+        lnf_field_fset_ICMP_CODE},
+
+    [LNF_FLD_ICMP_TYPE_ALIAS] = {
+        LNF_UINT8, sizeof(LNF_UINT8_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
+        "icmptype",		"NSEL ICMP type value",
+        "icmpTypeIPv4", 0, 176,
+        "icmpTypeIPv6", 0, 178,
+        lnf_field_fget_ICMP_TYPE,
+        lnf_field_fset_ICMP_TYPE},
 
 	[LNF_FLD_FW_XEVENT] = {
 		LNF_UINT16, sizeof(LNF_UINT16_T),		LNF_AGGR_KEY,	LNF_SORT_ASC,	

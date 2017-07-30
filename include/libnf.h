@@ -203,6 +203,17 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_PAIR_VLAN		 0xC4			/* src vlan + dst vlan */
 #define LNF_FLD_PAIR_NET		 0xC5			/* src ip + dst ip compatibility*/
 
+/* alias fields - for backward compatibility */
+#define LNF_FLD_DPKTS_ALIAS         0x60
+#define LNF_FLD_OUT_PKTS_ALIAS      0x61
+#define LNF_FLD_AGGR_FLOWS_ALIAS    0x62
+#define LNF_FLD_IP_NEXTHOP_ALIAS    0x63
+#define LNF_FLD_IP_ROUTER_ALIAS     0x64
+#define LNF_FLD_ENGINE_TYPE_ALIAS   0x65
+#define LNF_FLD_ENGINE_ID_ALIAS     0x66
+#define LNF_FLD_ICMP_CODE_ALIAS     0x67
+#define LNF_FLD_ICMP_TYPE_ALIAS     0x68
+#define LNF_FLD_TCP_FLAGS_ALIAS     0x69
 
 #define LNF_FLD_TERM_			 0xFF  			/* ID of last field */
 
