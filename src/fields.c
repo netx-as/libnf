@@ -1394,7 +1394,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_DSTADDR,
 		lnf_field_fset_DSTADDR},
 
-    [LNF_FLD_SRCNET] = {
+    [LNF_FLD_SRCADDR_ALIAS] = {
         LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
         {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
         {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
@@ -1404,7 +1404,7 @@ lnf_field_def_t lnf_fields_def[] = {
         lnf_field_fget_SRCADDR,
         lnf_field_fset_SRCADDR},
 
-    [LNF_FLD_DSTNET] = {
+    [LNF_FLD_DSTADDR_ALIAS] = {
         LNF_ADDR, sizeof(LNF_ADDR_T),	LNF_AGGR_KEY,	LNF_SORT_ASC,
         {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
         {LNF_FLD_ZERO_, LNF_FLD_ZERO_},
@@ -2189,7 +2189,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		lnf_field_fget_SRCADDR,
 		lnf_field_fset_SRCADDR},
 
-    [LNF_FLD_PAIR_NET] = {
+    [LNF_FLD_PAIR_ADDR_ALIAS] = {
         LNF_ADDR, sizeof(LNF_ADDR_T),		LNF_AGGR_KEY,	LNF_SORT_NONE,
         {LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
         {LNF_FLD_SRCADDR, LNF_FLD_DSTADDR},
