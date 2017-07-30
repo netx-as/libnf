@@ -182,6 +182,9 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_SAMPLER_MODE		0x49
 #define LNF_FLD_SAMPLER_INTERVAL	0x4a
 #define LNF_FLD_SAMPLER_ID			0x4b
+/* Added stub for compatibility, bears same identification as ADDR variants */
+#define LNF_FLD_SRCNET          0x4c
+#define LNF_FLD_DSTNET	        0x4d
 
 /* computed and extra fields */
 #define LNF_FLD_CALC_DURATION	 0xA0 			/* computed : duration in msec  */
@@ -198,6 +201,7 @@ typedef struct lnf_brec1_s {
 #define LNF_FLD_PAIR_AS			 0xC2			/* src as + dst as */
 #define LNF_FLD_PAIR_IF			 0xC3			/* in if + out if */
 #define LNF_FLD_PAIR_VLAN		 0xC4			/* src vlan + dst vlan */
+#define LNF_FLD_PAIR_NET		 0xC5			/* src ip + dst ip compatibility*/
 
 
 #define LNF_FLD_TERM_			 0xFF  			/* ID of last field */
