@@ -153,6 +153,7 @@ ff_error_t lnf_rval_map_func(ff_t *filter, const char *valstr, ff_type_t type, f
 
         /** Translate tcpControlFlags */
     case LNF_FLD_TCP_FLAGS:
+    case LNF_FLD_TCP_FLAGS_ALIAS:
         if (strlen(valstr) > 9) {
             return FF_ERR_OTHER;
         }
