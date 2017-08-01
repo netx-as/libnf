@@ -185,7 +185,7 @@ ff_error_t lnf_rval_map_func(ff_t *filter, const char *valstr, ff_type_t type, f
     // Universal processing for literals
     nff_literal_t *item = NULL;
 
-    for (int x = 0; dict[x].name != ""; x++) {
+    for (int x = 0; dict[x].name != NULL; x++) {
         if (!strcasecmp(valstr, dict[x].name)) {
             item = &dict[x];
             break;
