@@ -2043,7 +2043,7 @@ lnf_field_def_t lnf_fields_def[] = {
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		{LNF_FLD_ZERO_, LNF_FLD_ZERO_},
 		"inetfamily",	"IENT family for src/dst IP address (ipv4 or ipv6); platform dependant",
-		NULL, 0, 0, 
+		"ipVersion", 0, 60,
 		NULL, 0, 0, 
 		lnf_field_fget_INET_FAMILY,
 		lnf_field_fset_INET_FAMILY},

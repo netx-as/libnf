@@ -50,57 +50,76 @@
 
 pthread_mutex_t lnf_nfdump_filter_match_mutex;    /* mutex for operations match filter  */
 
+static char lnfc_inet[4];
+static char lnfc_inet6[4];
+
 /* callback from ffilter to lookup field */
 ff_error_t lnf_ff_lookup_func(ff_t *filter, const char *fieldstr, ff_lvalue_t *lvalue) {
 
-	/* fieldstr is set - trie to find field id and relevant _fget function */
-	if ( fieldstr != NULL ) {
 
-		int x = lvalue->id[0].index = lnf_fld_parse(fieldstr, NULL, NULL);
+	/* fieldstr is set - try to find field id and relevant _fget function */
+    if ( fieldstr != NULL ) {
 
-		if (lvalue->id[0].index == LNF_FLD_ZERO_) {
-			return FF_ERR_UNKN;
-		}
+        // Quick support for those few compatibility constants needed
+        if (!strcmp(fieldstr, "inet") || !strcmp(fieldstr, "ipv4")) {
+            snprintf(lnfc_inet, 4, "%d", AF_INET);
+            lvalue->literal = &lnfc_inet[0];
+            lvalue->options = FF_OPTS_CONST;
+            fieldstr = "inetfamily";
 
-		if (x == LNF_FLD_TCP_FLAGS) {
-			lvalue->options = FF_OPTS_FLAGS;
-		}
+        } else if (!strcmp(fieldstr, "inet6") || !strcmp(fieldstr, "ipv6")) {
+            snprintf(lnfc_inet6, 4, "%d", AF_INET6);
+            lvalue->literal = &lnfc_inet6[0];
+            lvalue->options = FF_OPTS_CONST;
+            fieldstr = "inetfamily";
+        }
 
-		if (lnf_fields_def[x].pair_field[0] != LNF_FLD_ZERO_) {
-			lvalue->id[0].index = lnf_fields_def[x].pair_field[0];
-			lvalue->id[1].index = lnf_fields_def[x].pair_field[1];
-		}
+        int x = lvalue->id[0].index = lnf_fld_parse(fieldstr, NULL, NULL);
 
-		switch (lnf_fld_type(lvalue->id[0].index)) {
-			case LNF_UINT8: 
-					lvalue->type = FF_TYPE_UINT8;
-					break;
-			case LNF_UINT16: 
-					lvalue->type = FF_TYPE_UINT16;
-					break;
-			case LNF_UINT32: 
-					lvalue->type = FF_TYPE_UINT32;
-					break;
-			case LNF_UINT64: 
-					lvalue->type = FF_TYPE_UINT64;
-					break;
-			case LNF_DOUBLE:
-					lvalue->type = FF_TYPE_DOUBLE;
-					break;
-			case LNF_ADDR:
-					lvalue->type = FF_TYPE_ADDR;
-					break;
-			case LNF_MAC: 
-					lvalue->type = FF_TYPE_MAC;
-					break;
-			case LNF_MPLS:
-					lvalue->type = FF_TYPE_MPLS; break;
-			default:
-					return FF_ERR_UNSUP;
-		}
+        if (lvalue->id[0].index == LNF_FLD_ZERO_) {
+            return FF_ERR_UNKN;
+        }
 
-		return FF_OK;
-	} 
+        if (x == LNF_FLD_TCP_FLAGS) {
+            lvalue->options = FF_OPTS_FLAGS;
+        }
+
+        if (lnf_fields_def[x].pair_field[0] != LNF_FLD_ZERO_) {
+            lvalue->id[0].index = lnf_fields_def[x].pair_field[0];
+            lvalue->id[1].index = lnf_fields_def[x].pair_field[1];
+        }
+
+        switch (lnf_fld_type(lvalue->id[0].index)) {
+        case LNF_UINT8:
+            lvalue->type = FF_TYPE_UINT8;
+            break;
+        case LNF_UINT16:
+            lvalue->type = FF_TYPE_UINT16;
+            break;
+        case LNF_UINT32:
+            lvalue->type = FF_TYPE_UINT32;
+            break;
+        case LNF_UINT64:
+            lvalue->type = FF_TYPE_UINT64;
+            break;
+        case LNF_DOUBLE:
+            lvalue->type = FF_TYPE_DOUBLE;
+            break;
+        case LNF_ADDR:
+            lvalue->type = FF_TYPE_ADDR;
+            break;
+        case LNF_MAC:
+            lvalue->type = FF_TYPE_MAC;
+            break;
+        case LNF_MPLS:
+            lvalue->type = FF_TYPE_MPLS;
+            break;
+        default:
+            return FF_ERR_UNSUP;
+        }
+
+        return FF_OK;
+    }
 
 	return FF_ERR_OTHER;	
 }
