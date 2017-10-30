@@ -17,7 +17,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CC_STDC
 
-#LIBS="$LIBS -lrt"
+LIBS="$LIBS -lrt"
 
 dnl get the flags
 CFLAGS="${CFLAGS=}"
