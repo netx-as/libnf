@@ -1,7 +1,7 @@
 Name: 		libnf
 Version: 	@VERSION@
 #Release:	1%{?dist}
-Release:	1
+Release:	2
 Summary:	Library providing C API for processing nfdump files
 
 Group:		Networking/Tools
@@ -10,7 +10,7 @@ URL:		http://libnf.net
 Source0:	http://libnf.net/packages/%{name}-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-#BuildRequires:	
+BuildRequires: bzip2-devel
 Requires: bzip2-libs
 
 
