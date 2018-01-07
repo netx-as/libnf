@@ -85,7 +85,7 @@ sub get_master_record() {
 	while (<F1>) {
 		chomp;
 
-		if (/typedef struct master_record_s {/) {
+		if (/typedef struct master_record_s \{/) {
 			$in_master = 1;
 			next;
 
