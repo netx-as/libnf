@@ -951,7 +951,7 @@ int map_id = 0;
 fileds: LNF_FLD_EXPORTER_ID LNF_FLD_EXPORTER_IP 
 returns - internal exporter ID (sysid)
 
-Exporters are organizes in linked lst. If the ID and IP is not 
+Exporters are organized in linked lst. If the ID and IP is not 
 found in the list the new entry is created */
 generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
@@ -993,7 +993,7 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 
 	/* assign sysid */
 	lnf_file->num_exporters++;
-	exporter->info.sysid = lnf_file->num_exporters;
+	exporter->info.sysid = lnf_file->num_exporters - 1; /* numbering from exprters starts from 0 */
 
 	/* additional exporter_info_record_t fields */
 	exporter->info.version = lnf_rec->exporter->info.version; 
