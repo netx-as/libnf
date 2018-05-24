@@ -45,7 +45,7 @@
 #include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
-#include "nfxstat.h"
+//#include "nfxstat.h"
 #include "nf_common.h"
 #include "rbtree.h"
 #include "nftree.h"
@@ -204,19 +204,19 @@ static int inline lnf_field_fset_TCP_FLAGS(lnf_rec_t *rec, void *p) {
 // however the structures are compatible so we will pretend 
 // that v6.srcaddr and v6.dst addr points to same structure 
 static int inline lnf_field_fget_SRCADDR(lnf_rec_t *rec, void *p) { 
-	ip_addr_t *d = (ip_addr_t *)&MR->v6.srcaddr;
+	ip_addr_t *d = (ip_addr_t *)&MR->V6.srcaddr;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_SRCADDR(lnf_rec_t *rec, void *p) { 
-	ip_addr_t *d = (ip_addr_t *)&MR->v6.srcaddr;
+	ip_addr_t *d = (ip_addr_t *)&MR->V6.srcaddr;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		ClearFlag(MR->flags, FLAG_IPV6_ADDR);
@@ -229,19 +229,19 @@ static int inline lnf_field_fset_SRCADDR(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_DSTADDR(lnf_rec_t *rec, void *p) { 
-	ip_addr_t *d = (ip_addr_t *)&MR->v6.dstaddr;
+	ip_addr_t *d = (ip_addr_t *)&MR->V6.dstaddr;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_DSTADDR(lnf_rec_t *rec, void *p) { 
-	ip_addr_t *d = (ip_addr_t *)&MR->v6.dstaddr;
+	ip_addr_t *d = (ip_addr_t *)&MR->V6.dstaddr;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		ClearFlag(MR->flags, FLAG_IPV6_ADDR);
@@ -256,8 +256,8 @@ static int inline lnf_field_fset_DSTADDR(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_IP_NEXTHOP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&MR->ip_nexthop;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return __bit_array_get(EA, EX_NEXT_HOP_v4) || __bit_array_get(EA, EX_NEXT_HOP_v6) ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -265,8 +265,8 @@ static int inline lnf_field_fget_IP_NEXTHOP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_IP_NEXTHOP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &MR->ip_nexthop;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		ClearFlag(MR->flags, FLAG_IPV6_NH);
@@ -380,8 +380,8 @@ static int inline lnf_field_fset_BGPPREVADJACENTAS(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_BGP_NEXTHOP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&MR->bgp_nexthop;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return __bit_array_get(EA, EX_NEXT_HOP_BGP_v4) || __bit_array_get(EA, EX_NEXT_HOP_BGP_v6) ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -389,8 +389,8 @@ static int inline lnf_field_fget_BGP_NEXTHOP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_BGP_NEXTHOP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &MR->bgp_nexthop;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		ClearFlag(MR->flags, FLAG_IPV6_NHB);
@@ -578,8 +578,8 @@ static int inline lnf_field_fset_FWD_STATUS(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_IP_ROUTER(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&MR->ip_router;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return __bit_array_get(EA, EX_ROUTER_IP_v4) || __bit_array_get(EA, EX_ROUTER_IP_v6) ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -587,8 +587,8 @@ static int inline lnf_field_fget_IP_ROUTER(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_IP_ROUTER(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &MR->ip_router;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		ClearFlag(MR->flags, FLAG_IPV6_EXP);
@@ -705,8 +705,8 @@ static int inline lnf_field_fset_FW_EVENT(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_XLATE_SRC_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&MR->xlate_src_ip;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return __bit_array_get(EA, EX_NSEL_XLATE_IP_v4) || __bit_array_get(EA, EX_NSEL_XLATE_IP_v6) ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -714,8 +714,8 @@ static int inline lnf_field_fget_XLATE_SRC_IP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_XLATE_SRC_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &MR->xlate_src_ip;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		__bit_array_set(EA,  EX_NSEL_XLATE_IP_v4, 1);
@@ -729,8 +729,8 @@ static int inline lnf_field_fset_XLATE_SRC_IP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_XLATE_DST_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&MR->xlate_dst_ip;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return __bit_array_get(EA, EX_NSEL_XLATE_IP_v4) || __bit_array_get(EA, EX_NSEL_XLATE_IP_v6) ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -738,8 +738,8 @@ static int inline lnf_field_fget_XLATE_DST_IP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_XLATE_DST_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &MR->xlate_dst_ip;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)p)) {
 		__bit_array_set(EA,  EX_NSEL_XLATE_IP_v4, 1);
@@ -1051,8 +1051,8 @@ static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
 	
-	((ip_addr_t *)p)->v6[0] = htonll(d->v6[0]);
-	((ip_addr_t *)p)->v6[1] = htonll(d->v6[1]);
+	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
 	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
 }
@@ -1060,8 +1060,8 @@ static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) {
 static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
 	ip_addr_t *d = &rec->exporter->info.ip;
 
-	d->v6[0] = ntohll( ((ip_addr_t *)p)->v6[0] );
-	d->v6[1] = ntohll( ((ip_addr_t *)p)->v6[1] );
+	d->V6[0] = ntohll( ((ip_addr_t *)p)->V6[0] );
+	d->V6[1] = ntohll( ((ip_addr_t *)p)->V6[1] );
 
 	rec->flags |= LNF_REC_EXPORTER;
 	return LNF_OK;

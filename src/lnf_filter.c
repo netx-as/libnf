@@ -26,7 +26,7 @@
 #include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
-#include "nfxstat.h"
+//#include "nfxstat.h"
 #include "nf_common.h"
 #include "rbtree.h"
 #include "nftree.h"

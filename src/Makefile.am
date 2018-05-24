@@ -29,7 +29,7 @@ CLEANFILES = lex.yy.c
 # Target for the libnfdump library
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c heap_sort.c list_sort.c hash_table.c xxhash.c memheap.c fields.c \
-	nffile.c nfx.c minilzo.c nf_common.c ipconv.c lnf_filter.c literals.c
+	nffile.c nfx.c minilzo.c nf_common.c ipconv.c lnf_filter.c literals.c lz4.c
 
 # Nfdump filter sources
 BUILT_SOURCES = grammar.h
@@ -50,7 +50,7 @@ libnf_la_SOURCES += lnf_ringbuf.c
 if LNF_BZ2STATIC
 libnf_la_SOURCES += ../bzip2/bzlib.c ../bzip2/bzip2.c ../bzip2/blocksort.c ../bzip2/huffman.c \
 					../bzip2/crctable.c ../bzip2/randtable.c ../bzip2/compress.c \
-					../bzip2/decompress.c
+					../bzip2/decompress.c 
 endif
 
 

@@ -21,9 +21,9 @@
 #
 
 
-NFDUMP_VERSION="1.6.15"
+NFDUMP_VERSION="1.6.17"
 NFDUMP="nfdump-$NFDUMP_VERSION"
-NFDUMP_MD5="6f52c01099a2a74e451ebfb17bf92da8"
+NFDUMP_MD5="95e30627750ae3798c3fb0c053b3b212"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
@@ -59,12 +59,12 @@ rm -rf nfdump/ $NFDUMP
 
 tar xzf $NFDUMP_SRC || exit 1
 mv $NFDUMP nfdump  || exit 1
-(cd nfdump && ./configure && make clean) || exit 1
+(cd nfdump && ./bootstrap && ./configure && make clean) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
 # for version < 1.6.4
 #(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
 # for version >= 1.6.4
-(cd nfdump && patch -p1 < ../nfdump-thread-nffile.patch && cd .. ) || exit 1
+#(cd nfdump && patch -p1 < ../nfdump-thread-nffile.patch && cd .. ) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-thread-nfx.patch && cd .. ) || exit 1
 if [ ! -f nfdump/README ]; then
 	echo > nfdump/README
@@ -127,7 +127,7 @@ echo "##########################################################"
 ##EOT
 
 
-FILES="nffile.c nfx.c nftree.c minilzo.c nf_common.c grammar.y scanner.l \
+FILES="nffile.c nfx.c nftree.c minilzo.c lz4.c nf_common.c grammar.y scanner.l \
 		  ipconv.c"
 echo "Creating symlinks for $FILES"
 for f in $FILES ; do

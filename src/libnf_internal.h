@@ -42,7 +42,7 @@
 #include <rbtree.h>
 #include <nftree.h>
 #include <nfx.h>
-#include <nfxstat.h>
+//#include <nfxstat.h> // commented out for >= 1.26
 #include <bookkeeper.h>
 #include <collector.h>
 #ifdef LNF_THREADS

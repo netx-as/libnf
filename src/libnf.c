@@ -48,7 +48,7 @@
 #include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
-#include "nfxstat.h"
+//#include "nfxstat.h" commented out for >= 1.26
 #include "nf_common.h"
 #include "rbtree.h"
 #include "nftree.h"
@@ -998,8 +998,8 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 	/* additional exporter_info_record_t fields */
 	exporter->info.version = lnf_rec->exporter->info.version; 
 
-	ip.v6[0] = htonll(exporter->info.ip.v6[0]);
-	ip.v6[1] = htonll(exporter->info.ip.v6[1]);
+	ip.V6[0] = htonll(exporter->info.ip.V6[0]);
+	ip.V6[1] = htonll(exporter->info.ip.V6[1]);
 
 	if (IN6_IS_ADDR_V4COMPAT((struct in6_addr *)&ip)) {
 		exporter->info.sa_family = AF_INET;
