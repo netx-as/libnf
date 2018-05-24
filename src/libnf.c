@@ -579,7 +579,7 @@ void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile) {
 		exporter = exporter->next;
 	}
 
-	AppendToBuffer(lnf_file->nffile, (void *)&estats, estats->header.size);
+	AppendToBuffer(lnf_file->nffile, (void *)estats, estats->header.size);
 
 	free(estats);
 

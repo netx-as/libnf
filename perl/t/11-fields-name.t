@@ -22,7 +22,7 @@ my $flow = new Net::NfDump(InputFiles => [ "t/v4_rec.tmp" ] );
 $flow->query();
 
 foreach $colno (0..$flow->{NUM_OF_FIELDS}-1) { $cnt++; }
-printf "NUM:$cnt\n";
+#printf "NUM:$cnt\n";
 ok($cnt == 94);
 
 $flow->finish();
