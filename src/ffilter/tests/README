@@ -1,0 +1,11 @@
+Popis získania zúborov .out s výsledkami vykonnostných testov
+Pokiaľ sa v tabuľke vyskytuje viacero vzoriek z rovnakým odhadovaným počtom uzlov, výsledky Flows/sec su priemerované vo výslednej sade. 
+
+core.out - získané spustením testovacieho programu performance. 
+lnf.out - spustenie programu lnf_ex03_coreperf -r <subor_nfdump_záznamov> -1 perf-test.in -P
+nf.out - spustenie programu lnf_ex03_coreperf -r <subor_nfdump_záznamov> -1 perf-test.in -P -n
+
+lnf_ex03_coreperf je program generovaný pri preklade knižnice libnf
+Na vytovrenie automatického skriptu neostal čas. 
+
+ipx.out - bol získany skriptom run-ipx-perf, za čas behu sa považuje user+sys, zo súborov filter+ sa odcíta z call graphu % podiel na casu funkcie ipx_filter_eval 

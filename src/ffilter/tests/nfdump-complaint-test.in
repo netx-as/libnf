@@ -1,0 +1,99 @@
+//#nfdump complaint tests
+
+//ipVersion
+//will fail
+inet6
+inet
+ipv4
+ipv6
+//instead
+
+proto TCP
+proto 6
+
+//[src|dst] -> src | dst | src and dst | dst and src | src or dst | dst or src|
+//last two are equivalents of no dir specifier at all
+
+//test for ipv4, shortened version with numeric mask
+ip 192.168 /14 
+ip 2010:608::
+host 192.168.10.2
+//direction tests
+src ip 138.232.197.76
+dst net 173.194.70.127
+src and dst net 195/8
+
+
+port 22
+port = 22
+port > 22
+src port < 22
+port in [ 6 17 1024 ]
+
+icmp-type 3
+icmp-code 3
+
+engine-type 1
+engine-id 2
+
+//separate 
+sysid 3
+
+in if 3 
+if 0
+
+src as 1
+dst as = 2
+prev as > 3
+next as < 5
+as in [ 10 11 12 ]
+as in [ 1, 2, 3 ]
+
+mask 16
+dst mask 24
+
+vlan 10
+src vlan 0
+
+flags ASF
+flags RPU
+flags X
+
+flags AS and not flags F
+
+next ip 10.10.0.0
+bgpnext ip 10.10.0.0
+router ip 220.1.0.1
+
+mac 01:02:03:04:05:06
+in mac ff:ff:ff:ff:ff:ff
+src mac ff:ff:ff:ff:ff:ff
+out dst mac ff:ff:ff:ff:ff:ff
+
+mpls label10 1
+mpls label1 = 2
+mpls label2 > 3
+mpls label3 < 50
+
+mpls exp 3
+mpls eos > 3
+
+//with scale
+packets > 45 
+bytes = 1 k
+flows < 3
+
+tos 1
+src tos 2
+dst tos 3
+
+pps > 20
+duration > 1k
+bpp < 1000
+bps > 2m
+
+//ssh bruteforce. flags 18 means SA
+packets > 10 and packets < 31 and bytes > 1400 and bytes < 5000 and flags 18 and duration < 5k 
+
+
+

@@ -1,0 +1,2 @@
+#define nf_filter_VERSION_MAJOR @nf_filter_VERSION_MAJOR@
+#define nf_filter_VERSION_MINOR @nf_filter_VERSION_MINOR@

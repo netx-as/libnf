@@ -1,0 +1,31 @@
+1   src ip 192.168.2.15
+1   not src ip 192.168.2.15
+1   src net 192.168.0.0/16
+1   src ip 192.168.0.0/16
+3   ip 192.168.2.15
+3   src and dst net 192.168.0.0/16
+3   src and dst ip 192.168.0.0/16
+5   ip 192.168.0.15 and src port gt 1024
+5   ip 192.168.0.15 or src port gt 1024
+7   ip 192.168.0.15 and src port gt 1024 and dst port gt 1024
+7   ip 192.168.0.15 or src port gt 1024 or dst port gt 1024
+8   ip 192.168.0.15 and not (src port gt 1024 and dst port gt 1024)
+9   ip 192.168.0.15 or src port gt 1024 or dst port 80 or proto 17
+9   ip 192.168.0.15 and src port gt 1024 and dst port 80 and proto 17
+11  ip 192.168.0.15 or src port lt 1024 or dst port 80 or proto 6 or flags 4
+11  ip 192.168.0.15 and src port lt 1024 and dst port 80 and proto 6 and flags 4
+11  packets gt 10 or packets lt 31 or bytes gt 1400 or bytes lt 5000 or flags 18 or duration lt 5
+11  packets gt 10 and packets lt 31 and bytes gt 1400 and bytes lt 5000 and flags 18 and duration lt 5
+13  ip 192.168.0.15 or (src port lt 1024 or dst port lt 1024) or proto 6 or flags 3 or bytes lt 25k
+13  ip 192.168.0.15 and (src port lt 1024 and dst port lt 1024) and proto 6 and flags 3 and bytes lt 25k
+14  ip 192.168.0.15 and not (src port lt 1024 and dst port lt 1024) and proto 6 and flags 3 and bytes lt 25k
+15  src or dst net 192.168.20.0/24 or src port lt 1024 or dst port 80 or proto 6 or flags 4 or bytes lt 25k or bpp lt 400
+15  src or dst ip 192.168.20.0/24 or src port lt 1024 or dst port 80 or proto 6 or flags 4 or bytes lt 25k or bpp lt 400
+15  src and dst net 192.168.20.0/24 and src port lt 1024 and dst port 80 and proto 6 and flags 4 and bytes lt 25k and bpp lt 400
+15  src and dst ip 192.168.20.0/24 and src port lt 1024 and dst port 80 and proto 6 and flags 4 and bytes lt 25k and bpp lt 400
+15	ip 192.168.0.15 and src port lt 1024 and dst port 80 and proto 6 and flags 4 and bytes lt 25k and bpp lt 400
+15	ip 192.168.0.15 or src port lt 1024 or dst port 80 or proto 6 or flags 4 or bytes lt 25k or bpp lt 400
+19	ip 192.168.0.15 and src port lt 1024 and dst port in [80 443, 8080] and proto 6 and flags 4 and bytes lt 25k and bpp lt 400
+19	ip 192.168.0.15 or src port lt 1024 or dst port in [80 443, 8080] or proto 6 or flags 4 or bytes lt 25k or bpp lt 400
+19	ip 192.168.0.15 and src port lt 1024 and (dst port 80 or dst port 443 or dst port 8080) and proto 6 and flags 4 and bytes lt 25k and bpp lt 400
+19	ip 192.168.0.15 or src port lt 1024 or (dst port 80 or dst port 443 or dst port 8080) or proto 6 or flags 4 or bytes lt 25k or bpp lt 400
