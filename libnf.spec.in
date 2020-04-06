@@ -21,7 +21,7 @@ See http://libnf.net for more information.
 %package devel
 Summary:	Libraries and header files for the libnf.net library
 Group:		Development/Libraries
-Requires:	%{name} 
+Requires:	%{name} bzip2-devel
 
 
 %description devel
