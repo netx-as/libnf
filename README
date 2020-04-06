@@ -15,11 +15,11 @@ Package directory:
 	http://libnf.net/packages/
 
 Github repository:
-	https://github.com/VUTBR/libnf
+	https://github.com/NETX-AS/libnf
 
 Libnf interface for perl (Net::NfDump package) available via cpan:
 	http://search.cpan.org/~tpoder/Net-NfDump/lib/Net/NfDump.pm
-	https://github.com/VUTBR/libnf-perl
+	https://github.com/netx-as/libnf/tree/master/perl
 
 
 INSTALLATION FROM TARBALL 
@@ -50,7 +50,7 @@ INSTALLATION FROM GIT REPOSITORY
 
 1. Get libnf git repository 
 
-	# git clone --recursive https://github.com/VUTBR/libnf
+	# git clone https://github.com/NETX-AS/libnf
 
 2. Go into libnf source directory 
 
