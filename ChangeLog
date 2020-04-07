@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.27 2020-04-xx
+1.27 2020-04-07
 	- after a few years stalled development the library is going to be 
 	  maintained and sponsored by NetX Networks a.s. 
 	- source code moved from original https://github.com/VUTBR/libnf 
@@ -8,6 +8,9 @@ Revision history for C and Perl extension of nfdump.
 	- updated README 
 	- un-submoduled ffilter code to avoid nigtmare with git submodules 
 	- backported patch https://github.com/VUTBR/libnf/pull/24
+	- updated to nfdump 1.6.18
+	- removed support for legacy nadump V0 format 
+	- some test files in perl/t/ dir converted from V0 format 
 
 
 1.26 2018-06-xx - never released

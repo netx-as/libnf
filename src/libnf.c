@@ -44,16 +44,16 @@
 #include <stdint.h>
 #endif
 
+#include "nfdump.h"
 #include "nffile.h"
 #include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
 //#include "nfxstat.h" commented out for >= 1.26
-#include "nf_common.h"
+//#include "nfdump.h"
 #include "rbtree.h"
 #include "nftree.h"
 #include "nfprof.h"
-#include "nfdump.h"
 #include "nflowcache.h"
 #include "nfstat.h"
 #include "nfexport.h"
@@ -426,7 +426,9 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_CATALOG: 
-			*((int *)buf) = h->flags & FLAG_CATALOG; 
+			/* removed in 1.6.18 - we will return 0 */
+			// *((int *)buf) = h->flags & FLAG_CATALOG; 
+			*((int *)buf) = 0;
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_IDENT: 
@@ -736,18 +738,19 @@ begin:
 				FLOW_RECORD_NEXT(lnf_file->flow_record);	
 				goto begin;
 				break;
-			
+		
+		/* support for V0Type removed in 1.6.18 */	
 		case CommonRecordV0Type:
 
 				// convert common record v0
-				if ( lnf_file->v1convert_buffer == NULL) {
-					lnf_file->v1convert_buffer = malloc(65536); /* very suspisous part of code taken from nfdump */
-					if ( lnf_file->v1convert_buffer == NULL ) {
-						return LNF_ERR_NOMEM;
-					}
-				}
-				ConvertCommonV0((void *)lnf_file->flow_record, (common_record_t *)lnf_file->v1convert_buffer);
-				common_record_ptr = (common_record_t *)lnf_file->v1convert_buffer;
+//				if ( lnf_file->v1convert_buffer == NULL) {
+//					lnf_file->v1convert_buffer = malloc(65536); /* very suspisous part of code taken from nfdump */
+//					if ( lnf_file->v1convert_buffer == NULL ) {
+//						return LNF_ERR_NOMEM;
+//					}
+//				}
+//				ConvertCommonV0((void *)lnf_file->flow_record, (common_record_t *)lnf_file->v1convert_buffer);
+//				common_record_ptr = (common_record_t *)lnf_file->v1convert_buffer;
 
 				break;
 
@@ -993,7 +996,9 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 
 	/* assign sysid */
 	lnf_file->num_exporters++;
-	exporter->info.sysid = lnf_file->num_exporters - 1; /* numbering from exprters starts from 0 */
+	//exporter->info.sysid = lnf_file->num_exporters - 1; /* numbering from exprters starts from 0 */
+	/* starting with v 1.6.18 the exporter sysid is counted from 1 */
+	exporter->info.sysid = lnf_file->num_exporters; /* numbering from exporters starts from 1 */
 
 	/* additional exporter_info_record_t fields */
 	exporter->info.version = lnf_rec->exporter->info.version; 

@@ -21,9 +21,10 @@
 #
 
 
-NFDUMP_VERSION="1.6.17"
+NFDUMP_VERSION="1.6.18"
 NFDUMP="nfdump-$NFDUMP_VERSION"
-NFDUMP_MD5="95e30627750ae3798c3fb0c053b3b212"
+#NFDUMP_MD5="1e0bcaedc43bbd05cdc501102e06ccfb"
+NFDUMP_MD5=" d251dbdcb714661985cfbea2ce209bf7"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
@@ -61,7 +62,8 @@ rm -rf nfdump/ $NFDUMP
 tar xzf $NFDUMP_SRC || exit 1
 mv $NFDUMP nfdump  || exit 1
 (cd nfdump && ./bootstrap && ./configure && make clean) || exit 1
-(cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
+# for version < 1.6.18
+#(cd nfdump && patch -p1 < ../nfdump-bugs.patch && cd .. ) || exit 1
 # for version < 1.6.4
 #(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
 # for version >= 1.6.4
