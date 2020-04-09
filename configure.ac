@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT(libnf, 1.28, tpoder@netx.as)
-AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.18, peter@people.ops-trust.net"],[nfdump])
+AC_DEFINE(NFDUMP_VERSION,["nfdump, 1.6.20, peter@people.ops-trust.net"],[nfdump])
 # $Date: 2014-11-16 14:10:20 +0100 (Sun, 16 Nov 2014) $
 #AC_CONFIG_SRCDIR([grammar.y])
 AC_CONFIG_HEADER([config.h])

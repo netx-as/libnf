@@ -549,7 +549,7 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 /* XXX should be redesigned */
 void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile) {
 
-	generic_exporter_t *exporter; 
+	exporter_t *exporter; 
 	exporter_stats_record_t *estats;
 	size_t size;
 	int i = 0;
@@ -591,8 +591,8 @@ void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile) {
 void lnf_close(lnf_file_t *lnf_file) {
 
 	lnf_map_list_t *map_list, *tmp_map_list;
-	generic_exporter_t *exporter; 
-	generic_sampler_t *sampler;
+	exporter_t *exporter; 
+	sampler_t *sampler;
 	void *tmp; 
 
 	if (lnf_file == NULL || lnf_file->nffile == NULL) {
@@ -705,10 +705,13 @@ begin:
 					break;
 			case DATA_BLOCK_TYPE_2:		/* common record type - normally processed */
 					break;
+			/*
+ 			removed in v1.6.19
 			case Large_BLOCK_Type:
 					lnf_file->skipped_blocks++;
 					goto begin;
 					break;
+			*/
 			default: 
 					lnf_file->skipped_blocks++;
 					return LNF_ERR_UNKBLOCK;
@@ -722,8 +725,10 @@ begin:
 	lnf_file->blk_record_remains--;
 
 	switch (lnf_file->flow_record->type) {
-		case ExporterRecordType:
-		case SamplerRecordype:
+		/* case ExporterRecordType:  replaced with LegacyRecordType1:*/
+		case LegacyRecordType1:
+		/* case SamplerRecordype:  replaced with LegacyRecordType2: */
+		case LegacyRecordType2:
 		case ExporterInfoRecordType:
 		case ExporterStatRecordType:
 		case SamplerInfoRecordype:
@@ -957,10 +962,10 @@ returns - internal exporter ID (sysid)
 
 Exporters are organized in linked lst. If the ID and IP is not 
 found in the list the new entry is created */
-generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
+exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
-	generic_exporter_t *exporter;
-	generic_exporter_t *tmp;
+	exporter_t *exporter;
+	exporter_t *tmp;
 	ip_addr_t ip;
 
 	/* no exporter set in the record */
@@ -980,7 +985,7 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 		exporter = exporter->next;
 	}
 
-	exporter = calloc(sizeof(generic_exporter_t), 1);
+	exporter = calloc(sizeof(exporter_t), 1);
 
 	if (exporter == NULL) {
 		return NULL;
@@ -1029,7 +1034,7 @@ generic_exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 	extension_map_t *map;
-	generic_exporter_t *exporter;
+	exporter_t *exporter;
 
 	/* lookup and add map into file if it it is nescessary */
 	map = lnf_lookup_map(lnf_file, lnf_rec->extensions_arr);
@@ -1096,8 +1101,8 @@ int lnf_rec_init(lnf_rec_t **recp) {
 
 
 	/* exporter and sampler structure initialisation */
-	rec->exporter = malloc(sizeof(generic_exporter_t));
-	rec->sampler = malloc(sizeof(generic_sampler_t));
+	rec->exporter = malloc(sizeof(exporter_t));
+	rec->sampler = malloc(sizeof(sampler_t));
 
 	if (rec->exporter == NULL || rec->sampler == NULL) {
 		lnf_rec_free(rec);
@@ -1105,8 +1110,8 @@ int lnf_rec_init(lnf_rec_t **recp) {
 		return LNF_ERR_NOMEM;
 	}
 
-	memset(rec->exporter, 0x0, sizeof(generic_exporter_t));
-	memset(rec->sampler, 0x0, sizeof(generic_sampler_t));
+	memset(rec->exporter, 0x0, sizeof(exporter_t));
+	memset(rec->sampler, 0x0, sizeof(sampler_t));
 
 	rec->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
 
@@ -1161,8 +1166,8 @@ void lnf_rec_clear(lnf_rec_t *rec) {
 		rec->sequence_failures = 0;
 	}
 
-	memset(rec->exporter, 0x0, sizeof(generic_exporter_t));
-	memset(rec->sampler, 0x0, sizeof(generic_sampler_t));
+	memset(rec->exporter, 0x0, sizeof(exporter_t));
+	memset(rec->sampler, 0x0, sizeof(sampler_t));
 
 	rec->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
 }
@@ -1175,8 +1180,8 @@ int lnf_rec_copy(lnf_rec_t *dst, lnf_rec_t *src) {
 	}
 
 	memcpy(dst->master_record, src->master_record, sizeof(master_record_t));
-	memcpy(dst->exporter, src->exporter, sizeof(generic_exporter_t));
-	memcpy(dst->sampler, src->sampler, sizeof(generic_sampler_t));
+	memcpy(dst->exporter, src->exporter, sizeof(exporter_t));
+	memcpy(dst->sampler, src->sampler, sizeof(sampler_t));
 
 	dst->sequence_failures = src->sequence_failures;
 	dst->flags = src->flags;

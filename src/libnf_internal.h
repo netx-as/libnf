@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <nffile.h>
 #include <rbtree.h>
+#include <nfdump.h>
 #include <nftree.h>
 #include <nfx.h>
 //#include <nfxstat.h> // commented out for >= 1.26
@@ -78,7 +79,7 @@ typedef struct lnf_map_list_s {
 
 /* structure representing a filter */
 typedef struct lnf_filter_s {
-	FilterEngine_data_t	*engine;
+	FilterEngine_t		*engine;
 	int					v2filter; /* is V2 - libnf only fiter */
 
 	/* structures for new filter */
@@ -98,8 +99,8 @@ typedef struct lnf_filter_s {
 typedef struct lnf_rec_s {
 	master_record_t *master_record;		/* reference to master record */
 	bit_array_t *extensions_arr;		/* list of extensions available in the record */
-	generic_exporter_t *exporter;		/* exporter information */
-	generic_sampler_t *sampler;			/* sampler information */
+	exporter_t *exporter;				/* exporter information */
+	sampler_t *sampler;					/* sampler information */
 #define LNF_REC_EXPORTER 0x1			/* is exporter set? */
 #define LNF_REC_SAMPLER 0x2				/* is sampler set ? */
 	int flags;
@@ -147,14 +148,14 @@ typedef struct lnf_file_s {
 	uint64_t                processed_bytes;
 	char					*filename;				/* name of open file (for LOOP mode) */
 	ino_t					inode;					/* inode of open file (for LOOP mode) */
-	generic_exporter_t		*exporters;				/* linked list of exporters */
-	generic_sampler_t		*samplers;				/* linked list of samplers */
+	exporter_t				*exporters;				/* linked list of exporters */
+	sampler_t				*samplers;				/* linked list of samplers */
 	uint32_t				num_exporters;
 } lnf_file_t;
 
 
 extension_map_t * lnf_lookup_map(lnf_file_t *lnf_file, bit_array_t *ext );
-generic_exporter_t * lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
+exporter_t * lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile);
 int lnf_read_record(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec);
 

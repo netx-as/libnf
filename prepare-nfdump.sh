@@ -21,10 +21,9 @@
 #
 
 
-NFDUMP_VERSION="1.6.18"
+NFDUMP_VERSION="1.6.20"
 NFDUMP="nfdump-$NFDUMP_VERSION"
-#NFDUMP_MD5="1e0bcaedc43bbd05cdc501102e06ccfb"
-NFDUMP_MD5=" d251dbdcb714661985cfbea2ce209bf7"
+NFDUMP_MD5="1e0bcaedc43bbd05cdc501102e06ccfb"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
@@ -131,7 +130,7 @@ echo "##########################################################"
 
 
 FILES="nffile.c nfx.c nftree.c minilzo.c lz4.c nf_common.c grammar.y scanner.l \
-		  ipconv.c"
+		  ipconv.c output_util.c"
 echo "Creating symlinks for $FILES"
 for f in $FILES ; do
 	(cd src && rm -f $f && ln -s ../nfdump/bin/$f && cd ..) || exit 1

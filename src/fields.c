@@ -42,15 +42,15 @@
 #endif
 
 #include "nffile.h"
-#include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
 //#include "nfxstat.h"
-#include "nf_common.h"
+//#include "nf_common.h"
 #include "rbtree.h"
 #include "nftree.h"
 #include "nfprof.h"
 #include "nfdump.h"
+#include "nfx.h"
 #include "nflowcache.h"
 #include "nfstat.h"
 #include "nfexport.h"
