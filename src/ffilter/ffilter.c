@@ -24,6 +24,7 @@
  * \brief netflow fiter implementation
  */
 #define _XOPEN_SOURCE 500
+#define _GNU_SOURCE
 #include "config.h"
 #include <stdio.h>
 #include <stdarg.h>

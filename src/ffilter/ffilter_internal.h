@@ -66,6 +66,11 @@ void yyerror(yyscan_t yyscanner, ff_t *filter, char *);
 unsigned get_unit(char *unit);
 int64_t ff_strtoll(char *num, char**endptr, int *err);
 uint64_t ff_strtoull(char *num, char**endptr, int *err);
+int64_t saturate_int(int64_t num, ff_type_t type);
+uint64_t saturate_uint(uint64_t num, ff_type_t type);
+
+ff_error_t ff_type_validate(yyscan_t *scanner, ff_t *filter, char *valstr, ff_node_t* node, ff_lvalue_t* info);
+ff_node_t* ff_transform_mval(yyscan_t *scanner, ff_t* filter, ff_node_t *node, ff_node_t *list, ff_lvalue_t* lvalue);
 
 int str_to_uint(ff_t *filter, char *str, ff_type_t type, char **res, size_t *vsize);
 int str_to_int(ff_t *filter, char *str, ff_type_t type, char **res, size_t *vsize);

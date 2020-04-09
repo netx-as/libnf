@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <time.h>
+#include <inttypes.h>
 
 #define FILENAME_IN "./ringbuf-out.tmp"
 #define SHM "libnf-shm"
@@ -108,7 +109,7 @@ int main(int argc, char **argv) {
 				ts2 = time(NULL);
 				if (ts2 > ts1) {
 					lnf_ring_info(ringp, LNF_RING_LOST, &lost1, sizeof(lost1));	
-					printf("Received %d recs in %d secs (lost: %llu recs)\n", j, ts2 - ts1, lost1 - lost2);
+					printf("Received %d recs in %d secs (lost: %" PRId64 " recs)\n", j, ts2 - ts1, lost1 - lost2);
 					j = 0;
 					lost2 = lost1;
 				}

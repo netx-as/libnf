@@ -59,6 +59,7 @@
 #define FF_SCALING_FACTOR  1000LL
 #define FF_MULTINODE_MAX 4
 
+
 #ifndef HAVE_HTONLL
 #ifdef WORDS_BIGENDIAN
 #   define ntohll(n)    (n)
@@ -69,6 +70,7 @@
 #endif
 #define HAVE_HTONLL 1
 #endif
+
 
 
 /**

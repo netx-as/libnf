@@ -50,7 +50,6 @@
 #endif
 #include "bit_array.h"
 #include "hash_table.h"
-#include "ffilter.h"
 
 #ifndef HAVE_HTONLL
 #ifdef WORDS_BIGENDIAN
@@ -62,6 +61,8 @@
 #endif
 #define HAVE_HTONLL 1
 #endif
+
+#include "ffilter.h"
 
 #define LNF_DEFAULT_EXPORTER_VERSION 9
 

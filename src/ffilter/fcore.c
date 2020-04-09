@@ -25,10 +25,11 @@
  * \brief netflow fiter tree (abstract syntax tree) evaluation function and structures
  */
 
+#define _GNU_SOURCE
+#include <string.h>
 #include "ffilter.h"
 #include "fcore.h"
 #include <arpa/inet.h>
-#include <string.h>
 #include <stdlib.h>
 
 

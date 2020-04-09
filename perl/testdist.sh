@@ -4,8 +4,6 @@
 
 export COPYFILE_DISABLE=1
 
-echo "y" | make dist 
-echo "Y" | make dist 
 
 HOSTS="
 	root@hawk.cis.vutbr.cz 
@@ -19,8 +17,16 @@ HOSTS="
 	root@test-openbsd.net.vutbr.cz
 "
 
-DIST="Net-NfDump-1.27"
+# get lastets version of package 
+VER=$(cat lib/Net/NfDump.pm | grep VERSIO | grep our | cut -f2 -d"'")
+DIST="Net-NfDump-$VER"
 EXT=".tar.gz"
+
+#echo "y" | make dist 
+rm Net-NfDump-*.tar
+rm Net-NfDump-*.tar.gz
+
+echo "Y" | make dist 
 
 for h in $HOSTS; do 
 	echo "***********************************************"

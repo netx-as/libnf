@@ -752,6 +752,7 @@ begin:
 //				ConvertCommonV0((void *)lnf_file->flow_record, (common_record_t *)lnf_file->v1convert_buffer);
 //				common_record_ptr = (common_record_t *)lnf_file->v1convert_buffer;
 
+				goto begin;
 				break;
 
 		case CommonRecordType:

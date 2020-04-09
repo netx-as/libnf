@@ -45,17 +45,17 @@ int main(int argc, char **argv)
 	lnf_rec_t *recp;
 	lnf_filter_t *filterp1;
 	lnf_brec1_t brec;
-	char *filter1 = FILTER1;
+//	char *filter1 = FILTER1;
 	uint32_t input, output;
 	char buf[LNF_MAX_STRING];
 	int res;
 	char use_v2 = 1;
 
-	int i = 0;
-	int match1 = 0;
+//	int i = 0;
+//	int match1 = 0;
 
 	int print = 1;
-	int filter = 1;
+//	int filter = 1;
 	int fget = 1;
 	char *filename = FILENAME;
 	char *fifname = NULL;
@@ -81,13 +81,12 @@ int main(int argc, char **argv)
 		case 'f':
 			filename = optarg;
 			break;
-		case '1':
-			filter1 = optarg;
-			break;
+//		case '1':
+//			filter1 = optarg;
+//			break;
 		case '?':
-			printf("Usage: %s [ -p ] [ -f <output file name> ] [ -1 <filter1> ]\n", argv[0]);
+			printf("Usage: %s [ -p ] [ -f <output file name> ] \n", argv[0]);
 			printf(" -P : do not print records to stdout\n");
-			printf(" -F : supply file with filters to test, each line is in form '%%d %%s' - group number and filter\n");
 			printf(" -n : use stock nfdump core\n");
 			exit(1);
 		}
