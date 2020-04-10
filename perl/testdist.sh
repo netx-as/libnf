@@ -6,15 +6,9 @@ export COPYFILE_DISABLE=1
 
 
 HOSTS="
-	root@hawk.cis.vutbr.cz 
+	tpoder@ox.netx.as
 	root@coyote.cis.vutbr.cz 
-	tpoder@147.229.3.110
-	root@test-ubuntu.net.vutbr.cz 
-	root@r101.cis.vutbr.cz 
-	root@test-freebsd.net.vutbr.cz 
-	root@test-gnukfreebsd.net.vutbr.cz 
-	root@test-solaris.net.vutbr.cz 
-	root@test-openbsd.net.vutbr.cz
+	root@irbis.cis.vutbr.cz 
 "
 
 # get lastets version of package 

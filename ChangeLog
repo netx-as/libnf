@@ -1,6 +1,6 @@
 Revision history for C and Perl extension of nfdump.
 
-1.28 2020-04-xx
+1.28 2020-04-10
 	- updated to nfdump 1.6.20
 	- code cleanup 
 
