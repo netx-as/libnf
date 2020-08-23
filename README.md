@@ -33,16 +33,16 @@ INSTALLATION FROM TARBALL
 ```
 2. Unzip package and enter the package dir 
 ```
-	# tar xzf libnf-x.xx.tar.gz 
-	# cd libnf-x.xx
+# tar xzf libnf-x.xx.tar.gz 
+# cd libnf-x.xx
 ```
 3. Run configure script 
 ```
-	# ./configure 
+# ./configure 
 ```
 4. Run make and install files 
 ```
-	# make && make install 
+# make && make install 
 ```   
 5. Look at the examples directory how to use libnf 
 
@@ -52,15 +52,15 @@ INSTALLATION FROM GIT REPOSITORY
 
 1. Get libnf git repository 
 ```
-	# git clone https://github.com/NETX-AS/libnf
+# git clone https://github.com/NETX-AS/libnf
 ```
 2. Go into libnf source directory 
 ```
-	# cd libnf
+# cd libnf
 ```
 3. Fetch nfdump sources an prepare for using in libnf
 ```
-	# ./prepare-nfdump.sh
+# ./prepare-nfdump.sh
 ```
 4. Follow instructions 3., 4. and 5. from TARBALL INSTALLATION
 
