@@ -1,5 +1,5 @@
 
-[![Maintained by NetX Networks](https://img.shields.io/badge/maintained-NetX%20Networks-blue)](https://netx.as/)
+[![Maintained by NetX Networks](https://img.shields.io/badge/maintained%20by-NetX%20Networks-blue)](https://netx.as/)
 
 libnf - C interface for processing nfdump files 
 
