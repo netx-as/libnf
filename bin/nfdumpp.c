@@ -187,6 +187,7 @@ int main(int argc, char **argv) {
 	int numaflags = 0;
 	output_t *outputp;
 	char errbuf[MAX_ERRBUF_LEN];
+	char buf[LNF_INFO_BUFSIZE];
 //	lnf_filter_t *filterp;
 	
 
@@ -304,6 +305,11 @@ int main(int argc, char **argv) {
 				printf(" --loop-read : read input files in endless loop \n");
 				printf(" --shm-read : read data from shm ring buffer \n");
 				printf("\n");
+				lnf_info(NULL, LNF_INFO_VERSION, buf, LNF_INFO_BUFSIZE);
+				printf("Libnf version: %s, ", buf);
+				lnf_info(NULL, LNF_INFO_NFDUMP_VERSION, buf, LNF_INFO_BUFSIZE);
+				printf("based on nfdump: %s\n", buf);
+				printf("\n");
 				exit(1);
 		}
 	}
@@ -347,7 +353,6 @@ int main(int argc, char **argv) {
 
 	/* if there are no files defined switch to shmloop mode and use default shm name */
 	if (flist_is_empty(&flist)) {
-		printf("\n\nXXXX \n\n");
 		flist_push(&flist, RINGBUF_NAME);
 		shmread = 1;
 		numthreads = 1;
