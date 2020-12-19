@@ -38,9 +38,9 @@ int output_row_nfdump(output_t *output, lnf_rec_t *rec) {
 	ret = lnf_write(output->filep, rec);
 
 	if (ret != LNF_OK) { 
-		return 1;
-	} else {
 		return 0;
+	} else {
+		return 1;
 	}
 }
 
