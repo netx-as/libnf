@@ -15,7 +15,7 @@ use threads;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '1.28';
+our $VERSION = '1.29';
 
 # XXX
 # Items to export into callers namespace by default. Note: do not export

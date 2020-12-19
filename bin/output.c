@@ -110,9 +110,9 @@ int output_start(output_t *output) {
 			lnf_mem_setopt(output->memp, LNF_OPT_LISTMODE, NULL, 0);
 			lnf_mem_fastaggr(output->memp, LNF_FAST_AGGR_BASIC);
 			lnf_mem_fadd(output->memp, LNF_FLD_PROT, LNF_AGGR_KEY, 0, 0);
-			lnf_mem_fadd(output->memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(output->memp, LNF_FLD_SRCADDR, LNF_AGGR_KEY, 32, 128);
 			lnf_mem_fadd(output->memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0);
-			lnf_mem_fadd(output->memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 24, 128);
+			lnf_mem_fadd(output->memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 32, 128);
 			lnf_mem_fadd(output->memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
 		}
 		output_field_add(output, LNF_FLD_PROT);

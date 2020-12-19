@@ -21,9 +21,9 @@
 #
 
 
-NFDUMP_VERSION="1.6.20"
+NFDUMP_VERSION="1.6.22"
 NFDUMP="nfdump-$NFDUMP_VERSION"
-NFDUMP_MD5="1e0bcaedc43bbd05cdc501102e06ccfb"
+NFDUMP_MD5="25aa5f12a781c984e8538c4f54ca32ce"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
