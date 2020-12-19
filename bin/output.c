@@ -114,12 +114,14 @@ int output_start(output_t *output) {
 			lnf_mem_fadd(output->memp, LNF_FLD_SRCPORT, LNF_AGGR_KEY, 0, 0);
 			lnf_mem_fadd(output->memp, LNF_FLD_DSTADDR, LNF_AGGR_KEY, 32, 128);
 			lnf_mem_fadd(output->memp, LNF_FLD_DSTPORT, LNF_AGGR_KEY, 0, 0);
+			lnf_mem_fadd(output->memp, LNF_FLD_TCP_FLAGS, LNF_AGGR_FLAGS, 0, 0);
 		}
 		output_field_add(output, LNF_FLD_PROT);
 		output_field_add(output, LNF_FLD_SRCADDR);
 		output_field_add(output, LNF_FLD_SRCPORT);
 		output_field_add(output, LNF_FLD_DSTADDR);
 		output_field_add(output, LNF_FLD_DSTPORT);
+		output_field_add(output, LNF_FLD_TCP_FLAGS);
 	}
 
     /* default fields on the ond of the list */

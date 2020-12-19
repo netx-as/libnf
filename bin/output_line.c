@@ -65,7 +65,22 @@ static void format_double(char *buff, char *data) {
 
 /* function for print duration */
 static void format_duration(char *buff, char *data) {
-	sprintf(buff, " %1.3f", *((uint64_t *)data) / 1000.0);
+	double msecs = *((uint64_t *)data);
+	double secs = msecs / 1000.0;
+
+	if (secs > 999 * 60 * 60) { /* more than 999 hours -> convert to days */
+		sprintf(buff, " %1.3fd", secs / 60 / 60 / 24);
+
+	} else if (secs > 999 * 60) { /* more than 999 seconds -> convert to minutes */
+		sprintf(buff, " %1.3fd", secs / 60 / 60);
+
+	} else if (secs > 999) { /* more than 999 seconds -> convert to minutes */
+		sprintf(buff, " %1.3fm", secs / 60);
+
+	} else {
+		sprintf(buff, " %1.3fs", secs);
+
+	}
 }
 
 /* format date/time */
@@ -94,6 +109,25 @@ static void format_addr(char *buff, char *data) {
 	}
 }
 
+/* function for TCP flags address */
+static void format_tcp_flags(char *buff, char *data) {
+
+	uint8_t flags = *(uint8_t *)data;
+
+	buff[0] = flags & 128 ? 'C' : '.';    // Congestion window reduced -  CWR
+    buff[1] = flags &  64 ? 'E' : '.';    // ECN-Echo
+    buff[2] = flags &  32 ? 'U' : '.';    // Urgent
+    buff[3] = flags &  16 ? 'A' : '.';    // Ack
+    buff[4] = flags &   8 ? 'P' : '.';    // Push
+    buff[5] = flags &   4 ? 'R' : '.';    // Reset
+    buff[6] = flags &   2 ? 'S' : '.';    // Syn
+    buff[7] = flags &   1 ? 'F' : '.';    // Fin
+    buff[8] = '\0';
+
+}
+
+
+
 
 /* defines format ptions for types and fields */
 /* type 0 and field 0 defines default value  */
@@ -114,7 +148,8 @@ const format_ent_t formats[] = {
 	{ LNF_MAC,    0, "%10s ", NULL },  				/* default for all LNF_MAC */
 	{ LNF_UINT64, LNF_FLD_FIRST, "%23s ", format_date }, 
 	{ LNF_UINT64, LNF_FLD_LAST, "%10s ", format_date }, 
-	{ LNF_UINT64, LNF_FLD_CALC_DURATION, "%9s ", format_duration }, 
+	{ LNF_UINT8,  LNF_FLD_TCP_FLAGS, "%9s ", format_tcp_flags }, 
+	{ LNF_UINT64, LNF_FLD_CALC_DURATION, "%10s ", format_duration }, 
 	{ LNF_UINT64, LNF_FLD_DPKTS, "%9s ", format_uint64_unit }, 
 	{ LNF_DOUBLE, LNF_FLD_CALC_BPS, "%8s ", format_double }, 
 	{ LNF_DOUBLE, LNF_FLD_CALC_PPS, "%8s ", format_double }, 
