@@ -968,6 +968,7 @@ exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 	exporter_t *tmp;
 	ip_addr_t ip;
 
+
 	/* no exporter set in the record */
 	if ((lnf_rec->flags & LNF_REC_EXPORTER) == 0) {
 		return NULL;
@@ -977,6 +978,7 @@ exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 	/* walk via all exporters */
 	while (exporter != NULL) {
+		
 
 		if (lnf_rec->exporter->info.id == exporter->info.id && memcmp(&lnf_rec->exporter->info.ip, &exporter->info.ip, sizeof(ip_addr_t)) == 0) {
 			return exporter;
@@ -1002,7 +1004,6 @@ exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 	/* assign sysid */
 	lnf_file->num_exporters++;
-	//exporter->info.sysid = lnf_file->num_exporters - 1; /* numbering from exprters starts from 0 */
 	/* starting with v 1.6.18 the exporter sysid is counted from 1 */
 	exporter->info.sysid = lnf_file->num_exporters; /* numbering from exporters starts from 1 */
 
@@ -1035,6 +1036,7 @@ int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 	extension_map_t *map;
 	exporter_t *exporter;
+
 
 	/* lookup and add map into file if it it is nescessary */
 	map = lnf_lookup_map(lnf_file, lnf_rec->extensions_arr);
@@ -1073,15 +1075,16 @@ int lnf_rec_init(lnf_rec_t **recp) {
 	lnf_rec_t *rec;
 	int i, numext;
 
-	rec = malloc(sizeof(lnf_rec_t)); 
+	//rec = malloc(sizeof(lnf_rec_t)); 
+	rec = calloc(1, sizeof(lnf_rec_t)); 
 
 	if (rec == NULL) {
 		*recp = NULL;
 		return LNF_ERR_NOMEM;
 	}
 
-	rec->extensions_arr = NULL;
-	rec->field_data = NULL;
+//	rec->extensions_arr = NULL;
+//	rec->field_data = NULL;
 
 	rec->master_record = malloc(sizeof(master_record_t));
 
@@ -1258,7 +1261,7 @@ int lnf_rec_get_raw(lnf_rec_t *rec, int type, char *buf, size_t size, size_t *re
 	return LNF_OK;
 }
 
-/* get data from the record in binnary representation */
+/* set data from the record in binnary representation */
 int lnf_rec_set_raw(lnf_rec_t *rec, char *buf, size_t size) {
 
 	int offset;

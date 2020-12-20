@@ -1049,12 +1049,16 @@ static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
-	ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
+	if ( MR->map_ref != NULL || rec->flags & LNF_REC_EXPORTER) {
+		ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
 	
-	((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
-	((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
+		((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
+		((ip_addr_t *)p)->V6[1] = htonll(d->V6[1]);
 
-	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOTSET;
+	}
 }
 
 static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
@@ -1069,8 +1073,12 @@ static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = rec->exporter->info.id;
-	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+	if ( MR->map_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
+		*((uint32_t *)p) = rec->exporter->info.id;
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOTSET;
+	}
 }
 
 static int inline lnf_field_fset_EXPORTER_ID(lnf_rec_t *rec, void *p) { 
@@ -1081,8 +1089,12 @@ static int inline lnf_field_fset_EXPORTER_ID(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = rec->exporter->info.version;
-	return rec->flags & LNF_REC_EXPORTER ? LNF_OK : LNF_ERR_NOTSET;
+	if ( MR->map_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
+		*((uint32_t *)p) = rec->exporter->info.version;
+		return LNF_OK;
+	} else {
+		return LNF_ERR_NOTSET;
+	}
 }
 
 static int inline lnf_field_fset_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
