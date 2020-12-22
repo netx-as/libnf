@@ -3,6 +3,7 @@ Revision history for C and Perl extension of nfdump.
 1.30 2020-12-22
 	- fixed issue with building ffilter code on FreeBSD
 	- fixed issue when no exporters are configured 
+	- removed memory leask (https://github.com/VUTBR/libnf/issues/14)
 
 1.29 2020-12-20
 	- updated to nfdump 1.6.22

@@ -623,6 +623,7 @@ void lnf_close(lnf_file_t *lnf_file) {
 	}
 
 	DisposeFile(lnf_file->nffile); 
+	free(lnf_file->nffile);
 
 	PackExtensionMapList(lnf_file->extension_map_list);
 	FreeExtensionMaps(lnf_file->extension_map_list);
@@ -1177,6 +1178,7 @@ void lnf_rec_clear(lnf_rec_t *rec) {
 
 	memset(rec->exporter, 0x0, sizeof(exporter_t));
 	memset(rec->sampler, 0x0, sizeof(sampler_t));
+	rec->flags = 0x0;
 
 	rec->exporter->info.version = LNF_DEFAULT_EXPORTER_VERSION;
 }
