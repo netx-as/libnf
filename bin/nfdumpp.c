@@ -194,6 +194,9 @@ int main(int argc, char **argv) {
 	flist_init(&flist);
 
 	numthreads = get_cpu_cores() * NUM_THREADS_FACTOR;
+	if (numthreads < 1) {
+		numthreads = 1;
+	}
 
 	/* initalise one instance of memory heap (share by all threads) */
 //	memp = NULL;

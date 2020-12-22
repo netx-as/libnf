@@ -3,19 +3,24 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#elif MACOS
+#elif MACOS 
 #include <sys/param.h>
 #include <sys/sysctl.h>
+#elif __FreeBSD__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <unistd.h>
 #else
 #include <unistd.h>
 #endif
 
 int get_cpu_cores(void) {
+	int cpucount = 1;
 #ifdef WIN32
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	return sysinfo.dwNumberOfProcessors;
-#elif MACOS
+	cpucount = sysinfo.dwNumberOfProcessors;
+#elif MACOS  
 	int nm[2];
 	size_t len = 4;
 	uint32_t count;
@@ -28,9 +33,18 @@ int get_cpu_cores(void) {
 		sysctl(nm, 2, &count, &len, NULL, 0);
 		if(count < 1) { count = 1; }
 	}
-	return count;
+	cpucont = count;
+#elif  __FreeBSD__ 
+	size_t len;	
+	len = sizeof(cpucount);
+	sysctlbyname("kern.smp.cpus", &cpucount, &len, NULL, 0);
 #else
 	//return sysconf(_SC_NPROCESSORS_ONLN);
-	return sysconf(_SC_NPROCESSORS_CONF);
+	cpucount = sysconf(_SC_NPROCESSORS_CONF);
 #endif
+	if (cpucount > 0) {
+		return cpucount;
+	} else {
+		return 1;
+	}
 }
