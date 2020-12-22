@@ -554,7 +554,13 @@ void lnf_update_exporter_stats(lnf_file_t *lnf_file, nffile_t *nffile) {
 	size_t size;
 	int i = 0;
 
-	size = sizeof(exporter_stats_record_t) + (lnf_file->num_exporters - 1 ) * sizeof(struct exporter_stat_s);
+	/* we will not prepare exporters structure if there are no exporters */
+	if (lnf_file->num_exporters == 0) {
+		return; 
+	}
+
+	/* exporter_stats_record_t contains first exporter_stat_s structure */
+	size = sizeof(exporter_stats_record_t) + (lnf_file->num_exporters - 1)  * sizeof(struct exporter_stat_s);
 	estats = malloc(size);
 
 	if (estats == NULL) {

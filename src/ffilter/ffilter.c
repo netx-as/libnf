@@ -23,8 +23,10 @@
  * \file ffilter.c
  * \brief netflow fiter implementation
  */
+/* - this causes problems on freebsd
 #define _XOPEN_SOURCE 500
 #define _GNU_SOURCE
+*/
 #include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
