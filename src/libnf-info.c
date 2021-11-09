@@ -40,6 +40,7 @@ int main (int argc, char **argv) {
 	
 
 	while ((c = getopt (argc, argv, "i")) != -1) {
+		if (c == 255) break; // happens on aarch64
 		switch (c) {
 			case 'i': 	
 				ipfix_info = 1; 
