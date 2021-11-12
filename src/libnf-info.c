@@ -36,7 +36,7 @@ int main (int argc, char **argv) {
 	char name[LNF_INFO_BUFSIZE];
 	char descr[LNF_INFO_BUFSIZE];
 	char buf[LNF_INFO_BUFSIZE];
-	char c;
+	int c;
 	
 
 	while ((c = getopt (argc, argv, "i")) != -1) {
