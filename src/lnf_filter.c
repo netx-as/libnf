@@ -34,7 +34,8 @@
 #include "nfx.h"
 #include "nflowcache.h"
 #include "nfstat.h"
-#include "nfexport.h"
+//#include "nfexport.h"
+
 #include "ipconv.h"
 #include "flist.h"
 #include "util.h"

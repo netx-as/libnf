@@ -53,7 +53,7 @@
 #include "nfx.h"
 #include "nflowcache.h"
 #include "nfstat.h"
-#include "nfexport.h"
+//#include "nfexport.h"
 #include "ipconv.h"
 #include "flist.h"
 #include "util.h"
@@ -72,57 +72,55 @@
 /* TAG for check_items_map.pl: lnf_rec_fget */
 /* ----------------------- */
 static int inline lnf_field_fget_FIRST(lnf_rec_t *rec, void *p) { 
-	*((uint64_t *)p) = MR->first * 1000LL + MR->msec_first;
+	*((uint64_t *)p) = MR->msecFirst;
 	return LNF_OK;
 }
 static int inline lnf_field_fset_FIRST(lnf_rec_t *rec, void *p) { 
-	MR->first = *((uint64_t *)p) / 1000LL;
-	MR->msec_first = *((uint64_t *)p) - MR->first * 1000LL;
+	MR->msecFirst = *((uint64_t *)p);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_LAST(lnf_rec_t *rec, void *p) { 
-	*((uint64_t *)p) = MR->last * 1000LL + MR->msec_last;
+	*((uint64_t *)p) = MR->msecLast;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_LAST(lnf_rec_t *rec, void *p) { 
-	MR->last = *((uint64_t *)p) / 1000LL;
-	MR->msec_last = *((uint64_t *)p) - MR->last * 1000LL;
+	MR->msecLast = *((uint64_t *)p);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_RECEIVED(lnf_rec_t *rec, void *p) { 
-	*((uint64_t *)p) = MR->received;
+	*((uint64_t *)p) = MR->msecReceived;
 	return __bit_array_get(EA, EX_RECEIVED) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_RECEIVED(lnf_rec_t *rec, void *p) { 
-	MR->received = *((uint64_t *)p);
+	MR->msecReceived = *((uint64_t *)p);
 	__bit_array_set(EA, EX_RECEIVED, 1);
 	return LNF_OK;	
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_DPKTS(lnf_rec_t *rec, void *p) { 
-	*((uint64_t *)p) = MR->dPkts;
+	*((uint64_t *)p) = MR->inPackets;
 	return LNF_OK;
 }
 static int inline lnf_field_fset_DPKTS(lnf_rec_t *rec, void *p) { 
-	MR->dPkts = *((uint64_t *)p);
+	MR->inPackets = *((uint64_t *)p);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_DOCTETS(lnf_rec_t *rec, void *p) { 
-	*((uint64_t *)p) = MR->dOctets;
+	*((uint64_t *)p) = MR->inBytes;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_DOCTETS(lnf_rec_t *rec, void *p) { 
-	MR->dOctets = *((uint64_t *)p);
+	MR->inBytes = *((uint64_t *)p);
 	return LNF_OK;
 }
 
@@ -167,23 +165,23 @@ static int inline lnf_field_fset_AGGR_FLOWS(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_SRCPORT(lnf_rec_t *rec, void *p) { 
-	*((uint16_t *)p) = MR->srcport;
+	*((uint16_t *)p) = MR->srcPort;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_SRCPORT(lnf_rec_t *rec, void *p) { 
-	MR->srcport = *((uint16_t *)p);
+	MR->srcPort = *((uint16_t *)p);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_DSTPORT(lnf_rec_t *rec, void *p) { 
-	*((uint16_t *)p) = MR->dstport;
+	*((uint16_t *)p) = MR->dstPort;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_DSTPORT(lnf_rec_t *rec, void *p) { 
-	MR->dstport = *((uint16_t *)p);
+	MR->dstPort = *((uint16_t *)p);
 	return LNF_OK;
 }
 
@@ -404,12 +402,12 @@ static int inline lnf_field_fset_BGP_NEXTHOP(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_PROT(lnf_rec_t *rec, void *p) { 
-	*((uint8_t *)p) = MR->prot;
+	*((uint8_t *)p) = MR->proto;
 	return LNF_OK;
 }
 
 static int inline lnf_field_fset_PROT(lnf_rec_t *rec, void *p) { 
-	MR->prot = *((uint8_t *)p);
+	MR->proto = *((uint8_t *)p);
 	return LNF_OK;
 }
 
@@ -627,24 +625,24 @@ static int inline lnf_field_fset_ENGINE_ID(lnf_rec_t *rec, void *p) {
 /* ----------------------- */
 #ifdef NSEL
 static int inline lnf_field_fget_EVENT_TIME(lnf_rec_t *rec, void *p) { 
-		*((uint64_t *)p) = MR->event_time;
+		*((uint64_t *)p) = MR->msecEvent;
 		return __bit_array_get(EA, EX_NSEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EVENT_TIME(lnf_rec_t *rec, void *p) { 
-	MR->event_time = *((uint64_t *)p);
+	MR->msecEvent = *((uint64_t *)p);
 	__bit_array_set(EA, EX_NSEL_COMMON, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_CONN_ID(lnf_rec_t *rec, void *p) { 
-		*((uint32_t *)p) = MR->conn_id;
+		*((uint32_t *)p) = MR->connID;
 		return __bit_array_get(EA, EX_NSEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_CONN_ID(lnf_rec_t *rec, void *p) { 
-	MR->conn_id = *((uint32_t *)p);
+	MR->connID = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_COMMON, 1);
 	return LNF_OK;
 }
@@ -675,13 +673,13 @@ static int inline lnf_field_fset_ICMP_TYPE(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_FW_XEVENT(lnf_rec_t *rec, void *p) { 
-	*((uint16_t *)p) = MR->fw_xevent;
+	*((uint16_t *)p) = MR->fwXevent;
 	return __bit_array_get(EA, EX_NSEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
 	/* dummy record for check_items_map.pl MR->xlate_flags */
 }
 
 static int inline lnf_field_fset_FW_XEVENT(lnf_rec_t *rec, void *p) { 
-	MR->fw_xevent = *((uint16_t *)p);
+	MR->fwXevent = *((uint16_t *)p);
 	__bit_array_set(EA, EX_NSEL_COMMON, 1);
 	return LNF_OK;
 	/* dummy record for check_items_map.pl MR->xlate_flags */
@@ -775,104 +773,104 @@ static int inline lnf_field_fset_XLATE_DST_PORT(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_INGRESS_ACL_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->ingress_acl_id[0];
+	*((uint32_t *)p) = MR->ingressAcl[0];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_INGRESS_ACL_ID(lnf_rec_t *rec, void *p) { 
-	MR->ingress_acl_id[0] = *((uint32_t *)p);
+	MR->ingressAcl[0] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_INGRESS_ACE_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->ingress_acl_id[1];
+	*((uint32_t *)p) = MR->ingressAcl[1];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_INGRESS_ACE_ID(lnf_rec_t *rec, void *p) { 
-	MR->ingress_acl_id[1] = *((uint32_t *)p);
+	MR->ingressAcl[1] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_INGRESS_XACE_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->ingress_acl_id[2];
+	*((uint32_t *)p) = MR->ingressAcl[2];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_INGRESS_XACE_ID(lnf_rec_t *rec, void *p) { 
-	MR->ingress_acl_id[2] = *((uint32_t *)p);
+	MR->ingressAcl[2] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_INGRESS_ACL(lnf_rec_t *rec, void *p) { 
-	((lnf_acl_t *)p)->acl_id = MR->ingress_acl_id[0];
-	((lnf_acl_t *)p)->ace_id = MR->ingress_acl_id[1];
-	((lnf_acl_t *)p)->xace_id = MR->ingress_acl_id[2];
+	((lnf_acl_t *)p)->acl_id = MR->ingressAcl[0];
+	((lnf_acl_t *)p)->ace_id = MR->ingressAcl[1];
+	((lnf_acl_t *)p)->xace_id = MR->ingressAcl[2];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_INGRESS_ACL(lnf_rec_t *rec, void *p) { 
-	MR->ingress_acl_id[0] = ((lnf_acl_t *)p)->acl_id;
-	MR->ingress_acl_id[1] = ((lnf_acl_t *)p)->ace_id;
-	MR->ingress_acl_id[2] = ((lnf_acl_t *)p)->xace_id;
+	MR->ingressAcl[0] = ((lnf_acl_t *)p)->acl_id;
+	MR->ingressAcl[1] = ((lnf_acl_t *)p)->ace_id;
+	MR->ingressAcl[2] = ((lnf_acl_t *)p)->xace_id;
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_EGRESS_ACL_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->egress_acl_id[0];
+	*((uint32_t *)p) = MR->egressAcl[0];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EGRESS_ACL_ID(lnf_rec_t *rec, void *p) { 
-	MR->egress_acl_id[0] = *((uint32_t *)p);
+	MR->egressAcl[0] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_EGRESS_ACE_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->egress_acl_id[1];
+	*((uint32_t *)p) = MR->egressAcl[1];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EGRESS_ACE_ID(lnf_rec_t *rec, void *p) { 
-	MR->egress_acl_id[1] = *((uint32_t *)p);
+	MR->egressAcl[1] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_EGRESS_XACE_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->egress_acl_id[2];
+	*((uint32_t *)p) = MR->egressAcl[2];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EGRESS_XACE_ID(lnf_rec_t *rec, void *p) { 
-	MR->egress_acl_id[2] = *((uint32_t *)p);
+	MR->egressAcl[2] = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_EGRESS_ACL(lnf_rec_t *rec, void *p) { 
-	((lnf_acl_t *)p)->acl_id = MR->egress_acl_id[0];
-	((lnf_acl_t *)p)->ace_id = MR->egress_acl_id[1];
-	((lnf_acl_t *)p)->xace_id = MR->egress_acl_id[2];
+	((lnf_acl_t *)p)->acl_id = MR->egressAcl[0];
+	((lnf_acl_t *)p)->ace_id = MR->egressAcl[1];
+	((lnf_acl_t *)p)->xace_id = MR->egressAcl[2];
 	return __bit_array_get(EA, EX_NSEL_ACL) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EGRESS_ACL(lnf_rec_t *rec, void *p) { 
-	MR->egress_acl_id[0] = ((lnf_acl_t *)p)->acl_id;
-	MR->egress_acl_id[1] = ((lnf_acl_t *)p)->ace_id;
-	MR->egress_acl_id[2] = ((lnf_acl_t *)p)->xace_id;
+	MR->egressAcl[0] = ((lnf_acl_t *)p)->acl_id;
+	MR->egressAcl[1] = ((lnf_acl_t *)p)->ace_id;
+	MR->egressAcl[2] = ((lnf_acl_t *)p)->xace_id;
 	__bit_array_set(EA, EX_NSEL_ACL, 1);
 	return LNF_OK;
 }
@@ -904,12 +902,12 @@ static int inline lnf_field_fset_USERNAME(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_INGRESS_VRFID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->ingress_vrfid;
+	*((uint32_t *)p) = MR->ingressVrf;
 	return __bit_array_get(EA, EX_NEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_INGRESS_VRFID(lnf_rec_t *rec, void *p) { 
-	MR->ingress_vrfid = *((uint32_t *)p);
+	MR->ingressVrf = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NEL_COMMON, 1);
 	return LNF_OK;
 }
@@ -928,12 +926,12 @@ static int inline lnf_field_fset_EVENT_FLAG(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EGRESS_VRFID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = MR->egress_vrfid;
+	*((uint32_t *)p) = MR->egressVrf;
 	return __bit_array_get(EA, EX_NEL_COMMON) ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_EGRESS_VRFID(lnf_rec_t *rec, void *p) { 
-	MR->egress_vrfid = *((uint32_t *)p);
+	MR->egressVrf = *((uint32_t *)p);
 	__bit_array_set(EA, EX_NEL_COMMON, 1);
 	return LNF_OK;
 }
@@ -1049,7 +1047,7 @@ static int inline lnf_field_fset_INET_FAMILY(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_IP(lnf_rec_t *rec, void *p) { 
-	if ( MR->map_ref != NULL || rec->flags & LNF_REC_EXPORTER) {
+	if ( MR->exp_ref != NULL || rec->flags & LNF_REC_EXPORTER) {
 		ip_addr_t *d = (ip_addr_t *)&rec->exporter->info.ip;
 	
 		((ip_addr_t *)p)->V6[0] = htonll(d->V6[0]);
@@ -1073,7 +1071,7 @@ static int inline lnf_field_fset_EXPORTER_IP(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_ID(lnf_rec_t *rec, void *p) { 
-	if ( MR->map_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
+	if ( MR->exp_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
 		*((uint32_t *)p) = rec->exporter->info.id;
 		return LNF_OK;
 	} else {
@@ -1089,7 +1087,7 @@ static int inline lnf_field_fset_EXPORTER_ID(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_EXPORTER_VERSION(lnf_rec_t *rec, void *p) { 
-	if ( MR->map_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
+	if ( MR->exp_ref != NULL  || rec->flags & LNF_REC_EXPORTER ) {
 		*((uint32_t *)p) = rec->exporter->info.version;
 		return LNF_OK;
 	} else {
@@ -1117,36 +1115,36 @@ static int inline lnf_field_fset_SEQUENCE_FAILURES(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_SAMPLER_MODE(lnf_rec_t *rec, void *p) { 
-	*((uint16_t *)p) = rec->sampler->info.mode;
+//	*((uint16_t *)p) = rec->sampler->info.mode;
 	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_SAMPLER_MODE(lnf_rec_t *rec, void *p) { 
-	rec->sampler->info.mode = *((uint16_t *)p);
+//	rec->sampler->info.mode = *((uint16_t *)p);
 	rec->flags |= LNF_REC_SAMPLER;
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_SAMPLER_INTERVAL(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = rec->sampler->info.interval;
+//	*((uint32_t *)p) = rec->sampler->info.interval;
 	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_SAMPLER_INTERVAL(lnf_rec_t *rec, void *p) { 
-	rec->sampler->info.interval = *((uint32_t *)p);
+//	rec->sampler->info.interval = *((uint32_t *)p);
 	rec->flags |= LNF_REC_SAMPLER;
 	return LNF_OK;
 }
 
 /* ----------------------- */
 static int inline lnf_field_fget_SAMPLER_ID(lnf_rec_t *rec, void *p) { 
-	*((uint32_t *)p) = rec->sampler->info.id;
+//	*((uint32_t *)p) = rec->sampler->info.id;
 	return rec->flags & LNF_REC_SAMPLER ? LNF_OK : LNF_ERR_NOTSET;
 }
 
 static int inline lnf_field_fset_SAMPLER_ID(lnf_rec_t *rec, void *p) { 
-	rec->sampler->info.id = *((uint32_t *)p);
+//	rec->sampler->info.id = *((uint32_t *)p);
 	rec->flags |= LNF_REC_SAMPLER;
 	return LNF_OK;
 }
@@ -1156,7 +1154,7 @@ static int inline lnf_field_fset_EMPTY_(lnf_rec_t *rec, void *p) {
 	return LNF_OK;
 }
 
-#define LNF_DURATION ((MR->last * 1000LL + MR->msec_last) - (MR->first * 1000LL + MR->msec_first))
+#define LNF_DURATION ((MR->msecLast) - (MR->msecFirst))
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_DURATION(lnf_rec_t *rec, void *p) { 
@@ -1167,7 +1165,7 @@ static int inline lnf_field_fget_CALC_DURATION(lnf_rec_t *rec, void *p) {
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_BPS(lnf_rec_t *rec, void *p) { 
 	if (LNF_DURATION > 0) {
-		*((double *)p) = (MR->dOctets * 8) / (LNF_DURATION / 1000.0);
+		*((double *)p) = (MR->inBytes * 8) / (LNF_DURATION / 1000.0);
 		return LNF_OK;
 	} else {
 		*((double *)p) = 0;
@@ -1178,7 +1176,7 @@ static int inline lnf_field_fget_CALC_BPS(lnf_rec_t *rec, void *p) {
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_PPS(lnf_rec_t *rec, void *p) { 
 	if (LNF_DURATION > 0) {
-		*((double *)p) = MR->dPkts / (LNF_DURATION / 1000.0);
+		*((double *)p) = MR->inPackets / (LNF_DURATION / 1000.0);
 		return LNF_OK;
 	} else {
 		*((double *)p) = 0;
@@ -1188,8 +1186,8 @@ static int inline lnf_field_fget_CALC_PPS(lnf_rec_t *rec, void *p) {
 
 /* ----------------------- */
 static int inline lnf_field_fget_CALC_BPP(lnf_rec_t *rec, void *p) { 
-	if (MR->dPkts > 0) {
-		*((double *)p) = MR->dOctets / MR->dPkts;
+	if (MR->inPackets > 0) {
+		*((double *)p) = MR->inBytes / MR->inPackets;
 		return LNF_OK;
 	} else {
 		return LNF_ERR_NAN;

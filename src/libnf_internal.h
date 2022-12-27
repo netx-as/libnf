@@ -138,7 +138,8 @@ typedef struct lnf_file_s {
 	extension_map_list_t 	*extension_map_list;	/* ptr to extmap structure */
 	lnf_map_list_t			*lnf_map_list;			/* internal list of maps (used by lnf) */
 	int						max_num_extensions;		/* the max number of extensions */
-	common_record_t 		*flow_record;			/* ptr to buffer/next record */
+	//common_record_t 		*flow_record;			/* ptr to buffer/next record */
+	record_header_t 		*flow_record;			/* ptr to buffer/next record in nfdump 1.7 */
 	char					*v1convert_buffer;		/* convert buffer for V1 record types */
 //	master_record_t			*master_record;
 //	lnf_rec_t				*lnf_rec;				/* temporary */

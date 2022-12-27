@@ -46,6 +46,7 @@
 
 #include "nfdump.h"
 #include "nffile.h"
+#include "nffileV2.h"
 #include "nfx.h"
 #include "nfnet.h"
 #include "bookkeeper.h"
@@ -56,7 +57,7 @@
 #include "nfprof.h"
 #include "nflowcache.h"
 #include "nfstat.h"
-#include "nfexport.h"
+//#include "nfexport.h"
 #include "ipconv.h"
 #include "flist.h"
 #include "util.h"
@@ -93,7 +94,7 @@ char error_str[LNF_MAX_STRING];
 pthread_mutex_t lnf_nfdump_filter_mutex;	/* mutex for operations open/close file, filter init */
 
 
-#define FLOW_RECORD_NEXT(x) x = (common_record_t *)((pointer_addr_t)x + x->size)
+#define FLOW_RECORD_NEXT(x) x = (record_header_t *)((pointer_addr_t)x + x->size)
 
 /* text description of the fields */
 lnf_field_t lnf_fields[] = {
@@ -300,7 +301,7 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 		}
 
 		lnf_file->nffile = OpenNewFile((char *)filename, NULL, comp, 
-								flags & LNF_ANON, (char *)ident);
+								flags & LNF_ANON);
 
 	} else {
 		/* set file name in LOOP mode */
@@ -366,7 +367,8 @@ int lnf_open(lnf_file_t **lnf_filep, const char * filename, unsigned int flags, 
 /* fill info structure */
 int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 
-	file_header_t *h;
+	//file_header_t *h;
+	fileHeaderV2_t *h;
 	stat_record_t *s;
 	size_t reqsize = 0;
 	char buf[LNF_INFO_BUFSIZE];
@@ -410,19 +412,23 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			reqsize = sizeof(uint64_t);
 			break;
 		case LNF_INFO_COMPRESSED:
-			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile) || FILE_IS_BZ2_COMPRESSED(lnf_file->nffile) ;
+//			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile) || FILE_IS_BZ2_COMPRESSED(lnf_file->nffile) ;
+			*((int *)buf) = 0;
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_LZO_COMPRESSED:
-			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile);
+//			*((int *)buf) = FILE_IS_LZO_COMPRESSED(lnf_file->nffile);
+			*((int *)buf) = 0;
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_BZ2_COMPRESSED:
-			*((int *)buf) = FILE_IS_BZ2_COMPRESSED(lnf_file->nffile);
+//			*((int *)buf) = FILE_IS_BZ2_COMPRESSED(lnf_file->nffile);
+			*((int *)buf) = 0;
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_ANONYMIZED:
-			*((int *)buf) = h->flags & FLAG_ANONYMIZED;
+//			*((int *)buf) = h->flags & FLAG_ANONYMIZED;
+			*((int *)buf) = 0;
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_CATALOG: 
@@ -432,8 +438,10 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 			reqsize = sizeof(int);
 			break;
 		case LNF_INFO_IDENT: 
-			strcpy(buf, h->ident);
-			reqsize = strlen(h->ident) + 1;
+//			strcpy(buf, h->ident);
+//			reqsize = strlen(h->ident) + 1;
+			buf[0] = '\0';
+			reqsize = 1;
 			break;
 		case LNF_INFO_PROC_BLOCKS: 
 			*((uint64_t *)buf) = lnf_file->processed_blocks;
@@ -460,15 +468,18 @@ int lnf_info(lnf_file_t *lnf_file, int info, void *data, size_t size) {
 
 	switch (info) {
 		case LNF_INFO_FIRST:
-			*((uint64_t *)buf) = s->first_seen * 1000LL + s->msec_first;
+//			*((uint64_t *)buf) = s->first_seen * 1000LL + s->msec_first;
+			*((uint64_t *)buf) = 0;
 			reqsize = sizeof(uint64_t);
 			break;
 		case LNF_INFO_LAST:
-			*((uint64_t *)buf) = s->last_seen * 1000LL + s->msec_last;
+//			*((uint64_t *)buf) = s->last_seen * 1000LL + s->msec_last;
+			*((uint64_t *)buf) = 0;
 			reqsize = sizeof(uint64_t);
 			break;
 		case LNF_INFO_FAILURES:
 			*((uint64_t *)buf) = s->sequence_failure;
+			*((uint64_t *)buf) = 0;
 			reqsize = sizeof(uint64_t);
 			break;
 		case LNF_INFO_FLOWS:
@@ -616,7 +627,7 @@ void lnf_close(lnf_file_t *lnf_file) {
 				fprintf(stderr, "Failed to write output buffer: '%s'" , strerror(errno));
 			}
 		}
-		CloseUpdateFile(lnf_file->nffile, NULL );
+		CloseUpdateFile(lnf_file->nffile);
 
 	} else {
 		CloseFile(lnf_file->nffile);
@@ -625,8 +636,8 @@ void lnf_close(lnf_file_t *lnf_file) {
 	DisposeFile(lnf_file->nffile); 
 	free(lnf_file->nffile);
 
-	PackExtensionMapList(lnf_file->extension_map_list);
-	FreeExtensionMaps(lnf_file->extension_map_list);
+//	PackExtensionMapList(lnf_file->extension_map_list);
+//	FreeExtensionMaps(lnf_file->extension_map_list);
 
 	map_list = lnf_file->lnf_map_list; 
 	while (map_list != NULL) {
@@ -671,7 +682,7 @@ int ret;
 uint32_t map_id;
 extension_map_t *map;
 int i;
-common_record_t *common_record_ptr;
+record_header_t *record_header_ptr;
 
 #ifdef COMPAT15
 int	v1_map_done = 0;
@@ -704,13 +715,15 @@ begin:
 
 		/* block types to be skipped  -> goto begin */
 		/* block types that are unknown -> return */
-		switch (lnf_file->nffile->block_header->id) {
+		switch (lnf_file->nffile->block_header->type) {
 			case DATA_BLOCK_TYPE_1:		/* old record type - nfdump 1.5 */
 					lnf_file->skipped_blocks++;
 					goto begin;
 					return LNF_ERR_COMPAT15;
 					break;
 			case DATA_BLOCK_TYPE_2:		/* common record type - normally processed */
+			case DATA_BLOCK_TYPE_3:		/* common record type introdoucet in 1.7 - normally processed */
+			case DATA_BLOCK_TYPE_4:		/* common record type introdoucet in 1.7 - normally processed */
 					break;
 			/*
  			removed in v1.6.19
@@ -738,7 +751,8 @@ begin:
 		case LegacyRecordType2:
 		case ExporterInfoRecordType:
 		case ExporterStatRecordType:
-		case SamplerInfoRecordype:
+		//case SamplerInfoRecordype:
+		case SamplerRecordType: /* renamed in nfdump 1.7 */
 				/* just skip */
 				FLOW_RECORD_NEXT(lnf_file->flow_record);	
 				goto begin;
@@ -767,9 +781,60 @@ begin:
 				goto begin;
 				break;
 
-		case CommonRecordType:
+		case CommonRecordType: /* legacy V2 record type - nfdump 1.6 */
+
+				/* so far we will skip tuhis type of record */
+				FLOW_RECORD_NEXT(lnf_file->flow_record);	
+				return LNF_ERR_UNKREC;
+
 				/* data record type - go ahead */
-				common_record_ptr = lnf_file->flow_record;
+				record_header_ptr = lnf_file->flow_record;
+				/* we are sure that record is CommonRecordType */
+//				map_id = lnf_file->flow_record->ext_map; /* XXX temporaty commented for v1.7 */
+				if ( map_id >= MAX_EXTENSION_MAPS ) {
+					FLOW_RECORD_NEXT(lnf_file->flow_record);	
+					return LNF_ERR_EXTMAPB;
+				}
+				if ( lnf_file->extension_map_list->slot[map_id] == NULL ) {
+					FLOW_RECORD_NEXT(lnf_file->flow_record);	
+					return LNF_ERR_EXTMAPM;
+				} 
+
+
+				// changed in 1.6.8 - added exporter info 
+				/* XXX temporaty commented for v1.7 */
+//				ExpandRecord_v2(record_header_ptr, lnf_file->extension_map_list->slot[map_id], NULL, lnf_rec->master_record);
+
+				// update number of flows matching a given map
+//				lnf_file->extension_map_list->slot[map_id]->ref_count++; /* 1.7 */
+
+				// Move pointer by number of bytes for netflow record
+				FLOW_RECORD_NEXT(lnf_file->flow_record);	
+
+				// processing map 
+				bit_array_clear(lnf_rec->extensions_arr);
+
+/* 1.7 
+				i = 0;
+				while (lnf_rec->master_record->map_ref->ex_id[i]) {
+					__bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->map_ref->ex_id[i], 1);
+				i++;
+				}
+*/
+
+
+//				return LNF_OK;  // we are done with  V2 record type
+				return LNF_ERR_UNKREC;
+				break;
+
+		case V3Record: /* new V3 record type - nfdump 1.7 */
+
+				ExpandRecord_v3((recordHeaderV3_t *)lnf_file->flow_record, lnf_rec->master_record);
+
+				// Move pointer by number of bytes for netflow record
+				FLOW_RECORD_NEXT(lnf_file->flow_record);	
+
+				return LNF_OK;  // we are done with  V2 record type
 				break;
 
 		default:
@@ -778,52 +843,9 @@ begin:
 
 	}
 
-	/* we are sure that record is CommonRecordType */
-	map_id = lnf_file->flow_record->ext_map;
-	if ( map_id >= MAX_EXTENSION_MAPS ) {
-		FLOW_RECORD_NEXT(lnf_file->flow_record);	
-		return LNF_ERR_EXTMAPB;
-	}
-	if ( lnf_file->extension_map_list->slot[map_id] == NULL ) {
-		FLOW_RECORD_NEXT(lnf_file->flow_record);	
-		return LNF_ERR_EXTMAPM;
-	} 
 
-
-	// changed in 1.6.8 - added exporter info 
-//	ExpandRecord_v2( flow_record, extension_map_list.slot[map_id], master_record);
-	ExpandRecord_v2(common_record_ptr, lnf_file->extension_map_list->slot[map_id], NULL, lnf_rec->master_record);
-
-	// update number of flows matching a given map
-	lnf_file->extension_map_list->slot[map_id]->ref_count++;
-
-	// Move pointer by number of bytes for netflow record
-	FLOW_RECORD_NEXT(lnf_file->flow_record);	
-/*
-	{
-		char *s;
-		PrintExtensionMap(instance->extension_map_list.slot[map_id]->map);
-		format_file_block_record(master_record, &s, 0);
-		printf("READ: %s\n", s);
-	}
-*/
-
-	// processing map 
-	//bit_array_clear(&lnf_file->extensions_arr);
-	bit_array_clear(lnf_rec->extensions_arr);
-
-	i = 0;
-	while (lnf_rec->master_record->map_ref->ex_id[i]) {
-		__bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->map_ref->ex_id[i], 1);
-		i++;
-	}
-
-//	lnf_rec->extensions_arr = &(lnf_file->extensions_arr);
-
-	/* the record seems OK. We prepare hash reference with items */
-//	lnf_file->lnf_rec = lnf_rec; /* XXX temporary */
-
-	return LNF_OK;
+	/* we will never get here */
+	return LNF_ERR_UNKREC;
 
 } /* end of _readfnction */
 
@@ -1041,6 +1063,7 @@ exporter_t* lnf_lookup_exporter(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 /* status of read and fill pre-prepared structure lnf_rec */
 int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
+	
 	extension_map_t *map;
 	exporter_t *exporter;
 
@@ -1052,9 +1075,9 @@ int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 		return LNF_ERR_WRITE;
 	}
 
-	lnf_rec->master_record->map_ref = map;
-	lnf_rec->master_record->ext_map = map->map_id;
-	lnf_rec->master_record->type = CommonRecordType;
+//	lnf_rec->master_record->map_ref = map;
+//	lnf_rec->master_record->ext_map = map->map_id;
+//	lnf_rec->master_record->type = CommonRecordType;
 
 	/* lookup and add exporter record into file if it is nescessary */
 	exporter = lnf_lookup_exporter(lnf_file, lnf_rec);
@@ -1062,7 +1085,7 @@ int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 	/* assign exporter sysid and update statistics */
 	if (exporter != NULL) {
 		lnf_rec->master_record->exporter_sysid = exporter->info.sysid;
-		exporter->packets += lnf_rec->master_record->dPkts;
+		exporter->packets += lnf_rec->master_record->inPackets;
 		exporter->flows += lnf_rec->master_record->aggr_flows;
 		exporter->sequence_failure += lnf_rec->sequence_failures;
 	}
@@ -1070,7 +1093,7 @@ int lnf_write(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
 
 	UpdateStat(lnf_file->nffile->stat_record, lnf_rec->master_record);
 
-	PackRecord(lnf_rec->master_record, lnf_file->nffile);
+//	PackRecord(lnf_rec->master_record, lnf_file->nffile);
 
 
 	return LNF_OK;
@@ -1495,9 +1518,21 @@ va_list args;
 /* empry functions - required by nfdump */
 void LogInfo(char *format, ...) { }
 void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
-/* dummy functions from flist.c */
-char *GetCurrentFilename(void) { return NULL; } 
-nffile_t *GetNextFile(nffile_t *nffile, time_t twin_start, time_t twin_end) { return NULL; }
-void SetupInputFileSequence(char *multiple_dirs, char *single_file, char *multiple_files) { }
+/* dummy functions referenced in nffile.c */
+queue_t *queue_init(size_t length) { return NULL; }
+size_t queue_length(queue_t *queue) { return 0; }
+void *queue_push(queue_t *queue, void *data) { return NULL; }
+void queue_close(queue_t *queue) { }
+void *queue_pop(queue_t *queue) { return NULL; }
+void queue_open(queue_t *queue) { }
+void queue_sync(queue_t *queue) { }
+
+time_t ISO2UNIX(char *timestring) { return 0; }
+//ISO2UNIX
+//srx_MatchExt
+//srx_CreateExt
+//char *GetCurrentFilename(void) { return NULL; } 
+//nffile_t *GetNextFile(nffile_t *nffile, time_t twin_start, time_t twin_end) { return NULL; }
+//void SetupInputFileSequence(char *multiple_dirs, char *single_file, char *multiple_files) { }
 
 

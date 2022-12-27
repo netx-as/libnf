@@ -1,7 +1,7 @@
 #!/bin/sh 
 
 #
-# Copyright (c) 2013-2015, Tomas Podermanski
+# Copyright (c) 2013-2023, Tomas Podermanski
 #    
 # This file is part of libnf.net project.
 #
@@ -21,9 +21,9 @@
 #
 
 
-NFDUMP_VERSION="1.6.22"
+NFDUMP_VERSION="1.7.1"
 NFDUMP="nfdump-$NFDUMP_VERSION"
-NFDUMP_MD5="25aa5f12a781c984e8538c4f54ca32ce"
+NFDUMP_MD5="14000174cadb0b6230ef930f1a8c7c71"
 NFDUMP_SRC="$NFDUMP.tar.gz"
 NFDUMP_URL="https://github.com/phaag/nfdump/archive/v$NFDUMP_VERSION.tar.gz"
 
@@ -67,7 +67,7 @@ mv $NFDUMP nfdump  || exit 1
 #(cd nfdump && patch -p1 < ../nfdump-thread.patch && cd .. ) || exit 1
 # for version >= 1.6.4
 #(cd nfdump && patch -p1 < ../nfdump-thread-nffile.patch && cd .. ) || exit 1
-(cd nfdump && patch -p1 < ../nfdump-thread-nfx.patch && cd .. ) || exit 1
+#(cd nfdump && patch -p1 < ../nfdump-thread-nfx.patch && cd .. ) || exit 1
 if [ ! -f nfdump/README ]; then
 	echo > nfdump/README
 fi
@@ -129,11 +129,13 @@ echo "##########################################################"
 ##EOT
 
 
-FILES="nffile.c nfx.c nftree.c minilzo.c lz4.c nf_common.c grammar.y scanner.l \
-		  ipconv.c output_util.c"
+FILES="src/lib/nffile.c src/lib/nfx.c src/lib/nftree.c src/lib/minilzo.c src/lib/lz4.c \
+		src/lib/grammar.y src/lib/scanner.l \
+		  src/lib/ipconv.c src/lib/output_util.c src/lib/sgregex/sgregex.c"
 echo "Creating symlinks for $FILES"
 for f in $FILES ; do
-	(cd src && rm -f $f && ln -s ../nfdump/bin/$f && cd ..) || exit 1
+	bf=$(basename $f)
+	(cd src && rm -f $bf && ln -s ../nfdump/$f && cd ..) || exit 1
 done
 
 rm src/grammar.c

@@ -11,7 +11,7 @@ LDADD = $(DEPS_LIBS)
 libnf_la_LDFLAGS = -version-info 1:26:0
 
 #Add extra debug info for gdb and nfdump includes
-AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/src/ffilter
+AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/src/include -I$(top_srcdir)/nfdump/src/lib -I$(top_srcdir)/src/ffilter  -I$(top_srcdir)/nfdump/src/collector -I$(top_srcdir)/nfdump/src/nfdump -I$(top_srcdir)/nfdump/src/output  -I$(top_srcdir)/nfdump/src/inline -I$(top_srcdir)/nfdump/src/lib/sgregex
 
 if LNF_BZ2STATIC
 AM_CFLAGS += -I$(top_srcdir)/bzip2 
@@ -29,7 +29,7 @@ CLEANFILES = lex.yy.c
 # Target for the libnfdump library
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c heap_sort.c list_sort.c hash_table.c xxhash.c memheap.c fields.c \
-	nffile.c nfx.c minilzo.c ipconv.c lnf_filter.c literals.c lz4.c
+	nffile.c nfx.c minilzo.c ipconv.c lnf_filter.c literals.c lz4.c sgregex.c
 
 # Nfdump filter sources
 BUILT_SOURCES = grammar.h 
