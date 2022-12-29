@@ -808,19 +808,6 @@ begin:
 				// update number of flows matching a given map
 //				lnf_file->extension_map_list->slot[map_id]->ref_count++; /* 1.7 */
 
-				// Move pointer by number of bytes for netflow record
-				FLOW_RECORD_NEXT(lnf_file->flow_record);	
-
-				// processing map 
-				bit_array_clear(lnf_rec->extensions_arr);
-
-/* 1.7 
-				i = 0;
-				while (lnf_rec->master_record->map_ref->ex_id[i]) {
-					__bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->map_ref->ex_id[i], 1);
-				i++;
-				}
-*/
 
 
 //				return LNF_OK;  // we are done with  V2 record type
@@ -831,10 +818,6 @@ begin:
 
 				ExpandRecord_v3((recordHeaderV3_t *)lnf_file->flow_record, lnf_rec->master_record);
 
-				// Move pointer by number of bytes for netflow record
-				FLOW_RECORD_NEXT(lnf_file->flow_record);	
-
-				return LNF_OK;  // we are done with  V2 record type
 				break;
 
 		default:
@@ -843,11 +826,24 @@ begin:
 
 	}
 
+	// Move pointer by number of bytes for netflow record
+	FLOW_RECORD_NEXT(lnf_file->flow_record);	
+
+	// processing map 
+	bit_array_clear(lnf_rec->extensions_arr);
+
+ 
+	i = 0;
+	//while (lnf_rec->master_record->map_ref->ex_id[i]) {
+	// in nfdump 1.7 map_ref i replaced by exElementList[] in master_record 
+	for (i = 0; i < lnf_rec->master_record->numElements || i < MAXEXTENSIONS  ; i++) { 
+		__bit_array_set(lnf_rec->extensions_arr, lnf_rec->master_record->exElementList[i], 1);
+	}
 
 	/* we will never get here */
-	return LNF_ERR_UNKREC;
+	return LNF_OK;
 
-} /* end of _readfnction */
+} /* end of _read function */
 
 /* return next record in file */
 int lnf_read(lnf_file_t *lnf_file, lnf_rec_t *lnf_rec) {
@@ -1156,7 +1152,8 @@ int lnf_rec_init(lnf_rec_t **recp) {
 		numext++;
 	}
 
-	if (!bit_array_init(rec->extensions_arr, numext + 1)) {
+	//if (!bit_array_init(rec->extensions_arr, numext + 1)) {
+	if (!bit_array_init(rec->extensions_arr, MAXEXTENSIONS)) {
 		lnf_rec_free(rec);
 		*recp = NULL;
 		return LNF_ERR_NOMEM;
@@ -1517,15 +1514,8 @@ va_list args;
 
 /* empry functions - required by nfdump */
 void LogInfo(char *format, ...) { }
-void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
+//void format_number(uint64_t num, char *s, int scale, int fixed_width) { } 
 /* dummy functions referenced in nffile.c */
-queue_t *queue_init(size_t length) { return NULL; }
-size_t queue_length(queue_t *queue) { return 0; }
-void *queue_push(queue_t *queue, void *data) { return NULL; }
-void queue_close(queue_t *queue) { }
-void *queue_pop(queue_t *queue) { return NULL; }
-void queue_open(queue_t *queue) { }
-void queue_sync(queue_t *queue) { }
 
 time_t ISO2UNIX(char *timestring) { return 0; }
 //ISO2UNIX

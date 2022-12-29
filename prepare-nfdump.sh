@@ -130,6 +130,7 @@ echo "##########################################################"
 
 
 FILES="src/lib/nffile.c src/lib/nfx.c src/lib/nftree.c src/lib/minilzo.c src/lib/lz4.c \
+		src/lib/queue.c src/lib/util.c \
 		src/lib/grammar.y src/lib/scanner.l \
 		  src/lib/ipconv.c src/lib/output_util.c src/lib/sgregex/sgregex.c"
 echo "Creating symlinks for $FILES"

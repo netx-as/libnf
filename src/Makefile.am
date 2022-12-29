@@ -29,7 +29,7 @@ CLEANFILES = lex.yy.c
 # Target for the libnfdump library
 lib_LTLIBRARIES = libnf.la
 libnf_la_SOURCES = libnf.c bit_array.c heap_sort.c list_sort.c hash_table.c xxhash.c memheap.c fields.c \
-	nffile.c nfx.c minilzo.c ipconv.c lnf_filter.c literals.c lz4.c sgregex.c
+	nffile.c nfx.c minilzo.c ipconv.c lnf_filter.c literals.c lz4.c sgregex.c queue.c
 
 # Nfdump filter sources
 BUILT_SOURCES = grammar.h 
