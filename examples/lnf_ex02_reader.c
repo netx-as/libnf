@@ -162,10 +162,12 @@ int main(int argc, char **argv) {
 	printf("%d records matched by filter1 '%s'\n", if1, filter1);
 	printf("%d records matched by filter2 '%s'\n", if2, filter2);
 
+
 	lnf_rec_free(recp);
 	lnf_filter_free(filterp1);
 	lnf_filter_free(filterp2);
 	lnf_close(filep);
+
 
 	return 0;
 }
