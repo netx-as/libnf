@@ -465,12 +465,10 @@ static int lnf_pack_record_V3(master_record_t *master_record, nffile_t *nffile) 
         }
     }
 
-	printf("XXX1 %d %d\n", v3Record->size, required);
     if (v3Record->size != required) {
         lnf_seterror("%s: record size(%u) != expected(%u)", __func__, v3Record->size, required);
 		return LNF_ERR_OTHER_MSG;
     }
-	printf("XXX2\n");
     nffile->block_header->NumRecords++;
     nffile->block_header->size += v3Record->size;
     nffile->buff_ptr += v3Record->size;
