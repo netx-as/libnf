@@ -852,6 +852,8 @@ NEW_READ:
 
 				if (lnf_file->nffile != NULL) {
 					CloseFile(lnf_file->nffile);
+					DisposeFile(lnf_file->nffile); 
+					free(lnf_file->nffile);
 				}
 
 				lnf_file->nffile = OpenFile((char *)lnf_file->filename, NULL);

@@ -54,10 +54,12 @@ int main(int argc, char **argv) {
     int print = 1;
     int filter = 1;
     int fget = 1;
+    int loop_read = 0;
+    int flags = 0;
     char *filename = FILENAME;
     int c;
 
-	while ((c = getopt (argc, argv, "pPFGf:1:2:")) != -1) {
+	while ((c = getopt (argc, argv, "pPFGlf:1:2:")) != -1) {
 		switch (c) {
 			case 'p':
 				print = 0;
@@ -74,6 +76,9 @@ int main(int argc, char **argv) {
 			case 'f':
 				filename = optarg;
 				break;
+			case 'l':
+				loop_read = 1;
+				break;
 			case '1':
 				filter1 = optarg;
 				break;
@@ -81,16 +86,22 @@ int main(int argc, char **argv) {
 				filter2 = optarg;
 				break;
 			case '?':
-				printf("Usage: %s [ -p ] [ -f <output file name> ] [ -1 <filter1> ] [ -2 <filter2> ]\n", argv[0]);
-				printf(" -P : do not print records to stdout\n");
+				printf("Usage: %s [ -p ] [ -f <input file name> ] [ -l ] [ -1 <filter1> ] [ -2 <filter2> ]\n", argv[0]);
+				printf(" -p : do not print records to stdout\n");
 				printf(" -F : do not use filters\n");
 				printf(" -G : do not use lng_rec_fget\n");
+				printf(" -l : loop read\n");
 				exit(1);
 		}
 	}
 
+
+	flags = LNF_READ;
+	if (loop_read) {
+		flags = LNF_READ|LOOP_READ;
+	}
 	
-	if (lnf_open(&filep, filename, LNF_READ, NULL) != LNF_OK) {
+	if (lnf_open(&filep, filename, flags, NULL) != LNF_OK) {
 		fprintf(stderr, "Can not open file %s\n", filename);
 		exit(1);
 	}
