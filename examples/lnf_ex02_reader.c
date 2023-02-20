@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 
 	flags = LNF_READ;
 	if (loop_read) {
-		flags = LNF_READ|LOOP_READ;
+		flags = LNF_READ|LNF_READ_LOOP;
 	}
 	
 	if (lnf_open(&filep, filename, flags, NULL) != LNF_OK) {
