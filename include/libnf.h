@@ -308,6 +308,7 @@ typedef void lnf_ring_t;
 	\defgroup file Basic file operations (red/create/write)
 	\defgroup record  Record operations, fields extraction
 	\defgroup filter  Filter operations
+ 	\defgroup ringbuf Ring buffer operations
 	\defgroup memheap In memory aggregation and sorting module
 	\defgroup error Error handling
 	\defgroup deprecated Deprecated functions
