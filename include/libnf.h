@@ -308,6 +308,7 @@ typedef void lnf_ring_t;
 	\defgroup file Basic file operations (red/create/write)
 	\defgroup record  Record operations, fields extraction
 	\defgroup filter  Filter operations
+ 	\defgroup ringbuf Ring buffer operations
 	\defgroup memheap In memory aggregation and sorting module
 	\defgroup error Error handling
 	\defgroup deprecated Deprecated functions
@@ -957,6 +958,10 @@ process (typically the main writer process).
 The ringbuf supports sharing between multiple writers and readers that can be
 in separate process or separate threads.
 
+#define LNF_RING_FORCE_INIT 0x01
+#define LNF_RING_FORCE_RELEASE 0x02
+#define LNF_RING_NO_BLOCK 0x04
+
 \param **ringp 		double pointer to lnf_ring_t structure
 \param *filename 	pointer to string representing filename of the shared memory segment (eg. libnf-shm)
 \param flags 		additional flags
@@ -965,15 +970,16 @@ in separate process or separate threads.
 	LNF_RING_NO_BLOCK - perform non blocking reading
 \return 			LNF_OK, LNF_ERR_NOMEM, LNF_ERR_OTHER, LNF_ERR_OTHER_MSG
 */
-#define LNF_RING_FORCE_INIT 0x01
-#define LNF_RING_FORCE_RELEASE 0x02
-#define LNF_RING_NO_BLOCK 0x04
 int lnf_ring_init(lnf_ring_t **ringp, char *filename, int flags);
 
 /*!	\ingroup ringbuf
 \brief Get various information about ring buffer internal status
 
 The function returns internal information about ring buffer.
+
+#define LNF_RING_TOTAL 0x01
+#define LNF_RING_LOST  0x02
+#define LNF_RING_STUCK 0x03
 
 \param *ringp 		pointer to lnf_ring_t structure
 \param info 		additional flags
@@ -984,9 +990,6 @@ The function returns internal information about ring buffer.
 \param size			maximum size allocated for *data structure
 \return 			LNF_OK, LNF_ERR_OTHER
 */
-#define LNF_RING_TOTAL 0x01
-#define LNF_RING_LOST  0x02
-#define LNF_RING_STUCK 0x03
 int lnf_ring_info(lnf_ring_t *ring, int info, void *data, size_t size);
 
 /*!	\ingroup ringbuf
