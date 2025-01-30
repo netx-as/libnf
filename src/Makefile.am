@@ -59,5 +59,6 @@ bin_PROGRAMS = libnf-info
 
 libnf_info_SOURCES = libnf-info.c
 #libnf_info_LDADD = -lnf
+libnf_info_DEPENDENCIES = libnf.la
 libnf_info_LDADD = ../src/.libs/libnf.a
 
