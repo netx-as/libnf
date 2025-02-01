@@ -68,6 +68,7 @@ mv $NFDUMP nfdump  || exit 1
 # for version >= 1.6.4
 #(cd nfdump && patch -p1 < ../nfdump-thread-nffile.patch && cd .. ) || exit 1
 (cd nfdump && patch -p1 < ../nfdump-thread-nfx.patch && cd .. ) || exit 1
+(cd nfdump && patch -p1 < ../nfdump-thread-lzo.patch && cd .. ) || exit 1
 if [ ! -f nfdump/README ]; then
 	echo > nfdump/README
 fi

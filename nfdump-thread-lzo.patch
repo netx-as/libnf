@@ -1,0 +1,19 @@
+--- nfdump-1.6.25/bin/nffile.c	2022-10-22 09:53:20.000000000 +0200
++++ nfdump/bin/nffile.c	2025-01-30 15:02:20.689189921 +0100
+@@ -70,7 +70,6 @@
+ #define HEAP_ALLOC(var,size) \
+     lzo_align_t __LZO_MMODEL var [ ((size) + (sizeof(lzo_align_t) - 1)) / sizeof(lzo_align_t) ]
+ 
+-static HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
+ static int lzo_initialized = 0;
+ static int lz4_initialized = 0;
+ static int bz2_initialized = 0;
+@@ -182,6 +181,8 @@
+ 	in  = (unsigned char __LZO_MMODEL *)(nffile->buff_pool[0] + sizeof(data_block_header_t));	
+ 	out = (unsigned char __LZO_MMODEL *)(nffile->buff_pool[1] + sizeof(data_block_header_t));	
+ 	in_len = nffile->block_header->size;
++	
++	HEAP_ALLOC(wrkmem,LZO1X_1_MEM_COMPRESS);
+ 	r = lzo1x_1_compress(in,in_len,out,&out_len,wrkmem);
+ 
+ 	if (r != LZO_E_OK) {
