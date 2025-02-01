@@ -53,7 +53,10 @@ else
 fi
 
 AC_ARG_ENABLE(bz2static,
-[  --enable-bz2static      enable static build of bz2 code; default is YES])
+[  --enable-bz2static      enable static build of bz2 code; default is NO],
+[enable_bz2static=$enableval],  # Assign the user-provided value
+[enable_bz2static=no]           # Default value is "no"
+)
 if test "${enable_bz2static}" = "no" ; then
 	AC_CHECK_HEADERS([bzlib.h])
 	if test "$ac_cv_header_bzlib_h" = no; then

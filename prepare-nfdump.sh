@@ -32,7 +32,7 @@ BZIP2="bzip2-$BZIP2_VERSION"
 BZIP2_MD5="00b516f4704d4a7cb50a1d97e6e8e15b"
 BZIP2_SRC="$BZIP2.tar.gz"
 #BZIP2_URL="http://www.bzip.org/1.0.6/$BZIP2_SRC"
-BZIP2_URL="https://netcologne.dl.sourceforge.net/project/bzip2/$BZIP2_SRC"
+BZIP2_URL="https://sourceware.org/pub/bzip2/$BZIP2_SRC"
 
 
 echo ""
