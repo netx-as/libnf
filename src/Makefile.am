@@ -8,7 +8,7 @@ LDADD = $(DEPS_LIBS)
 #AM_LDFLAGS=-pthread
 
 # https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html#Updating-version-info
-libnf_la_LDFLAGS = -version-info 1:26:0
+libnf_la_LDFLAGS = -version-info 1:34:0
 
 #Add extra debug info for gdb and nfdump includes
 AM_CFLAGS = -ggdb -I$(top_srcdir)/include -I$(top_srcdir)/nfdump/bin -I$(top_srcdir)/src/ffilter

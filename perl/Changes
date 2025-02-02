@@ -1,5 +1,9 @@
 Revision history for C and Perl extension of nfdump.
 
+1.34 2024-01-30
+	- handle properly lzo compression if multiple threads are used for
+	writing
+
 1.32 2023-03-20
 	- added -l flag to 
 	- fixed memory leak when LOOP_READ is used 
