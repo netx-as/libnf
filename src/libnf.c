@@ -792,6 +792,8 @@ begin:
 
 	// changed in 1.6.8 - added exporter info 
 //	ExpandRecord_v2( flow_record, extension_map_list.slot[map_id], master_record);
+
+	lnf_rec_clear(lnf_rec);
 	ExpandRecord_v2(common_record_ptr, lnf_file->extension_map_list->slot[map_id], NULL, lnf_rec->master_record);
 
 	// update number of flows matching a given map
