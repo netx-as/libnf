@@ -801,14 +801,8 @@ begin:
 
 	// Move pointer by number of bytes for netflow record
 	FLOW_RECORD_NEXT(lnf_file->flow_record);	
-/*
-	{
-		char *s;
-		PrintExtensionMap(instance->extension_map_list.slot[map_id]->map);
-		format_file_block_record(master_record, &s, 0);
-		printf("READ: %s\n", s);
-	}
-*/
+
+	//PrintExtensionMap(lnf_file->extension_map_list->slot[map_id]->map);
 
 	// processing map 
 	//bit_array_clear(&lnf_file->extensions_arr);
