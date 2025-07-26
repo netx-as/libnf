@@ -1,5 +1,11 @@
 Revision history for C and Perl extension of nfdump.
 
+1.35 2025-07-26
+	- clear lnf_record before storing the values to overcame problems
+	with filters
+	- fix perl module building issues
+	- fix ringbuffer doxygen comments, thanks to @matejnesuta
+
 1.34 2024-01-30
 	- handle properly lzo compression if multiple threads are used for
 	writing
