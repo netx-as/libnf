@@ -3,14 +3,15 @@ use ExtUtils::MakeMaker;
 $Verbose = 1;
 WriteMakefile(
 	NAME => 'Net::NfDump::libnf',
-    VERSION_FROM => '../lib/Net/NfDump.pm',
+    	VERSION_FROM => '../lib/Net/NfDump.pm',
 #	SKIP => [qw(all static static_lib dynamic dynamic_lib)],
 	INC  => '-I ../libnf/include',
+    	LIBS => [ "-lresolv -lpthread -lbz2" ], # e.g., '-lm'
 	C => [ 
 		'libnf_perl.c',
 		],	
 #	SKIP   => [qw(all static static_lib dynamic dynamic_lib)],
-	SKIP   => [qw(all static pure_all )],
+		#	SKIP   => [qw(all static pure_all )],
 #	CCFLAGS => '-DNSEL=1 -D__SUNPRO_C=1 ', # see note 
 #	CCFLAGS => '-D__SUNPRO_C=1', # see note 
 	clean => { 'FILES' => '*$(LIB_EXT) *$(OBJ_EXT) $(O_FILES)' },
@@ -45,7 +46,7 @@ libnf_perl$(LIB_EXT): $(O_FILES) libnf_perl.c
 #		$(AR) x ../libnf/src/.libs/libnf.a
 		$(CP) ../libnf/src/.libs/*.o .
 		$(CP) ../libnf/src/ffilter/.libs/*.o .
-		$(CP) ../libnf/bzip2/.libs/*.o .
+#		$(CP) ../libnf/bzip2/.libs/*.o .
 		$(AR) cr libnf_perl$(LIB_EXT) *.o
 		$(RANLIB) libnf_perl$(LIB_EXT)
 ';
