@@ -315,8 +315,14 @@ void lnf_filter_free(lnf_filter_t *filter) {
 	/* cleanup V2 filter */
 	if (filter->v2filter) { 	/* nitialised as V2 - lnf pure filter */
 		ff_free(filter->ff_filter);
+	} else {
+		if (filter->engine != NULL) {
+			if (filter->engine->filter != NULL) {
+				free(filter->engine->filter);
+			}
+			free(filter->engine);
+		}
 	}
-
 	free(filter);
 }
 
